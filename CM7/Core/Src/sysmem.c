@@ -20,6 +20,7 @@
  *
  ******************************************************************************
  */
+#if 0
 
 /* Includes */
 #include <errno.h>
@@ -56,3 +57,4 @@ caddr_t _sbrk(int incr)
 	return (caddr_t) prev_heap_end;
 }
 
+#endif
