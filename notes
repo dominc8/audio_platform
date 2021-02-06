@@ -1,0 +1,7 @@
+SRAM3 (32K) not used -> (to be used as shared data?)
+FMC used in demo
+Backup SRAM (4K) not used
+
+For CM7 SRAM4 doesn't normally map, it only has .RAM_D3
+    .RAM_D3 : { *(.RAM_D3) } >IRAM2
+    ! This is audio in buffer explicitly mapped in code

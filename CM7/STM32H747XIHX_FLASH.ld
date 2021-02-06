@@ -44,10 +44,10 @@ _Min_Stack_Size = 0x1000 ; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
-RAM (xrw)      : ORIGIN = 0x24000000, LENGTH = 512K
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K /* Flash1 */
+RAM (xrw)      : ORIGIN = 0x24000000, LENGTH = 512K /* AXI SRAM */
 ITCMRAM (xrw)      : ORIGIN = 0x00000000, LENGTH = 64K
-IRAM2 (xrw)      : ORIGIN = 0x38000000, LENGTH = 64K
+IRAM2 (xrw)      : ORIGIN = 0x38000000, LENGTH = 64K /* SRAM4*/
 }
 
 /* Define output sections */
