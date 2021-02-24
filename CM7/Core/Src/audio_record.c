@@ -32,6 +32,7 @@
 extern AUDIO_ErrorTypeDef AUDIO_Start(uint32_t audio_start_address, uint32_t audio_file_size);
 #define AUDIO_FREQUENCY            16000U
 #define AUDIO_IN_PDM_BUFFER_SIZE  (uint32_t)(128*AUDIO_FREQUENCY/16000*2)
+#define AUDIO_IN_BUFFER_SIZE  (uint32_t)(AUDIO_FREQUENCY*4)
 #define AUDIO_NB_BLOCKS    ((uint32_t)4)
 #define AUDIO_BLOCK_SIZE   ((uint32_t)0xFFFE)
 /* Size of the recorder buffer */
@@ -49,13 +50,12 @@ ALIGN_32BYTES (uint16_t recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE]);
   ALIGN_32BYTES (uint16_t recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE]) __attribute__((section(".RAM_D3")));
 #endif
 static uint32_t AudioFreq[9] = {8000 ,11025, 16000, 22050, 32000, 44100, 48000, 96000, 192000};
-ALIGN_32BYTES (uint16_t  RecPlayback[2*RECORD_BUFFER_SIZE]);
-ALIGN_32BYTES (uint16_t  PlaybackBuffer[2*RECORD_BUFFER_SIZE]);
-uint32_t VolumeLevel = 80;
+ALIGN_32BYTES (uint16_t  AudioBuffer[AUDIO_IN_BUFFER_SIZE]);
+uint32_t VolumeLevel = 100;
 uint32_t  InState = 0;
 uint32_t  OutState = 0;
 uint32_t *AudioFreq_ptr;
-uint16_t playbackBuf[RECORD_BUFFER_SIZE*2];
+// uint16_t playbackBuf[RECORD_BUFFER_SIZE*2];
 BSP_AUDIO_Init_t  AudioInInit;
 BSP_AUDIO_Init_t  AudioOutInit;
 /* Pointer to record_data */
@@ -100,37 +100,34 @@ void AudioRecord_demo(void)
   GUI_DrawRect(10, 100, x_size - 20, y_size - 110, GUI_COLOR_BLUE);
   GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
 
-  AudioFreq_ptr = AudioFreq+2; /* AUDIO_FREQUENCY_16K; */
 
   AudioOutInit.Device = AUDIO_OUT_DEVICE_AUTO;
   AudioOutInit.ChannelsNbr = channel_nbr;
-  AudioOutInit.SampleRate = *AudioFreq_ptr;
+  AudioOutInit.SampleRate = AUDIO_FREQUENCY;
   AudioOutInit.BitsPerSample = AUDIO_RESOLUTION_16B;
   AudioOutInit.Volume = VolumeLevel;
 
-  AudioInInit.Device = AUDIO_IN_DEVICE_DIGITAL_MIC;
+  AudioInInit.Device = AUDIO_IN_DEVICE_ANALOG_MIC;
   AudioInInit.ChannelsNbr = channel_nbr;
-  AudioInInit.SampleRate = *AudioFreq_ptr;
+  AudioInInit.SampleRate = AUDIO_FREQUENCY;
   AudioInInit.BitsPerSample = AUDIO_RESOLUTION_16B;
   AudioInInit.Volume = VolumeLevel;
 
   BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
 
   /* Initialize Audio Recorder with 2 channels to be used */
-  BSP_AUDIO_IN_Init(1, &AudioInInit);
-  BSP_AUDIO_IN_GetState(1, &InState);
+  BSP_AUDIO_IN_Init(0, &AudioInInit);
+  BSP_AUDIO_IN_GetState(0, &InState);
 
-  BSP_AUDIO_OUT_Init(0, &AudioOutInit);
+  //BSP_AUDIO_OUT_Init(0, &AudioOutInit);
 
-  BSP_AUDIO_OUT_SetDevice(0, AUDIO_OUT_DEVICE_HEADPHONE);
+  //BSP_AUDIO_OUT_SetDevice(0, AUDIO_OUT_DEVICE_HEADPHONE);
 
   /* Start Recording */
   GUI_DisplayStringAt(0, 190, (uint8_t *)"Start Recording ", CENTER_MODE);
-  BSP_AUDIO_IN_RecordPDM(1, (uint8_t*)&recordPDMBuf, 2*AUDIO_IN_PDM_BUFFER_SIZE);
+  //BSP_AUDIO_IN_RecordPDM(1, (uint8_t*)&recordPDMBuf, 2*AUDIO_IN_PDM_BUFFER_SIZE);
+  BSP_AUDIO_IN_Record(0, &AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2);
 
-  /* Play the recorded buffer*/
-  GUI_DisplayStringAt(0, 220, (uint8_t *)"Play the recorded buffer... ", CENTER_MODE);
-  BSP_AUDIO_OUT_Play(0, (uint8_t*)&RecPlayback[0], 2*RECORD_BUFFER_SIZE);
   while (1)
   {
     if (CheckForUserInput() > 0)
@@ -138,8 +135,26 @@ void AudioRecord_demo(void)
       ButtonState = 0;
       BSP_AUDIO_OUT_Stop(0);
       BSP_AUDIO_OUT_DeInit(0);
-      BSP_AUDIO_IN_Stop(1);
-      BSP_AUDIO_IN_DeInit(1);
+      BSP_AUDIO_IN_Stop(0);
+      BSP_AUDIO_IN_DeInit(0);
+      break;
+    }
+  }
+  BSP_AUDIO_OUT_Init(0, &AudioOutInit);
+
+  BSP_AUDIO_OUT_SetDevice(0, AUDIO_OUT_DEVICE_HEADPHONE);
+
+  GUI_DisplayStringAt(0, 220, (uint8_t *)"Play the recorded buffer... ", CENTER_MODE);
+  BSP_AUDIO_OUT_Play(0, (uint8_t*)&AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2);
+  while (1)
+  {
+    if (CheckForUserInput() > 0)
+    {
+      ButtonState = 0;
+      BSP_AUDIO_OUT_Stop(0);
+      BSP_AUDIO_OUT_DeInit(0);
+      BSP_AUDIO_IN_Stop(0);
+      BSP_AUDIO_IN_DeInit(0);
       return;
     }
   }
@@ -155,6 +170,7 @@ void  BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
     if(Instance == 1U)
   {
     /* Invalidate Data Cache to get the updated content of the SRAM*/
+#if 0
     SCB_InvalidateDCache_by_Addr((uint32_t *)&recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE/2], AUDIO_IN_PDM_BUFFER_SIZE*2);
 
     BSP_AUDIO_IN_PDMToPCM(Instance, (uint16_t*)&recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE/2], &RecPlayback[playbackPtr]);
@@ -165,6 +181,7 @@ void  BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
     playbackPtr += AUDIO_IN_PDM_BUFFER_SIZE/4/2;
     if(playbackPtr >= RECORD_BUFFER_SIZE)
       playbackPtr = 0;
+#endif
   }
   else
   {
@@ -182,6 +199,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
 {
     if(Instance == 1U)
   {
+#if 0
     /* Invalidate Data Cache to get the updated content of the SRAM*/
     SCB_InvalidateDCache_by_Addr((uint32_t *)&recordPDMBuf[0], AUDIO_IN_PDM_BUFFER_SIZE*2);
 
@@ -195,6 +213,7 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
     {
       playbackPtr = 0;
     }
+#endif
   }
   else
   {

@@ -5,3 +5,68 @@ Backup SRAM (4K) not used
 For CM7 SRAM4 doesn't normally map, it only has .RAM_D3
     .RAM_D3 : { *(.RAM_D3) } >IRAM2
     ! This is audio in buffer explicitly mapped in code
+
+
+Cache tips:
+After reset, the user must invalidate each cache before enabling it, otherwise an UNPREDICTIBLE behaviorcan occur.
+When disabling the data cache, the user must clean the entire cache to ensure that any dirty data is flushedto the external memory.
+Before enabling the data cache, the user must invalidate the entire data cache if the external memory mighthave changed since the cache was disabled.
+Before enabling the instruction cache, the user must invalidate the entire instruction cache if the externalmemory might have changed since the cache was disabled.
+If the software is using cacheable memory regions for the DMA source/or destination buffers. The software must trigger a cache clean before starting a DMA operation to ensure that all the data are committed to thesubsystem memory. After the DMA transfer complete, when reading the data from the peripheral, thesoftware must perform a cache invalidate before reading the DMA updated memory region.
+Always better to use non-cacheable regions for DMA buffers. The software can use the MPU to set up anon-cacheable memory block to use as a shared memory between the CPU and DMA.
+Do not enable cache for the memory that is being used extensively for a DMA operation.
+When using the ART accelerator, the CPU can read an instruction in just 1 clock from the internal Flashmemory (like 0-wait state). So I-cache cannot be used for the internal Flash memory.
+When using NOR Flash, the write-back causes problems because the erase and write commands are notsent to this external Flash memory.
+If the connected device is a normal memory, a D-cache read is useful. However, If the external device is anASIC and/or a FIFO, the user must disable the D-cache for reading.
+
+SCB_Enable : invalidate -> enable
+SCB_Disable : disable -> (clean for data) -> invalidate
+SCB_Invalidate : invalidate
+SCB_Clean : clean/flush
+SCB_CleanInvalidate : clean -> invalidate
+
+clean = flush
+invalidate = delete
+
+
+audio:
+
+
+input pga enable:
+R2 (0002h), bits 6, 4
+	(vmid_sel i bias_ena tez wlaczone) vmid_buf_ena jak jest single-ended
+
+mixer:
+R40(0028h), bits 
+0 0 0 in1ln 0 0 0 in1rn
+0 0 0 1 0 0 0 1 -> single-ended
+
+glosnosc:
+R24 0018h in1l
+R26 001Ah in1r
+trigger_update | mute_en | changegainat0cross | x |vol[4:0] 
+
+mixer enable:
+R2 (0002h)
+9b=mixinlena, 8b=mixinrena
+
+input mixers
+R41: 00x11x000?
+R42
+
+ADC
+R4, bits 0-1 ena
+
+
+AIF1:
+R1542(606h): [1:0] = 10
+R1543: [1:0] = 10
+R1544: [1:0] = 00
+R1545: [1:0] = 00
+
+
+
+dane powinny isc chyba po sai1_sdb od wm do mcu (adc_dat1)
+Audio_INT -> Pin B10, Port GPIO PJ15
+
+
