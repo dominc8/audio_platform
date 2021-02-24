@@ -346,6 +346,8 @@ extern AUDIO_IN_Ctx_t                         Audio_In_Ctx[];
 int32_t BSP_AUDIO_OUT_Init(uint32_t Instance, BSP_AUDIO_Init_t* AudioInit);
 int32_t BSP_AUDIO_OUT_DeInit(uint32_t Instance);
 
+void BSP_AUDIO_IN_OUT_Init();
+
 #if (USE_HAL_SAI_REGISTER_CALLBACKS == 1U)
 int32_t BSP_AUDIO_OUT_RegisterMspCallbacks (uint32_t Instance, BSP_AUDIO_OUT_Cb_t *CallBacks);
 int32_t BSP_AUDIO_OUT_RegisterDefaultMspCallbacks (uint32_t Instance);

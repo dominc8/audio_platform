@@ -49,12 +49,11 @@ ALIGN_32BYTES (uint16_t recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE]);
 #elif defined ( __GNUC__ )  /* !< GNU Compiler */
   ALIGN_32BYTES (uint16_t recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE]) __attribute__((section(".RAM_D3")));
 #endif
-static uint32_t AudioFreq[9] = {8000 ,11025, 16000, 22050, 32000, 44100, 48000, 96000, 192000};
 ALIGN_32BYTES (uint16_t  AudioBuffer[AUDIO_IN_BUFFER_SIZE]);
+ALIGN_32BYTES (uint16_t  testBuffer[32]);
 uint32_t VolumeLevel = 100;
 uint32_t  InState = 0;
 uint32_t  OutState = 0;
-uint32_t *AudioFreq_ptr;
 // uint16_t playbackBuf[RECORD_BUFFER_SIZE*2];
 BSP_AUDIO_Init_t  AudioInInit;
 BSP_AUDIO_Init_t  AudioOutInit;
@@ -76,6 +75,7 @@ typedef enum {
   * @param  None
   * @retval None
 */
+volatile retvals[5] = {0};
 void AudioRecord_demo(void)
 {
    uint32_t channel_nbr = 2;
@@ -114,10 +114,11 @@ void AudioRecord_demo(void)
   AudioInInit.Volume = VolumeLevel;
 
   BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
+  BSP_AUDIO_IN_OUT_Init();
 
   /* Initialize Audio Recorder with 2 channels to be used */
-  BSP_AUDIO_IN_Init(0, &AudioInInit);
-  BSP_AUDIO_IN_GetState(0, &InState);
+  // BSP_AUDIO_IN_Init(0, &AudioInInit);
+  // BSP_AUDIO_IN_GetState(0, &InState);
 
   //BSP_AUDIO_OUT_Init(0, &AudioOutInit);
 
@@ -126,7 +127,18 @@ void AudioRecord_demo(void)
   /* Start Recording */
   GUI_DisplayStringAt(0, 190, (uint8_t *)"Start Recording ", CENTER_MODE);
   //BSP_AUDIO_IN_RecordPDM(1, (uint8_t*)&recordPDMBuf, 2*AUDIO_IN_PDM_BUFFER_SIZE);
-  BSP_AUDIO_IN_Record(0, &AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2);
+  if (BSP_AUDIO_IN_Record(0, (uint8_t*)&AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2))
+  {
+      GUI_DisplayStringAt(0, 240, (uint8_t *)"Record error!", CENTER_MODE);
+  }
+  // BSP_AUDIO_OUT_SetDevice(0, AUDIO_OUT_DEVICE_HEADPHONE);
+
+  // memset(&testBuffer[0], 0x8a, 32*2);
+  //if (BSP_AUDIO_OUT_Play(0, (uint8_t*)&testBuffer[0], 32*2))
+  if (BSP_AUDIO_OUT_Play(0, (uint8_t*)&AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2))
+  {
+      GUI_DisplayStringAt(0, 260, (uint8_t *)"Play error!", CENTER_MODE);
+  }
 
   while (1)
   {

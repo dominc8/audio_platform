@@ -317,11 +317,15 @@ void BSP_PB_Callback(Button_TypeDef Button)
   */
 void Error_Handler(void)
 {
-  /* Turn LED REDon */
-  BSP_LED_On(LED_RED);
-  while(1)
-  {
-  }
+    /* Turn LED REDon */
+    volatile int32_t i = 0;
+    while(1)
+    {
+        for(i = 0; i < 1000000; ++i) {}
+        BSP_LED_On(LED_RED);
+        for(i = 0; i < 1000000; ++i) {}
+        BSP_LED_Off(LED_RED);
+    }
 }
 
 #ifdef USE_FULL_ASSERT

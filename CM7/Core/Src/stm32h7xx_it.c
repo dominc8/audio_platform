@@ -202,16 +202,16 @@ void EXTI15_10_IRQHandler(void)
   * @param  None
   * @retval None
   */
-void AUDIO_IN_SAIx_DMAx_IRQHandler()
+void DMA2_Stream4_IRQHandler(void)
 {
-  BSP_AUDIO_IN_IRQHandler(0,AUDIO_IN_DEVICE_DIGITAL_MIC);
+  BSP_AUDIO_IN_IRQHandler(0, AUDIO_IN_DEVICE_ANALOG_MIC);
 }
 /**
   * @brief  This function handles DMA2 Stream 1 interrupt request.
   * @param  None
   * @retval None
   */
-void AUDIO_OUT_SAIx_DMAx_IRQHandler(void)
+void DMA2_Stream1_IRQHandler(void)
 {
   BSP_AUDIO_OUT_IRQHandler(0);
 }

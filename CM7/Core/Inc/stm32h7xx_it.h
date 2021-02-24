@@ -49,13 +49,13 @@ void DMA2_Stream6_IRQHandler(void);
 void DMA2D_IRQHandler(void);
 void BSP_LCD_LTDC_IRQHandler(void);
 void BSP_LCD_LTDC_ER_IRQHandler(void);
-void AUDIO_OUT_SAIx_DMAx_IRQHandler(void);
+void DMA2_Stream1_IRQHandler(void);
 void AUDIO_IN_SAI_PDMx_DMAx_IRQHandler(void);
 void MDMA_IRQHandler(void);
 void SDMMC1_IRQHandler(void);
 void DCMI_IRQHandler(void);
 void DMA2_Stream3_IRQHandler(void);
-void AUDIO_IN_SAIx_DMAx_IRQHandler(void);
+void DMA2_Stream4_IRQHandler(void);
 #ifdef __cplusplus
 }
 #endif
