@@ -1486,7 +1486,7 @@ void SAI1_Init()
 
     haudio_out_sai.Init.AudioFrequency          = 16000;
     haudio_out_sai.Init.AudioMode               = SAI_MODEMASTER_TX;
-    haudio_out_sai.Init.ClockStrobing           = SAI_CLOCKSTROBING_FALLINGEDGE;
+    haudio_out_sai.Init.ClockStrobing           = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_out_sai.Init.CompandingMode          = SAI_NOCOMPANDING;
     haudio_out_sai.Init.DataSize                = SAI_DATASIZE_16;
     haudio_out_sai.Init.FIFOThreshold           = SAI_FIFOTHRESHOLD_1QF;
@@ -1520,7 +1520,7 @@ void SAI1_Init()
 
     haudio_in_sai.Init.AudioFrequency = 16000;
     haudio_in_sai.Init.AudioMode = SAI_MODESLAVE_RX;
-    haudio_in_sai.Init.ClockStrobing = SAI_CLOCKSTROBING_FALLINGEDGE;
+    haudio_in_sai.Init.ClockStrobing = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_in_sai.Init.CompandingMode = SAI_NOCOMPANDING;
     haudio_in_sai.Init.DataSize = SAI_DATASIZE_16;
     haudio_in_sai.Init.FIFOThreshold = SAI_FIFOTHRESHOLD_1QF;

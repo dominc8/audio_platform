@@ -32,7 +32,7 @@
 extern AUDIO_ErrorTypeDef AUDIO_Start(uint32_t audio_start_address, uint32_t audio_file_size);
 #define AUDIO_FREQUENCY            16000U
 #define AUDIO_IN_PDM_BUFFER_SIZE  (uint32_t)(128*AUDIO_FREQUENCY/16000*2)
-#define AUDIO_IN_BUFFER_SIZE  (uint32_t)(AUDIO_FREQUENCY*4)
+#define AUDIO_IN_BUFFER_SIZE  (uint32_t)(256)
 #define AUDIO_NB_BLOCKS    ((uint32_t)4)
 #define AUDIO_BLOCK_SIZE   ((uint32_t)0xFFFE)
 /* Size of the recorder buffer */
@@ -50,6 +50,7 @@ ALIGN_32BYTES (uint16_t recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE]);
   ALIGN_32BYTES (uint16_t recordPDMBuf[AUDIO_IN_PDM_BUFFER_SIZE]) __attribute__((section(".RAM_D3")));
 #endif
 ALIGN_32BYTES (uint16_t  AudioBuffer[AUDIO_IN_BUFFER_SIZE]);
+ALIGN_32BYTES (uint16_t  AudioBuffer2[AUDIO_IN_BUFFER_SIZE]);
 ALIGN_32BYTES (uint16_t  testBuffer[32]);
 uint32_t VolumeLevel = 100;
 uint32_t  InState = 0;
@@ -135,7 +136,7 @@ void AudioRecord_demo(void)
 
   // memset(&testBuffer[0], 0x8a, 32*2);
   //if (BSP_AUDIO_OUT_Play(0, (uint8_t*)&testBuffer[0], 32*2))
-  if (BSP_AUDIO_OUT_Play(0, (uint8_t*)&AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2))
+  if (BSP_AUDIO_OUT_Play(0, (uint8_t*)&AudioBuffer2[0], AUDIO_IN_BUFFER_SIZE*2))
   {
       GUI_DisplayStringAt(0, 260, (uint8_t *)"Play error!", CENTER_MODE);
   }
@@ -179,6 +180,11 @@ void AudioRecord_demo(void)
   */
 void  BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
 {
+    SCB_InvalidateDCache_by_Addr((uint32_t *)&AudioBuffer[AUDIO_IN_BUFFER_SIZE/2], AUDIO_IN_BUFFER_SIZE*2/2);
+
+    memcpy(&AudioBuffer2[AUDIO_IN_BUFFER_SIZE/2], &AudioBuffer[AUDIO_IN_BUFFER_SIZE/2], AUDIO_IN_BUFFER_SIZE*2/2);
+
+    SCB_CleanDCache_by_Addr((uint32_t*)&AudioBuffer2[AUDIO_IN_BUFFER_SIZE/2], AUDIO_IN_BUFFER_SIZE*2/2);
     if(Instance == 1U)
   {
     /* Invalidate Data Cache to get the updated content of the SRAM*/
@@ -209,6 +215,11 @@ void  BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
   */
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
 {
+    SCB_InvalidateDCache_by_Addr((uint32_t *)&AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2/2);
+
+    memcpy(&AudioBuffer2[0], &AudioBuffer[0], AUDIO_IN_BUFFER_SIZE*2/2);
+
+    SCB_CleanDCache_by_Addr((uint32_t*)&AudioBuffer2[0], AUDIO_IN_BUFFER_SIZE*2/2);
     if(Instance == 1U)
   {
 #if 0
