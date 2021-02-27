@@ -10,9 +10,11 @@
 ALIGN_32BYTES(static uint16_t audio_buffer_in[AUDIO_BLOCK_SIZE]);
 ALIGN_32BYTES(static uint16_t audio_buffer_out[AUDIO_BUFFER_SIZE]);
 static int32_t buf_out_idx = 0;
+volatile static int32_t new_data_flag = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static void setup_gui(void);
+static void display_data(void);
 
 /*----------------------------------------------------------------------------*/
 void analog_inout_demo(void)
@@ -22,15 +24,16 @@ void analog_inout_demo(void)
     BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
     BSP_AUDIO_IN_OUT_Init();
 
-    GUI_DisplayStringAt(0, 190, (uint8_t*) "Start Recording ", CENTER_MODE);
+    GUI_DisplayStringAt(0, 40, (uint8_t*) "Start Demo", CENTER_MODE);
+
     if (BSP_AUDIO_IN_Record(0, (uint8_t*) &audio_buffer_in[0], sizeof(audio_buffer_in)))
     {
-        GUI_DisplayStringAt(0, 240, (uint8_t*) "Record error!", CENTER_MODE);
+        GUI_DisplayStringAt(0, 60, (uint8_t*) "Record error!", CENTER_MODE);
     }
 
     if (BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out)))
     {
-        GUI_DisplayStringAt(0, 260, (uint8_t*) "Play error!", CENTER_MODE);
+        GUI_DisplayStringAt(0, 70, (uint8_t*) "Play error!", CENTER_MODE);
     }
 
     while (1)
@@ -43,6 +46,14 @@ void analog_inout_demo(void)
             BSP_AUDIO_IN_Stop(0);
             BSP_AUDIO_IN_DeInit(0);
             break;
+        }
+        else
+        {
+            if(new_data_flag > 0)
+            {
+                display_data();
+                new_data_flag = 0;
+            }
         }
     }
 }
@@ -74,12 +85,16 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
 
     buf_out_idx += AUDIO_BLOCK_SIZE/2;
     buf_out_idx %= AUDIO_BUFFER_SIZE;
+    if (buf_out_idx == 0)
+        ++new_data_flag;
 }
 
 void BSP_AUDIO_IN_Error_CallBack(uint32_t Instance)
 {
     Error_Handler();
 }
+
+/* Private functions ---------------------------------------------------------*/
 
 static void setup_gui(void)
 {
@@ -99,4 +114,43 @@ static void setup_gui(void)
 
     GUI_DrawRect(10, 100, x_size - 20, y_size - 110, GUI_COLOR_BLUE);
     GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
+}
+
+static void display_data(void)
+{
+    const int32_t group_size = 4;
+    const int32_t n_channels = 2;
+    const int32_t n_groups = AUDIO_BUFFER_SIZE/(group_size * n_channels);
+    const int32_t x0 = 20;
+    const int32_t dx = 10;
+    const int32_t y_left = 150;
+    const int32_t y_right = 300;
+    const int32_t ymax = 128;
+
+
+    for (int32_t i = 0; i < n_groups; ++i)
+    {
+        int32_t val_left = 0;
+        int32_t val_right = 0;
+        int32_t idx = i*group_size;;
+        for (int32_t j = 0; j < group_size; ++j)
+        {
+            val_left += (int16_t)audio_buffer_out[idx];
+            val_right += (int16_t)audio_buffer_out[idx+1];
+            idx += n_channels;
+        }
+        if (val_left < 0)
+            val_left = 0;
+        else
+            val_left = (val_left*ymax) >> 13;
+        if (val_right < 0)
+            val_right = 0;
+        else
+            val_right = (val_right*ymax) >> 13;
+
+        GUI_FillRect(x0+i*dx, y_left, dx, val_left, GUI_COLOR_GREEN);
+        GUI_FillRect(x0+i*dx, y_left+val_left, dx, ymax-val_left, GUI_COLOR_WHITE);
+        GUI_FillRect(x0+i*dx, y_right, dx, val_right, GUI_COLOR_GREEN);
+        GUI_FillRect(x0+i*dx, y_right+val_right, dx, ymax-val_right, GUI_COLOR_WHITE);
+    }
 }
