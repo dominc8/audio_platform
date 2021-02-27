@@ -44,8 +44,9 @@ _Min_Stack_Size = 0x400 ; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x08100000, LENGTH = 1024K /* Flash2 */
-RAM (xrw)      : ORIGIN = 0x10000000, LENGTH = 256K /* SRAM1 + SRAM2 (128K + 128K) */
+FLASH (rx)          : ORIGIN = 0x08100000, LENGTH = 1024K /* Flash2 */
+RAM (xrw)           : ORIGIN = 0x10000000, LENGTH = 256K /* SRAM1 + SRAM2 (128K + 128K) */
+SRAM3 (xrw)         : ORIGIN = 0x30040000, LENGTH = 32K /* SRAM3 */
 }
 
 /* Define output sections */
@@ -167,6 +168,7 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
+  .RAM3_SHARED : { *(.RAM3_SHARED) } >SRAM3
 }
 
 

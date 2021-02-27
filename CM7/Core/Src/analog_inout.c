@@ -1,5 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "shared_data.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)128)
@@ -35,6 +36,8 @@ void analog_inout_demo(void)
     {
         GUI_DisplayStringAt(0, 70, (uint8_t*) "Play error!", CENTER_MODE);
     }
+
+    GUI_DisplayStringAt(0, 70, (uint8_t *)&shared_audio_data[0], LEFT_MODE);
 
     while (1)
     {

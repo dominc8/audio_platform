@@ -1,6 +1,8 @@
 #include "main.h"
+#include "shared_data.h"
 
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
+#define HSEM_DATA (1U) /* HW semaphore for signaling new data */
 
 int main(void)
 {
@@ -9,6 +11,7 @@ int main(void)
   __HAL_RCC_HSEM_CLK_ENABLE();
   /* Activate HSEM notification for Cortex-M4*/
   HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_ID_0));
+
   /*
   Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for Cortex-M7 to
   perform system initialization (system clock config, external memory configuration.. )
@@ -23,6 +26,12 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
+  for (int32_t i = 0; i < SHARED_AUDIO_DATA_SIZE; ++i)
+  {
+      shared_audio_data[i] = (' ' << 8) + (i % ('z' - 'a' + 1)) + 'a';
+  }
+  shared_audio_data[SHARED_AUDIO_DATA_SIZE - 1] = '\0';
 
   while (1)
   {
