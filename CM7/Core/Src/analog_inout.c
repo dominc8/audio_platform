@@ -116,6 +116,16 @@ static void setup_gui(void)
     GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
 }
 
+static inline int32_t limit_val(int32_t val, int32_t val_max)
+{
+    if (val < 0)
+        return 0;
+    else if (val > val_max)
+        return val_max;
+    else
+        return val;
+}
+
 static void display_data(void)
 {
     const int32_t group_size = 4;
@@ -126,6 +136,8 @@ static void display_data(void)
     const int32_t y_left = 150;
     const int32_t y_right = 300;
     const int32_t ymax = 128;
+    const int32_t ymax_shift = 7;
+    const int32_t val_shift = 13 - ymax_shift; // theoretically should be 16..18 - ymax_shift
 
 
     for (int32_t i = 0; i < n_groups; ++i)
@@ -139,18 +151,12 @@ static void display_data(void)
             val_right += (int16_t)audio_buffer_out[idx+1];
             idx += n_channels;
         }
-        if (val_left < 0)
-            val_left = 0;
-        else
-            val_left = (val_left*ymax) >> 13;
-        if (val_right < 0)
-            val_right = 0;
-        else
-            val_right = (val_right*ymax) >> 13;
+        val_left = limit_val(val_left>>(val_shift), ymax);
+        val_right = limit_val(val_right>>(val_shift), ymax);
 
-        GUI_FillRect(x0+i*dx, y_left, dx, val_left, GUI_COLOR_GREEN);
-        GUI_FillRect(x0+i*dx, y_left+val_left, dx, ymax-val_left, GUI_COLOR_WHITE);
-        GUI_FillRect(x0+i*dx, y_right, dx, val_right, GUI_COLOR_GREEN);
-        GUI_FillRect(x0+i*dx, y_right+val_right, dx, ymax-val_right, GUI_COLOR_WHITE);
+        GUI_FillRect(x0+i*dx, y_left+ymax-val_left, dx, val_left, GUI_COLOR_GREEN);
+        GUI_FillRect(x0+i*dx, y_left, dx, ymax-val_left, GUI_COLOR_WHITE);
+        GUI_FillRect(x0+i*dx, y_right+ymax-val_right, dx, val_right, GUI_COLOR_GREEN);
+        GUI_FillRect(x0+i*dx, y_right, dx, ymax-val_right, GUI_COLOR_WHITE);
     }
 }
