@@ -126,7 +126,7 @@ void Error_Handler(void);
 void SDRAM_demo(void);
 void SDRAM_DMA_demo (void);
 void AudioPlay_demo (void);
-void AudioRecord_demo(void);
+void analog_inout_demo(void);
 uint8_t AUDIO_Process(void);
 void QSPI_demo (void);
 uint8_t CheckForUserInput(void);

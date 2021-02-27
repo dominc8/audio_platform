@@ -1508,9 +1508,9 @@ void SAI1_Init()
     haudio_out_sai.FrameInit.FrameLength        = 64;
 
     haudio_out_sai.SlotInit.FirstBitOffset      = 0;
-    haudio_out_sai.SlotInit.SlotActive          = CODEC_AUDIOFRAME_SLOT_02; // ???????
+    haudio_out_sai.SlotInit.SlotActive          = CODEC_AUDIOFRAME_SLOT_02;
     haudio_out_sai.SlotInit.SlotNumber          = 4;
-    haudio_out_sai.SlotInit.SlotSize            = SAI_SLOTSIZE_DATASIZE; // ????????
+    haudio_out_sai.SlotInit.SlotSize            = SAI_SLOTSIZE_DATASIZE;
 
     HAL_SAI_Init(&haudio_out_sai);
 

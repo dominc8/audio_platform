@@ -68,8 +68,8 @@ BSP_DemoTypedef BSP_examples[]=
   //{Touchscreen_demo2, "TOUCHSCREEN DEMO2", 0},
   //{LCD_demo, "LCD", 0},
   //{Camera_demo, "CAMERA", 0},
-  {AudioRecord_demo, "AUDIO RECORD", 0},
-  {AudioPlay_demo, "AUDIO PLAY", 0},
+  {analog_inout_demo, "Analog inout", 0},
+  //{AudioPlay_demo, "AUDIO PLAY", 0},
   {SDRAM_demo, "SDRAM", 0},
   {SDRAM_DMA_demo, "SDRAM MDMA", 0},
 
