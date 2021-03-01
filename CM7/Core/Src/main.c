@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "shared_data.h"
 #include "stlogo.h"
 
 /** @addtogroup STM32H7xx_HAL_Examples
@@ -136,36 +137,19 @@ int main(void)
         Error_Handler();
     }
 
-    /* Configure the Wakeup push-button in EXTI Mode */
-    BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_EXTI);
-    BSP_LED_Init(LED1);
-    BSP_LED_Init(LED2);
-    BSP_LED_Init(LED3);
-    BSP_LED_Init(LED4);
-    /*##-1- Initialize the LCD #################################################*/
-    /* Initialize the LCD */
-    BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
-    GUI_SetFuncDriver(&LCD_Driver);
-    GUI_SetFont(&GUI_DEFAULT_FONT);
-    Display_DemoDescription();
-    /* Wait For User inputs */
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
+    HAL_NVIC_SetPriority(HSEM1_IRQn, 5, 0);
+    HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
+    HAL_NVIC_EnableIRQ(HSEM1_IRQn);
+    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
+
+
     while (1)
     {
-        if (ButtonState == 1)
+        while (start_audio != 1)
         {
-            HAL_Delay(400);
-            ButtonState = 0;
-            BSP_examples[DemoIndex++].DemoFunc();
-
-            HAL_Delay(100);
-
-            if (DemoIndex >= COUNT_OF_EXAMPLE(BSP_examples))
-            {
-                NbLoop++;
-                DemoIndex = 0;
-            }
-            Display_DemoDescription();
         }
+        analog_inout_demo();
     }
 
 }
@@ -430,6 +414,17 @@ static void CPU_CACHE_Enable(void)
     SCB_EnableDCache();
 }
 
+void HAL_HSEM_FreeCallback(uint32_t SemMask)
+{
+    if (SemMask & __HAL_HSEM_SEMID_TO_MASK(HSEM_DATA))
+    {
+        start_audio = start_audio == 1 ? 0 : 1;
+        __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
+        HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
+        HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
+    }
+
+}
 /**
  * @}
  */

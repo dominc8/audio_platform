@@ -49,3 +49,13 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();
 }
+
+/**
+  * @brief  This function handles External lines 15 to 10 interrupt request.
+  * @param  None
+  * @retval None
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  BSP_PB_IRQHandler(BUTTON_WAKEUP);
+}

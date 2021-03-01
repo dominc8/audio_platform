@@ -44,7 +44,6 @@ void EXTI2_IRQHandler(void);
 void EXTI3_IRQHandler(void);
 void EXTI4_IRQHandler(void);
 void EXTI9_5_IRQHandler(void);
-void EXTI15_10_IRQHandler(void);
 void DMA2_Stream6_IRQHandler(void);
 void DMA2D_IRQHandler(void);
 void BSP_LCD_LTDC_IRQHandler(void);
@@ -56,6 +55,8 @@ void SDMMC1_IRQHandler(void);
 void DCMI_IRQHandler(void);
 void DMA2_Stream3_IRQHandler(void);
 void DMA2_Stream4_IRQHandler(void);
+void HSEM1_IRQHandler(void);
+void HSEM2_IRQHandler(void);
 #ifdef __cplusplus
 }
 #endif

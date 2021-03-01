@@ -188,16 +188,6 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /**
-  * @brief  This function handles External lines 15 to 10 interrupt request.
-  * @param  None
-  * @retval None
-  */
-void EXTI15_10_IRQHandler(void)
-{
-  BSP_PB_IRQHandler(BUTTON_WAKEUP);
-}
-
-/**
   * @brief  This function handles SAI DMA interrupt request.
   * @param  None
   * @retval None
@@ -265,12 +255,14 @@ void DMA2_Stream3_IRQHandler(void)
   BSP_CAMERA_DMA_IRQHandler(0);
 }
 
-/**
-  * @}
-  */
+void HSEM1_IRQHandler(void)
+{
+    HAL_HSEM_IRQHandler();
+}
 
-/**
-  * @}
-  */
+void HSEM2_IRQHandler(void)
+{
+    // HAL_HSEM_IRQHandler();
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
