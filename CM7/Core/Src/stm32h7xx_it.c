@@ -255,12 +255,14 @@ void DMA2_Stream3_IRQHandler(void)
   BSP_CAMERA_DMA_IRQHandler(0);
 }
 
-/**
-  * @}
-  */
+void HSEM1_IRQHandler(void)
+{
+    HAL_HSEM_IRQHandler();
+}
 
-/**
-  * @}
-  */
+void HSEM2_IRQHandler(void)
+{
+    // HAL_HSEM_IRQHandler();
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
