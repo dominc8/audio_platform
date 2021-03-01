@@ -40,5 +40,10 @@
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers</locationURI>
 		</link>
+		<link>
+			<name>Utilities</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Utilities</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

@@ -136,6 +136,10 @@ int main(void)
         Error_Handler();
     }
 
+    while (1)
+    {
+    }
+
     /* Configure the Wakeup push-button in EXTI Mode */
     BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_EXTI);
     BSP_LED_Init(LED1);

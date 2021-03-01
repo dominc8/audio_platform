@@ -1,8 +1,9 @@
 /**
   ******************************************************************************
-  * @file    BSP/CM7/Inc/stm32h7xx_it.h
+  * @file    ft6x06_conf.h
   * @author  MCD Application Team
-  * @brief   This file contains the headers of the interrupt handlers for Cortex-M7.
+  * @brief   This file contains specific configuration for the
+  *          ft6x06.c that can be modified by user.
   ******************************************************************************
   * @attention
   *
@@ -18,47 +19,24 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32H7xx_IT_H
-#define __STM32H7xx_IT_H
+#ifndef FT6X06_CONF_H
+#define FT6X06_CONF_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+/* Macros --------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
+#define FT6X06_AUTO_CALIBRATION_ENABLED      0U
+#define FT6X06_MAX_X_LENGTH                  800U
+#define FT6X06_MAX_Y_LENGTH                  480U
 
-void NMI_Handler(void);
-void HardFault_Handler(void);
-void MemManage_Handler(void);
-void BusFault_Handler(void);
-void UsageFault_Handler(void);
-void SVC_Handler(void);
-void DebugMon_Handler(void);
-void PendSV_Handler(void);
-void SysTick_Handler(void);
-void EXTI2_IRQHandler(void);
-void EXTI3_IRQHandler(void);
-void EXTI4_IRQHandler(void);
-void EXTI9_5_IRQHandler(void);
-void DMA2_Stream6_IRQHandler(void);
-void DMA2D_IRQHandler(void);
-void BSP_LCD_LTDC_IRQHandler(void);
-void BSP_LCD_LTDC_ER_IRQHandler(void);
-void DMA2_Stream1_IRQHandler(void);
-void AUDIO_IN_SAI_PDMx_DMAx_IRQHandler(void);
-void MDMA_IRQHandler(void);
-void SDMMC1_IRQHandler(void);
-void DCMI_IRQHandler(void);
-void DMA2_Stream3_IRQHandler(void);
-void DMA2_Stream4_IRQHandler(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __STM32H7xx_IT_H */
+#endif /* FT6X06_CONF_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

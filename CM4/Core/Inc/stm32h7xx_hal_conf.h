@@ -23,8 +23,8 @@
 /* #define HAL_DCMI_MODULE_ENABLED   */
 /* #define HAL_DFSDM_MODULE_ENABLED   */
 #define HAL_DMA_MODULE_ENABLED
-/* #define HAL_DMA2D_MODULE_ENABLED   */
-/* #define HAL_DSI_MODULE_ENABLED   */
+#define HAL_DMA2D_MODULE_ENABLED
+#define HAL_DSI_MODULE_ENABLED
 /* #define HAL_ETH_MODULE_ENABLED   */
 #define HAL_EXTI_MODULE_ENABLED
 /* #define HAL_FDCAN_MODULE_ENABLED   */
@@ -34,7 +34,7 @@
 /* #define HAL_NOR_MODULE_ENABLED   */
 /* #define HAL_OTFDEC_MODULE_ENABLED   */
 /* #define HAL_SRAM_MODULE_ENABLED   */
-/* #define HAL_SDRAM_MODULE_ENABLED   */
+#define HAL_SDRAM_MODULE_ENABLED
 /* #define HAL_HASH_MODULE_ENABLED   */
 /* #define HAL_HRTIM_MODULE_ENABLED   */
 #define HAL_HSEM_MODULE_ENABLED
@@ -48,7 +48,7 @@
 /* #define HAL_SMBUS_MODULE_ENABLED   */
 /* #define HAL_IWDG_MODULE_ENABLED   */
 /* #define HAL_LPTIM_MODULE_ENABLED   */
-/* #define HAL_LTDC_MODULE_ENABLED   */
+#define HAL_LTDC_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 //#define HAL_QSPI_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
@@ -74,7 +74,7 @@
 /* #define HAL_MDIOS_MODULE_ENABLED   */
 /* #define HAL_PSSI_MODULE_ENABLED   */
 /* #define HAL_DTS_MODULE_ENABLED   */
-//#define HAL_MDMA_MODULE_ENABLED
+#define HAL_MDMA_MODULE_ENABLED
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**

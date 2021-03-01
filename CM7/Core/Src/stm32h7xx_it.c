@@ -188,16 +188,6 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /**
-  * @brief  This function handles External lines 15 to 10 interrupt request.
-  * @param  None
-  * @retval None
-  */
-void EXTI15_10_IRQHandler(void)
-{
-  BSP_PB_IRQHandler(BUTTON_WAKEUP);
-}
-
-/**
   * @brief  This function handles SAI DMA interrupt request.
   * @param  None
   * @retval None
