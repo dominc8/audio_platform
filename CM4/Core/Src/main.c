@@ -1,14 +1,17 @@
 #include "main.h"
 #include "stdio.h"
-#include "stlogo.h"
+#include "agh_logo.h"
 #include "shared_data.h"
 
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 
 __IO uint32_t ButtonState = 0;
-static void Display_DemoDescription(void);
+static void display_start_info(void);
 static void setup_gui(void);
 static void display_data(void);
+static void button_init(void);
+static void led_init(void);
+static void lcd_init(void);
 
 int main(void)
 {
@@ -35,19 +38,13 @@ int main(void)
     __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
 
     int32_t led_idx = 1;
+    new_data_flag = 0;
 
-    /* Initialize Button and LEDs */
-    BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_EXTI);
-    BSP_LED_Init(LED1);
-    BSP_LED_Init(LED2);
-    BSP_LED_Init(LED3);
-    BSP_LED_Init(LED4);
+    button_init();
+    led_init();
+    lcd_init();
 
-    /* Initialize the LCD */
-    BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
-    GUI_SetFuncDriver(&LCD_Driver);
-    GUI_SetFont(&GUI_DEFAULT_FONT);
-    Display_DemoDescription();
+    display_start_info();
     BSP_LED_On(led_idx);
 
     while (1)
@@ -88,38 +85,30 @@ int main(void)
     }
 }
 
+
 /**
  * @brief  Display main demo messages
  * @param  None
  * @retval None
  */
-static void Display_DemoDescription(void)
+static void display_start_info(void)
 {
     uint32_t x_size;
     uint32_t y_size;
 
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
-    /* Set LCD Foreground Layer  */
+
     GUI_SetFont(&GUI_DEFAULT_FONT);
 
-    /* Clear the LCD */
     GUI_SetBackColor(GUI_COLOR_WHITE);
     GUI_Clear(GUI_COLOR_WHITE);
 
-    /* Set the LCD Text Color */
     GUI_SetTextColor(GUI_COLOR_DARKBLUE);
 
-    /* Display LCD messages */
-    GUI_DisplayStringAt(0, 10, (uint8_t*) "STM32H747I BSP", CENTER_MODE);
-    GUI_DisplayStringAt(0, 35, (uint8_t*) "Drivers examples", CENTER_MODE);
+    GUI_DisplayStringAt(0, 10, (uint8_t*) "Start screen", CENTER_MODE);
 
-    /* Draw Bitmap */
-    GUI_DrawBitmap((x_size - 80) / 2, 65, (uint8_t*) stlogo);
-
-    GUI_SetFont(&Font12);
-    GUI_DisplayStringAt(0, y_size - 20, (uint8_t*) "Copyright (c) STMicroelectronics 2018",
-            CENTER_MODE);
+    GUI_DrawBitmap(x_size/2 - 15, y_size - 80, (uint8_t*) aghlogo);
 
     GUI_SetFont(&Font16);
     BSP_LCD_FillRect(0, 0, y_size / 2 + 15, x_size, 60, GUI_COLOR_BLUE);
@@ -242,6 +231,26 @@ static void display_data(void)
         GUI_FillRect(x0 + i * dx, y_right + ymax - val_right, dx, val_right, GUI_COLOR_GREEN);
         GUI_FillRect(x0 + i * dx, y_right, dx, ymax - val_right, GUI_COLOR_WHITE);
     }
+}
+
+static void button_init(void)
+{
+    BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_EXTI);
+}
+
+static void led_init(void)
+{
+    BSP_LED_Init(LED1);
+    BSP_LED_Init(LED2);
+    BSP_LED_Init(LED3);
+    BSP_LED_Init(LED4);
+}
+
+static void lcd_init(void)
+{
+    BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
+    GUI_SetFuncDriver(&LCD_Driver);
+    GUI_SetFont(&GUI_DEFAULT_FONT);
 }
 
 #ifdef  USE_FULL_ASSERT
