@@ -12,31 +12,29 @@ static void display_data(void);
 
 int main(void)
 {
-/* USER CODE BEGIN Boot_Mode_Sequence_1 */
-  /*HW semaphore Clock enable*/
-  __HAL_RCC_HSEM_CLK_ENABLE();
-  /* Activate HSEM notification for Cortex-M4*/
-  HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_ID_0));
+    /* USER CODE BEGIN Boot_Mode_Sequence_1 */
+    /*HW semaphore Clock enable*/
+    __HAL_RCC_HSEM_CLK_ENABLE();
+    /* Activate HSEM notification for Cortex-M4*/
+    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_ID_0));
 
-  /*
-  Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for Cortex-M7 to
-  perform system initialization (system clock config, external memory configuration.. )
-  */
-  HAL_PWREx_ClearPendingEvent();
-  HAL_PWREx_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFE, PWR_D2_DOMAIN);
-  /* Clear HSEM flag */
-  __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_ID_0));
+    /*
+     Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for Cortex-M7 to
+     perform system initialization (system clock config, external memory configuration.. )
+     */
+    HAL_PWREx_ClearPendingEvent();
+    HAL_PWREx_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFE, PWR_D2_DOMAIN);
+    /* Clear HSEM flag */
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_ID_0));
 
-/* USER CODE END Boot_Mode_Sequence_1 */
-  /* MCU Configuration--------------------------------------------------------*/
+    /* USER CODE END Boot_Mode_Sequence_1 */
+    /* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-  __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
 
-
-
-  int32_t led_idx = 1;
+    int32_t led_idx = 1;
 
     /* Initialize Button and LEDs */
     BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_EXTI);
@@ -52,41 +50,42 @@ int main(void)
     Display_DemoDescription();
     BSP_LED_On(led_idx);
 
-  while (1)
-  {
-      if(ButtonState == 1)
-      {
-          ButtonState = 0;
-          BSP_LED_Off(0);
-          BSP_LED_Off(2);
-          BSP_LED_Off(led_idx);
-          led_idx ^= 2;;
-          BSP_LED_On(led_idx);
+    while (1)
+    {
+        if (ButtonState == 1)
+        {
+            ButtonState = 0;
+            BSP_LED_Off(0);
+            BSP_LED_Off(2);
+            BSP_LED_Off(led_idx);
+            led_idx ^= 2;
+            ;
+            BSP_LED_On(led_idx);
 
-          if (led_idx == 1)
-          {
-              setup_gui();
-              new_data_flag = 0;
-              if (HAL_OK != HAL_HSEM_FastTake(HSEM_DATA))
-              {
-                  BSP_LED_On(2);
-              }
-              else
-              {
-                  HAL_HSEM_Release(HSEM_DATA, 0);
-                  BSP_LED_On(0);
-              }
-          }
-      }
-      else
-      {
-          if (new_data_flag != 0)
-          {
-              new_data_flag = 0;
-              display_data();
-          }
-      }
-  }
+            if (led_idx == 1)
+            {
+                setup_gui();
+                new_data_flag = 0;
+                if (HAL_OK != HAL_HSEM_FastTake(HSEM_DATA))
+                {
+                    BSP_LED_On(2);
+                }
+                else
+                {
+                    HAL_HSEM_Release(HSEM_DATA, 0);
+                    BSP_LED_On(0);
+                }
+            }
+        }
+        else
+        {
+            if (new_data_flag != 0)
+            {
+                new_data_flag = 0;
+                display_data();
+            }
+        }
+    }
 }
 
 /**
@@ -200,7 +199,6 @@ static void setup_gui(void)
     GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
 }
 
-
 static inline int32_t limit_val(int32_t val, int32_t val_max)
 {
     if (val < 0)
@@ -215,7 +213,7 @@ static void display_data(void)
 {
     const int32_t group_size = 4;
     const int32_t n_channels = 2;
-    const int32_t n_groups = 512/(group_size * n_channels);
+    const int32_t n_groups = 512 / (group_size * n_channels);
     const int32_t x0 = 20;
     const int32_t dx = 10;
     const int32_t y_left = 150;
@@ -224,29 +222,27 @@ static void display_data(void)
     const int32_t ymax_shift = 7;
     const int32_t val_shift = 13 - ymax_shift; // theoretically should be 16..18 - ymax_shift
 
-
     for (int32_t i = 0; i < n_groups; ++i)
     {
         int32_t val_left = 0;
         int32_t val_right = 0;
-        int32_t idx = i*group_size;;
+        int32_t idx = i * group_size;
+        ;
         for (int32_t j = 0; j < group_size; ++j)
         {
-            val_left += (int16_t)shared_audio_data[idx];
-            val_right += (int16_t)shared_audio_data[idx+1];
+            val_left += (int16_t) shared_audio_data[idx];
+            val_right += (int16_t) shared_audio_data[idx + 1];
             idx += n_channels;
         }
-        val_left = limit_val(val_left>>(val_shift), ymax);
-        val_right = limit_val(val_right>>(val_shift), ymax);
+        val_left = limit_val(val_left >> (val_shift), ymax);
+        val_right = limit_val(val_right >> (val_shift), ymax);
 
-        GUI_FillRect(x0+i*dx, y_left+ymax-val_left, dx, val_left, GUI_COLOR_GREEN);
-        GUI_FillRect(x0+i*dx, y_left, dx, ymax-val_left, GUI_COLOR_WHITE);
-        GUI_FillRect(x0+i*dx, y_right+ymax-val_right, dx, val_right, GUI_COLOR_GREEN);
-        GUI_FillRect(x0+i*dx, y_right, dx, ymax-val_right, GUI_COLOR_WHITE);
+        GUI_FillRect(x0 + i * dx, y_left + ymax - val_left, dx, val_left, GUI_COLOR_GREEN);
+        GUI_FillRect(x0 + i * dx, y_left, dx, ymax - val_left, GUI_COLOR_WHITE);
+        GUI_FillRect(x0 + i * dx, y_right + ymax - val_right, dx, val_right, GUI_COLOR_GREEN);
+        GUI_FillRect(x0 + i * dx, y_right, dx, ymax - val_right, GUI_COLOR_WHITE);
     }
 }
-
-
 
 #ifdef  USE_FULL_ASSERT
 /**
