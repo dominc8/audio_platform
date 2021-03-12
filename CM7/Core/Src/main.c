@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "shared_data.h"
+#include "intercore_comm.h"
 #include "stlogo.h"
 
 /** @addtogroup STM32H7xx_HAL_Examples
@@ -33,8 +34,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-
-#define HSEM_ID_0 (0U)
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -124,10 +123,8 @@ int main(void)
     /* When system initialization is finished, Cortex-M7 could wakeup (when needed) the Cortex-M4  by means of
      HSEM notification or by any D2 wakeup source (SEV,EXTI..)   */
     __HAL_RCC_HSEM_CLK_ENABLE();
-    /*Take HSEM */
-    HAL_HSEM_FastTake(HSEM_ID_0);
-    /*Release HSEM in order to notify the CPU2(CM4)*/
-    HAL_HSEM_Release(HSEM_ID_0, 0);
+    /* Notify CPU2 (CM4) */
+    lock_unlock_hsem(HSEM_BOOT);
     /* wait until CPU2 wakes up from stop mode */
     timeout = 0xFFFF;
     while ((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) == RESET) && (timeout-- > 0))
@@ -256,50 +253,6 @@ static void SystemClock_Config(void)
 }
 
 /**
- * @brief  Display main demo messages
- * @param  None
- * @retval None
- */
-static void Display_DemoDescription(void)
-{
-    char desc[64];
-    uint32_t x_size;
-    uint32_t y_size;
-
-    BSP_LCD_GetXSize(0, &x_size);
-    BSP_LCD_GetYSize(0, &y_size);
-    /* Set LCD Foreground Layer  */
-    GUI_SetFont(&GUI_DEFAULT_FONT);
-
-    /* Clear the LCD */
-    GUI_SetBackColor(GUI_COLOR_WHITE);
-    GUI_Clear(GUI_COLOR_WHITE);
-
-    /* Set the LCD Text Color */
-    GUI_SetTextColor(GUI_COLOR_DARKBLUE);
-
-    /* Display LCD messages */
-    GUI_DisplayStringAt(0, 10, (uint8_t*) "STM32H747I BSP", CENTER_MODE);
-    GUI_DisplayStringAt(0, 35, (uint8_t*) "Drivers examples", CENTER_MODE);
-
-    /* Draw Bitmap */
-    GUI_DrawBitmap((x_size - 80) / 2, 65, (uint8_t*) stlogo);
-
-    GUI_SetFont(&Font12);
-    GUI_DisplayStringAt(0, y_size - 20, (uint8_t*) "Copyright (c) STMicroelectronics 2018",
-            CENTER_MODE);
-
-    GUI_SetFont(&Font16);
-    BSP_LCD_FillRect(0, 0, y_size / 2 + 15, x_size, 60, GUI_COLOR_BLUE);
-    GUI_SetTextColor(GUI_COLOR_WHITE);
-    GUI_SetBackColor(GUI_COLOR_BLUE);
-    GUI_DisplayStringAt(0, y_size / 2 + 30, (uint8_t*) "Press Wakeup button to start :",
-            CENTER_MODE);
-    sprintf(desc, "%s example", BSP_examples[DemoIndex].DemoName);
-    GUI_DisplayStringAt(0, y_size / 2 + 45, (uint8_t*) desc, CENTER_MODE);
-}
-
-/**
  * @brief  Check for user input
  * @param  None
  * @retval Input state (1 : active / 0 : Inactive)
@@ -414,17 +367,6 @@ static void CPU_CACHE_Enable(void)
     SCB_EnableDCache();
 }
 
-void HAL_HSEM_FreeCallback(uint32_t SemMask)
-{
-    if (SemMask & __HAL_HSEM_SEMID_TO_MASK(HSEM_DATA))
-    {
-        start_audio = start_audio == 1 ? 0 : 1;
-        __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
-        HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
-        HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
-    }
-
-}
 /**
  * @}
  */

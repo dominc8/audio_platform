@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "agh_logo.h"
 #include "shared_data.h"
+#include "intercore_comm.h"
 
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 
@@ -63,14 +64,13 @@ int main(void)
             {
                 setup_gui();
                 new_data_flag = 0;
-                if (HAL_OK != HAL_HSEM_FastTake(HSEM_DATA))
+                if (0 == lock_unlock_hsem(HSEM_START_AUDIO))
                 {
-                    BSP_LED_On(2);
+                    BSP_LED_On(LED_GREEN);
                 }
                 else
                 {
-                    HAL_HSEM_Release(HSEM_DATA, 0);
-                    BSP_LED_On(0);
+                    BSP_LED_On(LED_RED);
                 }
             }
         }
