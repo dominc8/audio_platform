@@ -10,6 +10,7 @@ __IO uint32_t ButtonState = 0;
 static void display_start_info(void);
 static void setup_gui(void);
 static void display_data(void);
+static void display_fft(void);
 static void button_init(void);
 static void led_init(void);
 static void lcd_init(void);
@@ -79,7 +80,8 @@ int main(void)
             if (new_data_flag != 0)
             {
                 new_data_flag = 0;
-                display_data();
+                // display_data();
+                display_fft();
             }
         }
     }
@@ -225,6 +227,28 @@ static void display_data(void)
         }
         val_left = limit_val(val_left >> (val_shift), ymax);
         val_right = limit_val(val_right >> (val_shift), ymax);
+
+        GUI_FillRect(x0 + i * dx, y_left + ymax - val_left, dx, val_left, GUI_COLOR_GREEN);
+        GUI_FillRect(x0 + i * dx, y_left, dx, ymax - val_left, GUI_COLOR_WHITE);
+        GUI_FillRect(x0 + i * dx, y_right + ymax - val_right, dx, val_right, GUI_COLOR_GREEN);
+        GUI_FillRect(x0 + i * dx, y_right, dx, ymax - val_right, GUI_COLOR_WHITE);
+    }
+}
+
+static void display_fft(void)
+{
+    const int32_t x0 = 20;
+    const int32_t dx = 10;
+    const int32_t y_left = 150;
+    const int32_t y_right = 300;
+    const int32_t ymax = 128;
+    const int32_t ymax_shift = 7;
+    const int32_t val_shift = 16 - ymax_shift; // theoretically should be 16..18 - ymax_shift
+
+    for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
+    {
+        int32_t val_left = limit_val(shared_fft_l[i] >> (val_shift), ymax);
+        int32_t val_right = limit_val(shared_fft_r[i] >> (val_shift), ymax);
 
         GUI_FillRect(x0 + i * dx, y_left + ymax - val_left, dx, val_left, GUI_COLOR_GREEN);
         GUI_FillRect(x0 + i * dx, y_left, dx, ymax - val_left, GUI_COLOR_WHITE);
