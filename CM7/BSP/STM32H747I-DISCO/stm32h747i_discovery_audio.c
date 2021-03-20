@@ -1484,7 +1484,7 @@ void SAI1_Init()
 {
 	__HAL_SAI_DISABLE(&haudio_out_sai);
 
-    haudio_out_sai.Init.AudioFrequency          = 16000;
+    haudio_out_sai.Init.AudioFrequency          = 48000;
     haudio_out_sai.Init.AudioMode               = SAI_MODEMASTER_TX;
     haudio_out_sai.Init.ClockStrobing           = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_out_sai.Init.CompandingMode          = SAI_NOCOMPANDING;
@@ -1518,7 +1518,7 @@ void SAI1_Init()
 
 	__HAL_SAI_DISABLE(&haudio_in_sai);
 
-    haudio_in_sai.Init.AudioFrequency = 16000;
+    haudio_in_sai.Init.AudioFrequency = 48000;
     haudio_in_sai.Init.AudioMode = SAI_MODESLAVE_RX;
     haudio_in_sai.Init.ClockStrobing = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_in_sai.Init.CompandingMode = SAI_NOCOMPANDING;
@@ -1561,7 +1561,7 @@ void SAI1_Init()
   */
 void BSP_AUDIO_IN_OUT_Init()
 {
-	int32_t sample_rate = 16000;
+	int32_t sample_rate = 48000;
 
     Audio_In_Ctx[0].Device          = AUDIO_IN_DEVICE_ANALOG_MIC;
     Audio_In_Ctx[0].Instance        = 0;

@@ -238,7 +238,7 @@ static void display_data(void)
 static void display_fft(void)
 {
     const int32_t x0 = 20;
-    const int32_t dx = 10;
+    const int32_t dx = 40;
     const int32_t y_left = 150;
     const int32_t y_right = 300;
     const int32_t ymax = 128;
