@@ -1,0 +1,21 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../CM7/Core/Inc",
+      "-I./Stubs",
+      "-o",
+      "fft_16hist_test",
+      "../CM7/Core/Src/fft_hist.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/../CM7/Core/Src/fft_hist.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/../CM7/Core/Src/fft_hist.o"
+  }
+]
