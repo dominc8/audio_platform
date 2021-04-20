@@ -44,7 +44,6 @@ void analog_inout_demo(void)
     }
 
     // GUI_DisplayStringAt(0, 70, (uint8_t *)&shared_audio_data[0], LEFT_MODE);
-    volatile int32_t * volatile flag_ptr = &new_data_flag;
 
     while (start_audio == 1)
     {

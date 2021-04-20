@@ -242,7 +242,7 @@ static void display_fft(void)
     const int32_t y_left = 150;
     const int32_t y_right = 300;
     const int32_t ymax = 128;
-    const int32_t ymax_shift = 7;
+    const int32_t ymax_shift = 16;
     const int32_t val_shift = 16 - ymax_shift; // theoretically should be 16..18 - ymax_shift
 
     for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
