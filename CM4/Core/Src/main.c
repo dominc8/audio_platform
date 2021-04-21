@@ -6,6 +6,14 @@
 
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 
+TS_State_t ts_state = {0};
+TS_MultiTouch_State_t ts_mt_state = {0};
+
+static TS_Init_t hts_init;
+TS_Init_t *hts;
+TS_Gesture_Config_t gesture_conf;
+
+
 __IO uint32_t ButtonState = 0;
 static void display_start_info(void);
 static void setup_gui(void);
@@ -14,6 +22,7 @@ static void display_fft(void);
 static void button_init(void);
 static void led_init(void);
 static void lcd_init(void);
+static void handle_touch(void);
 
 int main(void)
 {
@@ -39,7 +48,7 @@ int main(void)
     HAL_Init();
     __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DATA));
 
-    int32_t led_idx = 1;
+    int32_t counter = 0;
     new_data_flag = 0;
 
     button_init();
@@ -47,32 +56,25 @@ int main(void)
     lcd_init();
 
     display_start_info();
-    BSP_LED_On(led_idx);
+    BSP_LED_On(LED_ORANGE);
 
     while (1)
     {
         if (ButtonState == 1)
         {
             ButtonState = 0;
-            BSP_LED_Off(0);
-            BSP_LED_Off(2);
-            BSP_LED_Off(led_idx);
-            led_idx ^= 2;
-            ;
-            BSP_LED_On(led_idx);
+            BSP_LED_Off(LED_ORANGE);
+            BSP_LED_On(LED_BLUE);
 
-            if (led_idx == 1)
+            setup_gui();
+            new_data_flag = 0;
+            if (0 == lock_unlock_hsem(HSEM_START_AUDIO))
             {
-                setup_gui();
-                new_data_flag = 0;
-                if (0 == lock_unlock_hsem(HSEM_START_AUDIO))
-                {
-                    BSP_LED_On(LED_GREEN);
-                }
-                else
-                {
-                    BSP_LED_On(LED_RED);
-                }
+                BSP_LED_On(LED_GREEN);
+            }
+            else
+            {
+                BSP_LED_On(LED_ORANGE);
             }
         }
         else
@@ -83,6 +85,17 @@ int main(void)
                 // display_data();
                 display_fft();
             }
+            else
+            {
+                handle_touch();
+            }
+        }
+        if (++counter > 10000)
+        {
+            counter = 0;
+            BSP_LED_Off(LED_ORANGE);
+            BSP_LED_Off(LED_BLUE);
+            BSP_LED_Off(LED_GREEN);
         }
     }
 }
@@ -272,10 +285,109 @@ static void led_init(void)
 
 static void lcd_init(void)
 {
+    uint32_t x_size, y_size;
+    uint32_t ts_status = BSP_ERROR_NONE;
+
     BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
     GUI_SetFuncDriver(&LCD_Driver);
     GUI_SetFont(&GUI_DEFAULT_FONT);
+
+    BSP_LCD_GetXSize(0, &x_size);
+    BSP_LCD_GetYSize(0, &y_size);
+    hts = &hts_init;
+    hts->Width = x_size;
+    hts->Height = y_size;
+    hts->Orientation = TS_SWAP_XY | TS_SWAP_Y;
+    hts->Accuracy = 5;
+
+    ts_status = BSP_TS_Init(0, hts);
+    ts_status = BSP_TS_GestureConfig(0, &gesture_conf);
+
+    if (BSP_ERROR_NONE != ts_status)
+    {
+        BSP_LED_On(LED_RED);
+    }
 }
+
+static uint16_t saturate_u16(uint16_t x, uint16_t min, uint16_t max)
+{
+    if (x < min)
+    {
+        x = min;
+    }
+    else if (x > max)
+    {
+        x = max;
+    }
+    return x;
+}
+
+static void handle_touch(void)
+{
+  const uint16_t circle_radius = 10;
+  uint32_t gesture_id = GESTURE_ID_NO_GESTURE;
+  uint16_t x = 0;
+  uint16_t y = 0;
+  uint32_t drawTouch1 = 0; /* activate/deactivate draw of footprint of touch 1 */
+  uint32_t drawTouch2 = 0; /* activate/deactivate draw of footprint of touch 2 */
+  uint32_t ts_status = BSP_ERROR_NONE;
+  uint32_t x_size, y_size;
+  char lcd_string[70] = "";
+
+  BSP_LCD_GetXSize(0, &x_size);
+  BSP_LCD_GetYSize(0, &y_size);
+
+  /* Check in polling mode in touch screen the touch status and coordinates */
+  /* of touches if touch occurred                                           */
+  ts_status = BSP_TS_Get_MultiTouchState(0, &ts_mt_state);
+  if (ts_mt_state.TouchDetected)
+  {
+    GUI_FillRect(0, y_size - 60, x_size, 60, GUI_COLOR_BLUE);
+
+    /* One or dual touch have been detected  */
+
+    /* Desactivate drawing footprint of touch 1 and touch 2 until validated against boundaries of touch pad values */
+    drawTouch1 = drawTouch2 = 0;
+
+    /* Get X and Y position of the first touch post calibrated */
+    x = saturate_u16(ts_mt_state.TouchX[0], circle_radius, x_size - circle_radius);
+    y = saturate_u16(ts_mt_state.TouchY[0], circle_radius, y_size - circle_radius);
+
+    GUI_FillCircle(x, y, circle_radius, GUI_COLOR_ORANGE);
+
+    GUI_SetFont(&Font12);
+    sprintf((char*)lcd_string, "x1 = %u, y1 = %u, Event = %lu, Weight = %lu",
+            x,
+            y,
+            ts_mt_state.TouchEvent[0],
+            ts_mt_state.TouchWeight[0]);
+    GUI_DisplayStringAt(0, y_size - 45, lcd_string, CENTER_MODE);
+
+    if(ts_mt_state.TouchDetected > 1)
+    {
+      /* Get X and Y position of the second touch post calibrated */
+      x = saturate_u16(ts_mt_state.TouchX[1], circle_radius, x_size - circle_radius);
+      y = saturate_u16(ts_mt_state.TouchY[1], circle_radius, y_size - circle_radius);
+
+      GUI_FillCircle(x, y, circle_radius, GUI_COLOR_ORANGE);
+
+      GUI_SetFont(&Font12);
+      sprintf((char*)lcd_string, "x2 = %u, y2 = %u, Event = %lu, Weight = %lu",
+            x,
+            y,
+            ts_mt_state.TouchEvent[0],
+            ts_mt_state.TouchWeight[0]);
+      GUI_DisplayStringAt(0, y_size - 35, lcd_string, CENTER_MODE);
+
+      ts_status = BSP_TS_GetGestureId(0, &gesture_id);
+
+      sprintf((char*)lcd_string, "Gesture Id = %lu", gesture_id);
+      GUI_DisplayStringAt(0, y_size - 25, lcd_string, CENTER_MODE);
+    }
+
+  }
+}
+
 
 #ifdef  USE_FULL_ASSERT
 /**
