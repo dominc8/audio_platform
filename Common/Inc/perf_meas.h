@@ -6,6 +6,7 @@
 #define GET_CCNT()                  DWT->CYCCNT
 #define DIFF_CCNT(start, stop)      (stop > start ? (stop - start) : start - stop)
 
-void init_cycle_counter();
+void ccnt_init();
+uint32_t ccnt_to_ms(uint32_t ccnt);
 
 #endif /* PERF_MEAS_H */

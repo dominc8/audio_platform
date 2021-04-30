@@ -3,6 +3,8 @@
 #include "agh_logo.h"
 #include "shared_data.h"
 #include "intercore_comm.h"
+#include "perf_meas.h"
+#include "logger.h"
 
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 
@@ -51,10 +53,13 @@ int main(void)
 
     int32_t counter = 0;
     new_data_flag = 0;
+    uint32_t fft_time;
 
     button_init();
     led_init();
     lcd_init();
+    logger_init(115200);
+    ccnt_init();
 
     display_start_info();
     BSP_LED_On(LED_ORANGE);
@@ -84,19 +89,26 @@ int main(void)
             {
                 new_data_flag = 0;
                 // display_data();
+                uint32_t start = GET_CCNT();
                 display_fft();
+                uint32_t stop = GET_CCNT();
+                fft_time = DIFF_CCNT(start, stop);
             }
             else
             {
                 handle_touch();
             }
         }
-        if (++counter > 10000)
+        if (++counter > 2000)
         {
+            static LOG_LEVEL log_lvl = LOG_ERR;
             counter = 0;
             BSP_LED_Off(LED_ORANGE);
             BSP_LED_Off(LED_BLUE);
             BSP_LED_Off(LED_GREEN);
+            logg(log_lvl, "FFT display time: %u ms", ccnt_to_ms(fft_time));
+            if (++log_lvl == LOG_N)
+                log_lvl = LOG_ERR;
         }
     }
 }
