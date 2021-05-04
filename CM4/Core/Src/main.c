@@ -5,6 +5,8 @@
 #include "intercore_comm.h"
 #include "perf_meas.h"
 #include "logger.h"
+#include "scheduler.h"
+#include "logger_task.h"
 
 #define HSEM_ID_0 (0U) /* HW semaphore 0*/
 
@@ -58,6 +60,9 @@ int main(void)
     button_init();
     led_init();
     lcd_init();
+
+    scheduler_init();
+    logger_task_init();
     logger_init(115200);
     ccnt_init();
 
@@ -66,6 +71,12 @@ int main(void)
 
     while (1)
     {
+        int32_t scheduler_status = scheduler_dequeue_task();
+        if (scheduler_status != 0)
+        {
+            logg(LOG_WRN, "Scheduler dequeue returned %d", scheduler_status);
+        }
+
         if (ButtonState == 1)
         {
             ButtonState = 0;
@@ -93,6 +104,7 @@ int main(void)
                 display_fft();
                 uint32_t stop = GET_CCNT();
                 fft_time = DIFF_CCNT(start, stop);
+                logg(LOG_DBG, "FFT display time: %u ms", ccnt_to_ms(fft_time));
             }
             else
             {
@@ -101,14 +113,10 @@ int main(void)
         }
         if (++counter > 2000)
         {
-            static LOG_LEVEL log_lvl = LOG_ERR;
             counter = 0;
             BSP_LED_Off(LED_ORANGE);
             BSP_LED_Off(LED_BLUE);
             BSP_LED_Off(LED_GREEN);
-            logg(log_lvl, "FFT display time: %u ms", ccnt_to_ms(fft_time));
-            if (++log_lvl == LOG_N)
-                log_lvl = LOG_ERR;
         }
     }
 }
