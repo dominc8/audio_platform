@@ -1,6 +1,6 @@
 #!/bin/sh
 CURR_PATH="$(dirname $(realpath $0))"
-OUT_DIR="${CURR_PATH}/../"
+OUT_DIR="$(pwd)/"
 MFILESPATH="${CURR_PATH}/../mfiles"
 MATLAB_COMMAND=""
 for d in ${MFILESPATH}/*/; do

@@ -2,21 +2,27 @@ CC := gcc
 DEBUG_FLAGS := -O0 -g3 -Wall -fmessage-length=0 -Wno-unused-variable
 RELEASE_FLAGS := -O3 -Wall -fmessage-length=0 -Wno-unused-variable
 
-INCLUDE_DIRS := ../CM7/Core/Inc ./Stubs
-SOURCES := fft_16hist_test.c ../CM7/Core/Src/fft_hist.c
+SUBDIRS = fft_16hist
 
-BIN = fft_16hist_test
-GEN = ./gensh/fft_16hist_generate.sh
+build: $(SUBDIRS)
 
-#########################################
+clean: 
+	$(MAKE) -C $(SUBDIRS) clean
+	$(MAKE) -C cunit clean
+	$(MAKE) -C utils clean
 
-FLAGS := $(DEBUG_FLAGS)
-FLAGS += $(addprefix -I,$(INCLUDE_DIRS))
-FLAGS += -lm
+run: build
+	$(MAKE) -C $(SUBDIRS) run
 
-$(BIN): generator
-	$(CC) $(FLAGS) -o $@ $(SOURCES)
+$(SUBDIRS): cunit utils
+	$(MAKE) -C $@
 
-generator:
-	$(GEN)
+cunit:
+	$(MAKE) -C $@
+
+utils:
+	$(MAKE) -C $@
+
+.PHONY: subdirs $(SUBDIRS) cunit utils
+.PHONY: build clean run
 

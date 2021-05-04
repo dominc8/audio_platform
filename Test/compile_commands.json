@@ -2,20 +2,235 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-c",
       "-O0",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
       "-Wno-unused-variable",
-      "-I../CM7/Core/Inc",
-      "-I./Stubs",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Automated/Automated.c.o",
+      "Sources/Automated/Automated.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Automated/Automated.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Automated/Automated.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Basic/Basic.c.o",
+      "Sources/Basic/Basic.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Basic/Basic.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Basic/Basic.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/CI/CUnitCI.c.o",
+      "Sources/CI/CUnitCI.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/CI/CUnitCI.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/CI/CUnitCI.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Console/Console.c.o",
+      "Sources/Console/Console.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Console/Console.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Console/Console.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Framework/CUError.c.o",
+      "Sources/Framework/CUError.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/CUError.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/CUError.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Framework/MessageHandlers.c.o",
+      "Sources/Framework/MessageHandlers.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/MessageHandlers.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/MessageHandlers.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Framework/MyMem.c.o",
+      "Sources/Framework/MyMem.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/MyMem.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/MyMem.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Framework/TestDB.c.o",
+      "Sources/Framework/TestDB.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/TestDB.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/TestDB.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Framework/TestRun.c.o",
+      "Sources/Framework/TestRun.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/TestRun.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/TestRun.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "Sources/Framework/Util.c.o",
+      "Sources/Framework/Util.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/Util.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/cunit/Sources/Framework/Util.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-O0",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I./",
+      "-c",
+      "-o",
+      "utils.c.o",
+      "utils.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/utils",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/utils/utils.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/utils/utils.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../CM7/Core/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
       "-o",
       "fft_16hist_test",
-      "../CM7/Core/Src/fft_hist.c"
+      "fft_16hist_test.c"
     ],
-    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test",
-    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/../CM7/Core/Src/fft_hist.c",
-    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/../CM7/Core/Src/fft_hist.o"
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../CM7/Core/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "fft_16hist_test",
+      "../../CM7/Core/Src/fft_hist.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/../../CM7/Core/Src/fft_hist.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test"
   }
 ]
