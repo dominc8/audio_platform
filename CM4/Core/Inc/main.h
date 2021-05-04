@@ -16,7 +16,6 @@ extern "C" {
 #define LED_ORANGE      LED2
 #define LED_RED         LED3
 #define LED_BLUE        LED4
-extern __IO uint32_t ButtonState;
 
 #ifdef __cplusplus
 }

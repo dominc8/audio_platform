@@ -5,6 +5,7 @@
 
 int32_t logger_task_init(void)
 {
+    logger_init(115200);
     return scheduler_enqueue_task(&logger_task, NULL);
 }
 
