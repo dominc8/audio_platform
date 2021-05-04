@@ -4,10 +4,18 @@ RELEASE_FLAGS := -O3 -Wall -fmessage-length=0 -Wno-unused-variable
 
 SUBDIRS = fft_16hist
 
-.PHONY: subdirs $(SUBDIRS)
+build: $(SUBDIRS)
 
-subdirs: $(SUBDIRS)
+clean: 
+	$(MAKE) -C $(SUBDIRS) clean
+
+run: build
+	$(MAKE) -C $(SUBDIRS) run
 
 $(SUBDIRS):
 	$(MAKE) -C $@
+
+
+.PHONY: subdirs $(SUBDIRS)
+.PHONY: build clean run
 
