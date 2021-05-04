@@ -9,16 +9,20 @@ build: $(SUBDIRS)
 clean: 
 	$(MAKE) -C $(SUBDIRS) clean
 	$(MAKE) -C cunit clean
+	$(MAKE) -C utils clean
 
 run: build
 	$(MAKE) -C $(SUBDIRS) run
 
-$(SUBDIRS): cunit
+$(SUBDIRS): cunit utils
 	$(MAKE) -C $@
 
 cunit:
 	$(MAKE) -C $@
 
-.PHONY: subdirs $(SUBDIRS) cunit
+utils:
+	$(MAKE) -C $@
+
+.PHONY: subdirs $(SUBDIRS) cunit utils
 .PHONY: build clean run
 
