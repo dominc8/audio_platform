@@ -1,5 +1,5 @@
 INCLUDE_DIRS += ../../CM4/Core/Inc ../Stubs ../cunit ../utils
-SOURCES := scheduler_test.c scheduler.c #../../CM4/Core/Src/scheduler.c
+SOURCES := scheduler_test.c ../../CM4/Core/Src/scheduler.c
 
 BIN = scheduler_test
 
