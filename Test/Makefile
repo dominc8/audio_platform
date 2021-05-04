@@ -8,14 +8,17 @@ build: $(SUBDIRS)
 
 clean: 
 	$(MAKE) -C $(SUBDIRS) clean
+	$(MAKE) -C cunit clean
 
 run: build
 	$(MAKE) -C $(SUBDIRS) run
 
-$(SUBDIRS):
+$(SUBDIRS): cunit
 	$(MAKE) -C $@
 
+cunit:
+	$(MAKE) -C $@
 
-.PHONY: subdirs $(SUBDIRS)
+.PHONY: subdirs $(SUBDIRS) cunit
 .PHONY: build clean run
 

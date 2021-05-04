@@ -3,19 +3,32 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
-      "-O0",
-      "-g3",
-      "-Wall",
-      "-fmessage-length=0",
-      "-Wno-unused-variable",
-      "-I../CM7/Core/Inc",
-      "-I./Stubs",
+      "-I../../CM7/Core/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "../cunit/libCUnit.a",
       "-o",
       "fft_16hist_test",
-      "../CM7/Core/Src/fft_hist.c"
+      "fft_16hist_test.c"
     ],
-    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test",
-    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/../CM7/Core/Src/fft_hist.c",
-    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/../CM7/Core/Src/fft_hist.o"
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../CM7/Core/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "../cunit/libCUnit.a",
+      "-o",
+      "fft_16hist_test",
+      "../../CM7/Core/Src/fft_hist.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/../../CM7/Core/Src/fft_hist.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test"
   }
 ]
