@@ -20,7 +20,7 @@ $(INPUT_DATA):
 clean:
 	rm -rf -- $(BIN) *.dat
 
-run:
+run: $(BIN)
 	./$(BIN)
 
 .PHONY: clean run

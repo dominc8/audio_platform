@@ -15,7 +15,7 @@ $(BIN): $(SOURCES)
 clean:
 	rm -rf -- $(BIN)
 
-run:
+run: $(BIN)
 	./$(BIN)
 
 .PHONY: clean run
