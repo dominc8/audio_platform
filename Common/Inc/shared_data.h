@@ -10,7 +10,6 @@
 /* Exported define -----------------------------------------------------------*/
 #define SHARED_AUDIO_DATA_SIZE      (512)
 #define SHARED_FFT_SIZE             (16)
-#define HSEM_DATA                   (1U)        /* HW semaphore for signaling new data */
 
 /* Exported variables --------------------------------------------------------*/
 extern volatile uint16_t shared_audio_data[SHARED_AUDIO_DATA_SIZE];
