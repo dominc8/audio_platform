@@ -55,6 +55,7 @@ void Error_Handler(void)
 {
     /* Turn LED REDon */
     volatile int32_t i = 0;
+    logg(LOG_ERR, "Error Handler entered!");
     while (1)
     {
         for (i = 0; i < 1000000; ++i)

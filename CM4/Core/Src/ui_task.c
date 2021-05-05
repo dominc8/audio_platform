@@ -31,6 +31,7 @@ static void handle_touch(void);
 static void display_fft(void);
 static void display_start_info(void);
 static void setup_gui(void);
+static void gather_and_log_fft_time(uint32_t fft_time);
 
 int32_t ui_task_init(void)
 {
@@ -43,7 +44,12 @@ int32_t ui_task_init(void)
 
 int32_t ui_task(void *arg)
 {
-    logg(LOG_DBG, "UI task");
+    static int32_t i = 0;
+    if (++i > 10000)
+    {
+        i = 0;
+        logg(LOG_DBG, "UI task");
+    }
     handle_touch();
     if (ui_get_button_state() == 1)
     {
@@ -67,7 +73,7 @@ int32_t ui_task(void *arg)
         display_fft();
         uint32_t stop = GET_CCNT();
         uint32_t fft_time = DIFF_CCNT(start, stop);
-        logg(LOG_DBG, "FFT display time: %u ms", ccnt_to_ms(fft_time));
+        gather_and_log_fft_time(ccnt_to_us(fft_time));
     }
     return scheduler_enqueue_task(&ui_task, NULL);
 }
@@ -282,6 +288,20 @@ static void setup_gui(void)
     GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
 }
 
+
+static void gather_and_log_fft_time(uint32_t fft_time)
+{
+    static uint32_t acc_fft_time = 0;
+    static int32_t cnt = 0;
+    acc_fft_time += fft_time;
+    ++cnt;
+    if (1024 == cnt)
+    {
+        logg(LOG_DBG, "Avg FFT display time: %u us", acc_fft_time >> 10);
+        acc_fft_time = 0;
+        cnt = 0;
+    }
+}
 
 
 void BSP_PB_Callback(Button_TypeDef button)

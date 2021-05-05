@@ -12,7 +12,12 @@ int32_t logger_task_init(void)
 int32_t logger_task(void *arg)
 {
     /* TODO: Handle log messages from M7 */
-    logg(LOG_DBG, "Logger task");
+    static int32_t i = 0;
+    if (++i > 10000)
+    {
+        i = 0;
+        logg(LOG_DBG, "Logger task");
+    }
     return scheduler_enqueue_task(&logger_task, NULL);
 }
 
