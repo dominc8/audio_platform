@@ -1,7 +1,7 @@
 # INCLUDE_DIRS += ../../Common/Inc ../Stubs ../cunit ../utils
 # SOURCES := event_queue_test.c ../../Common/Src/event_queue.c
-INCLUDE_DIRS += ../Stubs ../cunit ../utils
-SOURCES := event_queue_test.c event_queue.c
+INCLUDE_DIRS += ../../Common/Inc ../Stubs ../cunit ../utils
+SOURCES := event_queue_test.c event_queue.c ../Stubs/shared_data.c
 
 BIN = event_queue_test
 

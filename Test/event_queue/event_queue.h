@@ -17,8 +17,9 @@ typedef struct event
     uint32_t val;
 } event;
 
-int32_t eq_m7_init(void);
-int32_t eq_m7_add_event(EVENT_ID id, uint32_t val);
+void eq_m7_init(void);
+int32_t eq_m7_add_event(event e);
+int32_t eq_m7_get_event(event *e);
 
 
 #endif /* EVENT_QUEUE_H */

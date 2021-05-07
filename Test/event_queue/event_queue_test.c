@@ -4,103 +4,54 @@
 
 #include <stdio.h>
 
-#if 0
-int32_t gVar = 0;
-
-void setup(void)
+static void assert_events(event a, event b)
 {
-    gVar = 0;
+    CU_ASSERT_EQUAL(a.id, b.id);
+    CU_ASSERT_EQUAL(a.val, b.val);
 }
 
-int32_t task1(void *arg)
+void eq_m7_add_event_test(void)
 {
-    gVar++;
-    return 0;
+    int32_t add_status;
+    event e = { .id = EVENT_M7_TRACE, .val = 10 };
+
+    eq_m7_init();
+    add_status = eq_m7_add_event(e);
+
+    CU_ASSERT_EQUAL(add_status, 0);
 }
 
-int32_t task1_looped(void *arg)
+void eq_m7_get_event_empty_eq_test(void)
 {
-    gVar++;
-    return scheduler_enqueue_task(&task1_looped, arg);
+    int32_t get_status;
+    event e;
+
+    eq_m7_init();
+    get_status = eq_m7_get_event(&e);
+
+    CU_ASSERT_EQUAL(get_status, -1);
 }
 
-void scheduler_init_test(void)
+void eq_m7_add_and_get_event_test(void)
 {
-    int32_t empty_scheduler_ret_val = -1;
-    setup();
-    scheduler_init();
+    int32_t add_status, get_status;
+    event e1 = { .id = EVENT_M7_TRACE, .val = 10 };
+    event e2 = { .id = EVENT_N, .val = 20 };
 
-    CU_ASSERT_EQUAL(scheduler_dequeue_task(), empty_scheduler_ret_val);
-}
+    eq_m7_init();
 
-void scheduler_single_enqueue_dequeue_test(void)
-{
-    setup();
-    scheduler_init();
+    add_status = eq_m7_add_event(e1);
+    get_status = eq_m7_get_event(&e2);
 
-    CU_ASSERT_EQUAL(scheduler_enqueue_task(&task1, NULL), 0);
-    CU_ASSERT_EQUAL(scheduler_dequeue_task(), 0);
-
-    CU_ASSERT_EQUAL(gVar, 1);
-}
-
-void scheduler_full_enqueue_test(void)
-{
-    setup();
-    scheduler_init();
-
-    for (int32_t i = 0; i < scheduler_get_queue_size(); ++i)
-    {
-        CU_ASSERT_EQUAL(scheduler_enqueue_task(&task1, NULL), 0);
-    }
-
-    CU_ASSERT_EQUAL(scheduler_enqueue_task(&task1, NULL), -1);
-}
-
-void scheduler_empty_dequeue_test(void)
-{
-    setup();
-    scheduler_init();
-
-    CU_ASSERT_EQUAL(scheduler_dequeue_task(), -1);
-}
-
-void scheduler_auto_enqueue_task(void)
-{
-    int32_t n_iterations = scheduler_get_queue_size() * 2;
-    setup();
-    scheduler_init();
-
-    CU_ASSERT_EQUAL(scheduler_enqueue_task(&task1_looped, NULL), 0);
-    for (int32_t i = 0; i < n_iterations; ++i)
-    {
-        CU_ASSERT_EQUAL(scheduler_dequeue_task(), 0);
-    }
-
-    CU_ASSERT_EQUAL(gVar, n_iterations);
+    CU_ASSERT_EQUAL(add_status, 0);
+    CU_ASSERT_EQUAL(get_status, 0);
+    assert_events(e1, e2);
 }
 
 
 #define TESTS                                               \
-    CUNIT_CI_TEST(scheduler_init_test),                     \
-    CUNIT_CI_TEST(scheduler_single_enqueue_dequeue_test),   \
-    CUNIT_CI_TEST(scheduler_full_enqueue_test),             \
-    CUNIT_CI_TEST(scheduler_empty_dequeue_test),            \
-    CUNIT_CI_TEST(scheduler_auto_enqueue_task)
-
-CUNIT_CI_RUN("scheduler_test", TESTS);
-
-#endif
-
-
-void eq_m7_init_test(void)
-{
-    int32_t ret_val = eq_m7_init();
-
-    CU_ASSERT_EQUAL(ret_val, 0);
-}
-
-#define TESTS                                               \
-    CUNIT_CI_TEST(eq_m7_init_test)
+    CUNIT_CI_TEST(eq_m7_add_event_test),                    \
+    CUNIT_CI_TEST(eq_m7_get_event_empty_eq_test),           \
+    CUNIT_CI_TEST(eq_m7_add_and_get_event_test)
 
 CUNIT_CI_RUN("event_queue_test", TESTS);
