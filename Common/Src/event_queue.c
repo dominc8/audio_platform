@@ -37,6 +37,11 @@ void eq_m7_init(void)
     eq_m7_tail = 0;
 }
 
+int32_t eq_m7_get_size(void)
+{
+    return EQ_M7_SIZE - 1;
+}
+
 int32_t eq_m7_add_event(event e)
 {
     int32_t ret_val = 0;

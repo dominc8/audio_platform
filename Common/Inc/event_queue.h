@@ -18,6 +18,7 @@ typedef struct event
 } event;
 
 void eq_m7_init(void);
+int32_t eq_m7_get_size(void);
 int32_t eq_m7_add_event(event e);
 int32_t eq_m7_get_event(event *e);
 
