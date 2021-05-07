@@ -1,3 +1,4 @@
+CC := gcc
 INCLUDE_DIRS += ../../CM7/Core/Inc ../Stubs ../cunit ../utils
 SOURCES := fft_16hist_test.c ../../CM7/Core/Src/fft_hist.c
 
@@ -9,10 +10,10 @@ INPUT_DATA = x.dat yl.dat yr.dat
 
 FLAGS := $(DEBUG_FLAGS)
 FLAGS += $(addprefix -I,$(INCLUDE_DIRS))
-FLAGS += -lm
+LD_FLAGS = -lm
 
 $(BIN): $(INPUT_DATA) $(SOURCES)
-	$(CC) $(FLAGS) -o $@ $(SOURCES) ../cunit/libCUnit.a ../utils/libutils.a
+	$(CC) $(FLAGS) -o $@ $(SOURCES) ../cunit/libCUnit.a ../utils/libutils.a $(LD_FLAGS)
 
 $(INPUT_DATA):
 	$(GEN)

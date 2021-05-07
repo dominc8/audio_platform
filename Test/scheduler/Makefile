@@ -1,3 +1,4 @@
+CC := gcc
 INCLUDE_DIRS += ../../CM4/Core/Inc ../Stubs ../cunit ../utils
 SOURCES := scheduler_test.c ../../CM4/Core/Src/scheduler.c
 
