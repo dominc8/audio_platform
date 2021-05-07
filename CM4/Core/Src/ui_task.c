@@ -13,8 +13,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-static TS_State_t ts_state =
-{ 0 };
 static TS_MultiTouch_State_t ts_mt_state =
 { 0 };
 
@@ -154,8 +152,6 @@ static void handle_touch(void)
     uint32_t gesture_id = GESTURE_ID_NO_GESTURE;
     uint16_t x = 0;
     uint16_t y = 0;
-    uint32_t drawTouch1 = 0; /* activate/deactivate draw of footprint of touch 1 */
-    uint32_t drawTouch2 = 0; /* activate/deactivate draw of footprint of touch 2 */
     uint32_t ts_status = BSP_ERROR_NONE;
     uint32_t x_size, y_size;
 
@@ -170,12 +166,9 @@ static void handle_touch(void)
     ts_status = BSP_TS_Get_MultiTouchState(0, &ts_mt_state);
     unlock_hsem(HSEM_I2C4);
 
-    if (ts_mt_state.TouchDetected)
+    if (BSP_ERROR_NONE == ts_status && ts_mt_state.TouchDetected)
     {
         /* One or dual touch have been detected  */
-
-        /* Desactivate drawing footprint of touch 1 and touch 2 until validated against boundaries of touch pad values */
-        drawTouch1 = drawTouch2 = 0;
 
         /* Get X and Y position of the first touch post calibrated */
         x = saturate_u16(ts_mt_state.TouchX[0], circle_radius, x_size - circle_radius);
@@ -203,7 +196,10 @@ static void handle_touch(void)
             ts_status = BSP_TS_GetGestureId(0, &gesture_id);
             unlock_hsem(HSEM_I2C4);
 
-            logg(LOG_DBG, "Gesture Id = %lu", gesture_id);
+            if (BSP_ERROR_NONE == ts_status)
+            {
+                logg(LOG_DBG, "Gesture Id = %lu", gesture_id);
+            }
         }
 
     }

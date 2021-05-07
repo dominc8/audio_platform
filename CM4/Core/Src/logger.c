@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-#define BUF_LEN             50
+#define BUF_LEN             100
 #define LOG_HEADER_LEN      5
 
 static LOG_LEVEL log_level = LOG_DBG;
@@ -15,8 +15,6 @@ static char* log_headers[LOG_N] = {
         "INF: ",
         "DBG: "
 };
-
-#ifdef CORE_CM4
 
 extern UART_HandleTypeDef hcom_uart[COMn];
 
@@ -70,26 +68,4 @@ int32_t logg(LOG_LEVEL log_lvl, const char *format, ...)
     return ret_val;
 }
 
-#endif
-
-#ifdef CORE_CM7
-
-int32_t logger_init(uint32_t baudrate)
-{
-    /* Queue request to CM4 or ignore */
-    return 0;
-}
-
-void logger_set_level(LOG_LEVEL log_lvl)
-{
-    /* Queue request to CM4 or ignore */
-}
-
-int32_t logg(LOG_LEVEL log_lvl, const char *fmt, ...)
-{
-    /* Queue request to CM4 */
-    return 0;
-}
-
-#endif
 

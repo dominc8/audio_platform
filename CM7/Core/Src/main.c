@@ -22,15 +22,6 @@
 #include "main.h"
 #include "shared_data.h"
 #include "intercore_comm.h"
-#include "stlogo.h"
-
-/** @addtogroup STM32H7xx_HAL_Examples
- * @{
- */
-
-/** @addtogroup BSP
- * @{
- */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -60,7 +51,6 @@ __IO uint32_t SRAMTest = 0;
 __IO uint32_t SdramTest = 0;
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
-static void Display_DemoDescription(void);
 static void MPU_Config(void);
 static void CPU_CACHE_Enable(void);
 

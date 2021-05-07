@@ -10,8 +10,8 @@
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 
 /* Private variables ---------------------------------------------------------*/
-ALIGN_32BYTES(static uint16_t audio_buffer_in[AUDIO_BLOCK_SIZE]);
-ALIGN_32BYTES(static uint16_t audio_buffer_out[AUDIO_BUFFER_SIZE]);
+ALIGN_32BYTES(static int16_t audio_buffer_in[AUDIO_BLOCK_SIZE]);
+ALIGN_32BYTES(static int16_t audio_buffer_out[AUDIO_BUFFER_SIZE]);
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
@@ -52,7 +52,7 @@ void analog_inout_demo(void)
         {
             buf_idx = 0;
 
-            fft_16hist(&shared_fft_l[0], &shared_fft_r[0], &audio_buffer_out[buf_idx]);
+            fft_16hist((int16_t *)&shared_fft_l[0], (int16_t *)&shared_fft_r[0], &audio_buffer_out[buf_idx]);
             SCB_CleanDCache_by_Addr((uint32_t*) &shared_fft_l[0], sizeof(shared_fft_l));
             SCB_CleanDCache_by_Addr((uint32_t*) &shared_fft_r[0], sizeof(shared_fft_r));
 
