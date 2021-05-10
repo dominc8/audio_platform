@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "event_queue.h"
 #include "shared_data.h"
 
@@ -45,14 +46,21 @@ int32_t eq_m7_get_size(void)
 int32_t eq_m7_add_event(event e)
 {
     int32_t ret_val = 0;
+    printf("add_event: head(%d), tail(%d), ", eq_m7_head, eq_m7_tail);
     if (is_queue_full(eq_m7_head, eq_m7_tail))
     {
+        printf("queue is full\n");
         ret_val = -1;
     }
     else
     {
+        printf("queue is not full(adding event), ");
         eq_m7_ptr->events[eq_m7_head] = e;
-        ++eq_m7_head;
+        if (++eq_m7_head == EQ_M7_SIZE)
+        {
+            eq_m7_head = 0;
+        }
+        printf("new head: %d\n", eq_m7_head);
     }
     return ret_val;
 }
@@ -60,14 +68,21 @@ int32_t eq_m7_add_event(event e)
 int32_t eq_m7_get_event(event *e)
 {
     int32_t ret_val = 0;
+    printf("get_event: head(%d), tail(%d), ", eq_m7_head, eq_m7_tail);
     if (is_queue_empty(eq_m7_head, eq_m7_tail))
     {
+        printf("queue is empty\n");
         ret_val = -1;
     }
     else
     {
+        printf("queue is not empty(getting event), ");
         *e = eq_m7_ptr->events[eq_m7_tail];
-        ++eq_m7_tail;
+        if (++eq_m7_tail == EQ_M7_SIZE)
+        {
+            eq_m7_tail = 0;
+        }
+        printf("new tail: %d\n", eq_m7_tail);
     }
     return ret_val;
 }

@@ -95,13 +95,52 @@ void eq_m7_add_get_full_empty_test(void)
     CU_ASSERT_EQUAL(get_status, -1);
 }
 
+void eq_m7_add_get_full_empty_rotate_test(void)
+{
+    int32_t n_iter = 3;
+    int32_t add_status;
+    int32_t get_status;
+    event e = { .id = EVENT_M7_TRACE};
+    event e_ref = { .id = EVENT_M7_TRACE};
+
+    eq_m7_init();
+
+    for (int32_t iter = 0; iter < n_iter; ++iter)
+    {
+        printf("iter: %d\n", iter);
+        for (int32_t i = 0; i < eq_m7_get_size(); ++i)
+        {
+            printf("add_event: %d\n", i);
+            e.val = i;
+            add_status = eq_m7_add_event(e);
+            CU_ASSERT_EQUAL(add_status, 0);
+        }
+
+        add_status = eq_m7_add_event(e);
+        CU_ASSERT_EQUAL(add_status, -1);
+
+        for (int32_t i = 0; i < eq_m7_get_size(); ++i)
+        {
+            printf("get_event: %d\n", i);
+            e_ref.val = i;
+            get_status = eq_m7_get_event(&e);
+            CU_ASSERT_EQUAL(get_status, 0);
+            assert_events(e, e_ref);
+        }
+
+        get_status = eq_m7_get_event(&e);
+        CU_ASSERT_EQUAL(get_status, -1);
+    }
+}
+
 
 #define TESTS                                               \
     CUNIT_CI_TEST(eq_m7_add_event_test),                    \
     CUNIT_CI_TEST(eq_m7_add_and_get_event_test),            \
     CUNIT_CI_TEST(eq_m7_get_event_empty_eq_test),           \
     CUNIT_CI_TEST(eq_m7_add_event_full_eq_test),            \
-    CUNIT_CI_TEST(eq_m7_add_get_full_empty_test)
+    CUNIT_CI_TEST(eq_m7_add_get_full_empty_test),           \
+    CUNIT_CI_TEST(eq_m7_add_get_full_empty_rotate_test)
 
 CUNIT_CI_RUN("event_queue_test", TESTS);
 
