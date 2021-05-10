@@ -22,6 +22,7 @@
 #include "main.h"
 #include "shared_data.h"
 #include "intercore_comm.h"
+#include "event_queue.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -129,13 +130,16 @@ int main(void)
     HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
     HAL_NVIC_EnableIRQ(HSEM1_IRQn);
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
-
+    eq_m7_init();
+    int32_t i = 0;
 
     while (1)
     {
         while (start_audio != 1)
         {
         }
+        event e = { .id = EVENT_M7_TRACE, .val = (uint32_t)i };
+        i += eq_m7_add_event(e) + 10;
         analog_inout_demo();
     }
 

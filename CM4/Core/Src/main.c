@@ -5,6 +5,7 @@
 #include "scheduler.h"
 #include "logger_task.h"
 #include "ui_task.h"
+#include "event_queue.h"
 
 int main(void)
 {
@@ -32,6 +33,7 @@ int main(void)
     scheduler_init();
     logger_task_init();
     ui_task_init();
+    eq_m7_init();
 
     BSP_LED_On(LED_ORANGE);
 

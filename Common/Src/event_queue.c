@@ -1,5 +1,11 @@
 #include "event_queue.h"
 #include "shared_data.h"
+#ifdef CORE_CM4
+#include "logger.h"
+#endif
+#ifdef CORE_CM7
+#include "stm32h747xx.h"
+#endif
 
 /* 8 is size reserved for both counters */
 #define EQ_M7_HEADER_SIZE       8
@@ -43,6 +49,7 @@ int32_t eq_m7_get_size(void)
     return EQ_M7_SIZE - 1;
 }
 
+#ifdef CORE_CM7
 int32_t eq_m7_add_event(event e)
 {
     int32_t ret_val = 0;
@@ -55,15 +62,19 @@ int32_t eq_m7_add_event(event e)
     else
     {
         eq_m7_ptr->events[eq_m7_head] = e;
+        SCB_CleanDCache_by_Addr((uint32_t*) &eq_m7_ptr->events[eq_m7_head], 8);
         if (++eq_m7_head == EQ_M7_SIZE)
         {
             eq_m7_head = 0;
         }
         *head_ptr = eq_m7_head;
+        SCB_CleanInvalidateDCache_by_Addr((uint32_t*) &m7_eq_buf[0], 8);
     }
     return ret_val;
 }
+#endif
 
+#ifdef CORE_CM4
 int32_t eq_m7_get_event(event *e)
 {
     int32_t ret_val = 0;
@@ -75,13 +86,16 @@ int32_t eq_m7_get_event(event *e)
     }
     else
     {
+        logg(LOG_INF, "get_event_b: h=%d, t=%d", eq_m7_head, eq_m7_tail);
         *e = eq_m7_ptr->events[eq_m7_tail];
         if (++eq_m7_tail == EQ_M7_SIZE)
         {
             eq_m7_tail = 0;
         }
         *tail_ptr = eq_m7_tail;
+        logg(LOG_INF, "get:event_e: h=%d, t=%d", eq_m7_head, eq_m7_tail);
     }
     return ret_val;
 }
+#endif
 

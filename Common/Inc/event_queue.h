@@ -6,15 +6,15 @@
 
 typedef enum EVENT_ID
 {
-    EVENT_M7_TRACE = 0, EVENT_N
+    EVENT_M7_TRACE = 0, EVENT_N, EVENT_ERR = 0xFFFFFFFF
 } EVENT_ID;
 
 static_assert(sizeof(EVENT_ID) == 4, "EVENT_ID should be 4 bytes big as it is used for casting array of structs on uint8_t data buffer");
 
 typedef struct event
 {
-    EVENT_ID id;
     uint32_t val;
+    EVENT_ID id;
 } event;
 
 void eq_m7_init(void);
