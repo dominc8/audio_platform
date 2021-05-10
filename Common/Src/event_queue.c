@@ -1,9 +1,5 @@
-#include <stdio.h>
 #include "event_queue.h"
 #include "shared_data.h"
-
-static int32_t eq_m7_head;
-static int32_t eq_m7_tail;
 
 /* 8 is size reserved for both counters */
 #define EQ_M7_HEADER_SIZE       8
@@ -15,6 +11,8 @@ typedef volatile struct eq_m7
 } eq_m7;
 
 static eq_m7 *eq_m7_ptr;
+static int32_t *head_ptr;
+static int32_t *tail_ptr;
 
 static inline int32_t is_queue_full(int32_t head, int32_t tail)
 {
@@ -34,8 +32,10 @@ static inline int32_t is_queue_empty(int32_t head, int32_t tail)
 void eq_m7_init(void)
 {
     eq_m7_ptr = (void*)&m7_eq_buf[EQ_M7_HEADER_SIZE];
-    eq_m7_head = 0;
-    eq_m7_tail = 0;
+    head_ptr = (void*)&m7_eq_buf[0];
+    *head_ptr = 0;
+    tail_ptr = (void*)&m7_eq_buf[4];
+    *tail_ptr = 0;
 }
 
 int32_t eq_m7_get_size(void)
@@ -46,21 +46,20 @@ int32_t eq_m7_get_size(void)
 int32_t eq_m7_add_event(event e)
 {
     int32_t ret_val = 0;
-    printf("add_event: head(%d), tail(%d), ", eq_m7_head, eq_m7_tail);
+    int32_t eq_m7_head = *head_ptr;
+    int32_t eq_m7_tail = *tail_ptr;
     if (is_queue_full(eq_m7_head, eq_m7_tail))
     {
-        printf("queue is full\n");
         ret_val = -1;
     }
     else
     {
-        printf("queue is not full(adding event), ");
         eq_m7_ptr->events[eq_m7_head] = e;
         if (++eq_m7_head == EQ_M7_SIZE)
         {
             eq_m7_head = 0;
         }
-        printf("new head: %d\n", eq_m7_head);
+        *head_ptr = eq_m7_head;
     }
     return ret_val;
 }
@@ -68,21 +67,20 @@ int32_t eq_m7_add_event(event e)
 int32_t eq_m7_get_event(event *e)
 {
     int32_t ret_val = 0;
-    printf("get_event: head(%d), tail(%d), ", eq_m7_head, eq_m7_tail);
+    int32_t eq_m7_head = *head_ptr;
+    int32_t eq_m7_tail = *tail_ptr;
     if (is_queue_empty(eq_m7_head, eq_m7_tail))
     {
-        printf("queue is empty\n");
         ret_val = -1;
     }
     else
     {
-        printf("queue is not empty(getting event), ");
         *e = eq_m7_ptr->events[eq_m7_tail];
         if (++eq_m7_tail == EQ_M7_SIZE)
         {
             eq_m7_tail = 0;
         }
-        printf("new tail: %d\n", eq_m7_tail);
+        *tail_ptr = eq_m7_tail;
     }
     return ret_val;
 }

@@ -107,10 +107,8 @@ void eq_m7_add_get_full_empty_rotate_test(void)
 
     for (int32_t iter = 0; iter < n_iter; ++iter)
     {
-        printf("iter: %d\n", iter);
         for (int32_t i = 0; i < eq_m7_get_size(); ++i)
         {
-            printf("add_event: %d\n", i);
             e.val = i;
             add_status = eq_m7_add_event(e);
             CU_ASSERT_EQUAL(add_status, 0);
@@ -121,7 +119,6 @@ void eq_m7_add_get_full_empty_rotate_test(void)
 
         for (int32_t i = 0; i < eq_m7_get_size(); ++i)
         {
-            printf("get_event: %d\n", i);
             e_ref.val = i;
             get_status = eq_m7_get_event(&e);
             CU_ASSERT_EQUAL(get_status, 0);
