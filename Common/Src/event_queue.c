@@ -1,11 +1,5 @@
 #include "event_queue.h"
 #include "shared_data.h"
-#ifdef CORE_CM4
-#include "logger.h"
-#endif
-#ifdef CORE_CM7
-#include "stm32h747xx.h"
-#endif
 
 /* 8 is size reserved for both counters */
 #define EQ_M7_HEADER_SIZE       8
@@ -49,7 +43,6 @@ int32_t eq_m7_get_size(void)
     return EQ_M7_SIZE - 1;
 }
 
-#ifdef CORE_CM7
 int32_t eq_m7_add_event(event e)
 {
     int32_t ret_val = 0;
@@ -70,9 +63,7 @@ int32_t eq_m7_add_event(event e)
     }
     return ret_val;
 }
-#endif
 
-#ifdef CORE_CM4
 int32_t eq_m7_get_event(event *e)
 {
     int32_t ret_val = 0;
@@ -93,5 +84,4 @@ int32_t eq_m7_get_event(event *e)
     }
     return ret_val;
 }
-#endif
 
