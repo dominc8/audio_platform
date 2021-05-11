@@ -23,6 +23,7 @@
 #include "shared_data.h"
 #include "intercore_comm.h"
 #include "event_queue.h"
+#include "perf_meas.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -130,6 +131,7 @@ int main(void)
     HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
     HAL_NVIC_EnableIRQ(HSEM1_IRQn);
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
+    ccnt_init();
     eq_m7_init();
     int32_t i = 0;
 
@@ -138,7 +140,7 @@ int main(void)
         while (start_audio != 1)
         {
         }
-        event e = { .id = EVENT_M7_TRACE, .val = (uint32_t)i };
+        event e = { .id = EVENT_DBG, .val = (uint32_t)i };
         i += eq_m7_add_event(e) + 10;
         analog_inout_demo();
     }
@@ -340,6 +342,21 @@ static void MPU_Config(void)
     MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
     MPU_InitStruct.SubRegionDisable = 0x00;
     MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_ENABLE;
+
+    HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+    /* Configure SRAM3 (used for shared data) to be shareable and noncacheable */
+    MPU_InitStruct.Enable = MPU_REGION_ENABLE;
+    MPU_InitStruct.BaseAddress = 0x30040000;
+    MPU_InitStruct.Size = MPU_REGION_SIZE_32KB;
+    MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+    MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+    MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+    MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
+    MPU_InitStruct.Number = MPU_REGION_NUMBER1;
+    MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
+    MPU_InitStruct.SubRegionDisable = 0x00;
+    MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
 
     HAL_MPU_ConfigRegion(&MPU_InitStruct);
 

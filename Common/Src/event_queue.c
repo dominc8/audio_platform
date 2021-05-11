@@ -62,13 +62,11 @@ int32_t eq_m7_add_event(event e)
     else
     {
         eq_m7_ptr->events[eq_m7_head] = e;
-        SCB_CleanDCache_by_Addr((uint32_t*) &eq_m7_ptr->events[eq_m7_head], 8);
         if (++eq_m7_head == EQ_M7_SIZE)
         {
             eq_m7_head = 0;
         }
         *head_ptr = eq_m7_head;
-        SCB_CleanInvalidateDCache_by_Addr((uint32_t*) &m7_eq_buf[0], 8);
     }
     return ret_val;
 }
@@ -86,14 +84,12 @@ int32_t eq_m7_get_event(event *e)
     }
     else
     {
-        logg(LOG_INF, "get_event_b: h=%d, t=%d", eq_m7_head, eq_m7_tail);
         *e = eq_m7_ptr->events[eq_m7_tail];
         if (++eq_m7_tail == EQ_M7_SIZE)
         {
             eq_m7_tail = 0;
         }
         *tail_ptr = eq_m7_tail;
-        logg(LOG_INF, "get:event_e: h=%d, t=%d", eq_m7_head, eq_m7_tail);
     }
     return ret_val;
 }
