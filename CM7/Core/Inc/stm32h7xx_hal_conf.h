@@ -200,7 +200,7 @@
 #endif /* HAL_DMA_MODULE_ENABLED */
 
 #ifdef HAL_MDMA_MODULE_ENABLED
- #include "stm32h7xx_hal_mdma.h"
+  #include "stm32h7xx_hal_mdma.h"
 #endif /* HAL_MDMA_MODULE_ENABLED */
 
 #ifdef HAL_HASH_MODULE_ENABLED
@@ -288,28 +288,28 @@
 #endif /* HAL_NAND_MODULE_ENABLED */
       
 #ifdef HAL_I2C_MODULE_ENABLED
- #include "stm32h7xx_hal_i2c.h"
+  #include "stm32h7xx_hal_i2c.h"
 #endif /* HAL_I2C_MODULE_ENABLED */
 
 #ifdef HAL_I2S_MODULE_ENABLED
- #include "stm32h7xx_hal_i2s.h"
+  #include "stm32h7xx_hal_i2s.h"
 #endif /* HAL_I2S_MODULE_ENABLED */
 
 #ifdef HAL_IWDG_MODULE_ENABLED
- #include "stm32h7xx_hal_iwdg.h"
+  #include "stm32h7xx_hal_iwdg.h"
 #endif /* HAL_IWDG_MODULE_ENABLED */
 
 #ifdef HAL_JPEG_MODULE_ENABLED
- #include "stm32h7xx_hal_jpeg.h"
+  #include "stm32h7xx_hal_jpeg.h"
 #endif /* HAL_JPEG_MODULE_ENABLED */
 
 #ifdef HAL_MDIOS_MODULE_ENABLED
- #include "stm32h7xx_hal_mdios.h"
+  #include "stm32h7xx_hal_mdios.h"
 #endif /* HAL_MDIOS_MODULE_ENABLED */
 
 
 #ifdef HAL_MMC_MODULE_ENABLED
- #include "stm32h7xx_hal_mmc.h"
+  #include "stm32h7xx_hal_mmc.h"
 #endif /* HAL_MMC_MODULE_ENABLED */
    
 #ifdef HAL_LPTIM_MODULE_ENABLED
@@ -325,83 +325,83 @@
 #endif /* HAL_OPAMP_MODULE_ENABLED */
    
 #ifdef HAL_PWR_MODULE_ENABLED
- #include "stm32h7xx_hal_pwr.h"
+  #include "stm32h7xx_hal_pwr.h"
 #endif /* HAL_PWR_MODULE_ENABLED */
 
 #ifdef HAL_QSPI_MODULE_ENABLED
- #include "stm32h7xx_hal_qspi.h"
+  #include "stm32h7xx_hal_qspi.h"
 #endif /* HAL_QSPI_MODULE_ENABLED */
 
 #ifdef HAL_RAMECC_MODULE_ENABLED
- #include "stm32h7xx_hal_ramecc.h"
+  #include "stm32h7xx_hal_ramecc.h"
 #endif /* HAL_HCD_MODULE_ENABLED */
    
 #ifdef HAL_RNG_MODULE_ENABLED
- #include "stm32h7xx_hal_rng.h"
+  #include "stm32h7xx_hal_rng.h"
 #endif /* HAL_RNG_MODULE_ENABLED */
 
 #ifdef HAL_RTC_MODULE_ENABLED
- #include "stm32h7xx_hal_rtc.h"
+  #include "stm32h7xx_hal_rtc.h"
 #endif /* HAL_RTC_MODULE_ENABLED */
 
 #ifdef HAL_SAI_MODULE_ENABLED
- #include "stm32h7xx_hal_sai.h"
+  #include "stm32h7xx_hal_sai.h"
 #endif /* HAL_SAI_MODULE_ENABLED */
 
 #ifdef HAL_SD_MODULE_ENABLED
- #include "stm32h7xx_hal_sd.h"
+  #include "stm32h7xx_hal_sd.h"
 #endif /* HAL_SD_MODULE_ENABLED */
 
 #ifdef HAL_SDRAM_MODULE_ENABLED
- #include "stm32h7xx_hal_sdram.h"
+  #include "stm32h7xx_hal_sdram.h"
 #endif /* HAL_SDRAM_MODULE_ENABLED */
    
 #ifdef HAL_SPI_MODULE_ENABLED
- #include "stm32h7xx_hal_spi.h"
+  #include "stm32h7xx_hal_spi.h"
 #endif /* HAL_SPI_MODULE_ENABLED */
 
 #ifdef HAL_SPDIFRX_MODULE_ENABLED
- #include "stm32h7xx_hal_spdifrx.h"
+  #include "stm32h7xx_hal_spdifrx.h"
 #endif /* HAL_SPDIFRX_MODULE_ENABLED */
 
 #ifdef HAL_SWPMI_MODULE_ENABLED
- #include "stm32h7xx_hal_swpmi.h"
+  #include "stm32h7xx_hal_swpmi.h"
 #endif /* HAL_SWPMI_MODULE_ENABLED */
 
 #ifdef HAL_TIM_MODULE_ENABLED
- #include "stm32h7xx_hal_tim.h"
+  #include "stm32h7xx_hal_tim.h"
 #endif /* HAL_TIM_MODULE_ENABLED */
 
 #ifdef HAL_UART_MODULE_ENABLED
- #include "stm32h7xx_hal_uart.h"
+  #include "stm32h7xx_hal_uart.h"
 #endif /* HAL_UART_MODULE_ENABLED */
 
 #ifdef HAL_USART_MODULE_ENABLED
- #include "stm32h7xx_hal_usart.h"
+  #include "stm32h7xx_hal_usart.h"
 #endif /* HAL_USART_MODULE_ENABLED */
 
 #ifdef HAL_IRDA_MODULE_ENABLED
- #include "stm32h7xx_hal_irda.h"
+  #include "stm32h7xx_hal_irda.h"
 #endif /* HAL_IRDA_MODULE_ENABLED */
 
 #ifdef HAL_SMARTCARD_MODULE_ENABLED
- #include "stm32h7xx_hal_smartcard.h"
+  #include "stm32h7xx_hal_smartcard.h"
 #endif /* HAL_SMARTCARD_MODULE_ENABLED */
 
 #ifdef HAL_SMBUS_MODULE_ENABLED
- #include "stm32h7xx_hal_smbus.h"
+  #include "stm32h7xx_hal_smbus.h"
 #endif /* HAL_SMBUS_MODULE_ENABLED */
 
 #ifdef HAL_WWDG_MODULE_ENABLED
- #include "stm32h7xx_hal_wwdg.h"
+  #include "stm32h7xx_hal_wwdg.h"
 #endif /* HAL_WWDG_MODULE_ENABLED */
    
 #ifdef HAL_PCD_MODULE_ENABLED
- #include "stm32h7xx_hal_pcd.h"
+  #include "stm32h7xx_hal_pcd.h"
 #endif /* HAL_PCD_MODULE_ENABLED */
 
 #ifdef HAL_HCD_MODULE_ENABLED
- #include "stm32h7xx_hal_hcd.h"
+  #include "stm32h7xx_hal_hcd.h"
 #endif /* HAL_HCD_MODULE_ENABLED */
    
 /* Exported macro ------------------------------------------------------------*/

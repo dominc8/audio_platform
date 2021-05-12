@@ -1,32 +1,11 @@
-/**
- ******************************************************************************
- * @file    BSP/CM7/Src/main.c
- * @author  MCD Application Team
- * @brief   This example code shows how to use the STM32H747I-DISCO BSP Drivers
- *          This is the main program for Cortex-M7.
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
- *
- ******************************************************************************
- */
-
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "analog_inout.h"
 #include "error_handler.h"
 #include "shared_data.h"
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
+#include "stm32h747i_discovery_sdram.h"
 
-__IO uint32_t ButtonState = 0;
 
 static void SystemClock_Config(void);
 static void MPU_Config(void);
@@ -98,7 +77,7 @@ int main(void)
         }
         event e = { .id = EVENT_DBG, .val = (uint32_t)i };
         i += eq_m7_add_event(e) + 10;
-        analog_inout_demo();
+        analog_inout();
     }
 
 }
@@ -204,86 +183,10 @@ static void SystemClock_Config(void)
     HAL_EnableCompensationCell();
 }
 
-/**
- * @brief  Check for user input
- * @param  None
- * @retval Input state (1 : active / 0 : Inactive)
- */
-uint8_t CheckForUserInput(void)
-{
-    return ButtonState;
-}
-
-/**
- * @brief  Button Callback
- * @param  Button Specifies the pin connected EXTI line
- * @retval None
- */
-void BSP_PB_Callback(Button_TypeDef Button)
-{
-    if (Button == BUTTON_WAKEUP)
-    {
-
-        ButtonState = 1;
-    }
-
-}
-
-/**
- * @brief  This function is executed in case of error occurrence.
- * @param  None
- * @retval None
- */
-void Error_Handler(void)
-{
-    /* Turn LED REDon */
-    volatile int32_t i = 0;
-    while (1)
-    {
-        for (i = 0; i < 1000000; ++i)
-        {
-        }
-        BSP_LED_On(LED_RED);
-        for (i = 0; i < 1000000; ++i)
-        {
-        }
-        BSP_LED_Off(LED_RED);
-    }
-}
-
-#ifdef USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
-{
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-  /* Infinite loop */
-  while (1)
-  {
-  }
-}
-#endif /* USE_FULL_ASSERT */
-
-/**
- * @brief  Configure the MPU attributes as Write Through for SDRAM.
- * @note   The Base Address is SDRAM_DEVICE_ADDR.
- *         The Region Size is 32MB.
- * @param  None
- * @retval None
- */
 static void MPU_Config(void)
 {
     MPU_Region_InitTypeDef MPU_InitStruct;
 
-    /* Disable the MPU */
     HAL_MPU_Disable();
 
     /* Configure the MPU attributes as WT for SDRAM */
@@ -298,7 +201,6 @@ static void MPU_Config(void)
     MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
     MPU_InitStruct.SubRegionDisable = 0x00;
     MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_ENABLE;
-
     HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
     /* Configure SRAM3 (used for shared data) to be shareable and noncacheable */
@@ -313,33 +215,14 @@ static void MPU_Config(void)
     MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
     MPU_InitStruct.SubRegionDisable = 0x00;
     MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
-
     HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-    /* Enable the MPU */
     HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
-/**
- * @brief  CPU L1-Cache enable.
- * @param  None
- * @retval None
- */
 static void CPU_CACHE_Enable(void)
 {
-    /* Enable I-Cache */
     SCB_EnableICache();
-
-    /* Enable D-Cache */
     SCB_EnableDCache();
 }
 
-/**
- * @}
- */
-
-/**
- * @}
- */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

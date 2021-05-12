@@ -1,4 +1,5 @@
 /* Includes ------------------------------------------------------------------*/
+#include <error_handler.h>
 #include "stm32h747i_discovery_audio.h"
 #include "string.h"
 #include "shared_data.h"
@@ -6,7 +7,6 @@
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
-#include "error_handler.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)128)
@@ -40,7 +40,7 @@ static void gather_and_log_fft_time(uint32_t fft_time)
 /* Private function prototypes -----------------------------------------------*/
 
 /*----------------------------------------------------------------------------*/
-void analog_inout_demo(void)
+void analog_inout(void)
 {
     int32_t buf_idx = 0;
 
