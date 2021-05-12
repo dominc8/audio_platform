@@ -148,47 +148,6 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief  This function handles External line 2 interrupt request.
- * @param  None
- * @retval None
- */
-void EXTI2_IRQHandler(void)
-{
-    BSP_JOY_IRQHandler(JOY1, JOY_SEL);
-}
-
-/**
- * @brief  This function handles External line 3 interrupt request.
- * @param  None
- * @retval None
- */
-void EXTI3_IRQHandler(void)
-{
-    BSP_JOY_IRQHandler(JOY1, JOY_DOWN);
-}
-
-/**
- * @brief  This function handles External line 4 interrupt request.
- * @param  None
- * @retval None
- */
-void EXTI4_IRQHandler(void)
-{
-    BSP_JOY_IRQHandler(JOY1, JOY_LEFT);
-}
-
-/**
- * @brief  This function handles External lines 9 to 5 interrupt request.
- * @param  None
- * @retval None
- */
-void EXTI9_5_IRQHandler(void)
-{
-    BSP_JOY_IRQHandler(JOY1, JOY_RIGHT);
-    BSP_JOY_IRQHandler(JOY1, JOY_UP);
-}
-
-/**
  * @brief  This function handles SAI DMA interrupt request.
  * @param  None
  * @retval None

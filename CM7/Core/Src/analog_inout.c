@@ -1,10 +1,12 @@
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "stm32h747i_discovery_audio.h"
+#include "string.h"
 #include "shared_data.h"
 #include "fft_hist.h"
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
+#include "error_handler.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)128)
@@ -42,7 +44,7 @@ void analog_inout_demo(void)
 {
     int32_t buf_idx = 0;
 
-    BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
+//    BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
 
     while (lock_hsem(HSEM_I2C4))
         ;

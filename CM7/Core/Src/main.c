@@ -20,62 +20,18 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "error_handler.h"
 #include "shared_data.h"
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-uint8_t DemoIndex = 0;
-__IO uint8_t NbLoop = 1;
-
-#ifndef USE_FULL_ASSERT
-uint32_t ErrorCounter = 0;
-#endif
-
-/* Wave Player Pause/Resume Status. Defined as external in waveplayer.c file */
-__IO uint32_t PauseResumeStatus = IDLE_STATUS;
-
-/* Counter for Sel Joystick pressed*/
-__IO uint32_t PressCount = 0;
 __IO uint32_t ButtonState = 0;
-uint8_t toggle_led = 0;
-__IO uint32_t CameraTest = 0;
-/* Volume of the audio playback */
-/* Initial volume level (from 0% (Mute) to 100% (Max)) */
-__IO uint8_t volume = 60;
-__IO uint8_t VolumeChange = 0;
-__IO uint32_t SRAMTest = 0;
-__IO uint32_t SdramTest = 0;
-/* Private function prototypes -----------------------------------------------*/
+
 static void SystemClock_Config(void);
 static void MPU_Config(void);
 static void CPU_CACHE_Enable(void);
 
-BSP_DemoTypedef BSP_examples[] =
-{
-//{Joystick_demo, "JOYSTICK EXTI", 0},
-//{Touchscreen_demo1, "TOUCHSCREEN DEMO1", 0},
-//{Touchscreen_demo2, "TOUCHSCREEN DEMO2", 0},
-//{LCD_demo, "LCD", 0},
-//{Camera_demo, "CAMERA", 0},
-        { analog_inout_demo, "Analog inout", 0 },
-        //{AudioPlay_demo, "AUDIO PLAY", 0},
-        { SDRAM_demo, "SDRAM", 0 },
-        { SDRAM_DMA_demo, "SDRAM MDMA", 0 },
-
-};
-/* Private functions ---------------------------------------------------------*/
-
-/**
- * @brief  Main program
- * @param  None
- * @retval None
- */
 int main(void)
 {
     int32_t timeout;

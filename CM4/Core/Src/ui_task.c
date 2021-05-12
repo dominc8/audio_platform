@@ -17,15 +17,19 @@ static TS_MultiTouch_State_t ts_mt_state =
 { 0 };
 
 static volatile int32_t button_state;
+static volatile uint32_t JoyPinPressed = 0;
+static uint32_t Joy_State;
 
 static TS_Init_t hts_init;
 static TS_Init_t *hts;
 static TS_Gesture_Config_t gesture_conf;
 
 static void button_init(void);
+static void joystick_init(void);
 static void lcd_init(void);
 static void led_init(void);
 static void handle_touch(void);
+static void handle_joystick(void);
 static void display_fft(void);
 static void display_start_info(void);
 static void setup_gui(void);
@@ -34,6 +38,7 @@ static void gather_and_log_fft_time(uint32_t fft_time);
 int32_t ui_task_init(void)
 {
     button_init();
+    joystick_init();
     led_init();
     lcd_init();
     display_start_info();
@@ -49,6 +54,7 @@ int32_t ui_task(void *arg)
         logg(LOG_DBG, "UI task");
     }
     handle_touch();
+    handle_joystick();
     if (ui_get_button_state() == 1)
     {
         BSP_LED_Off(LED_ORANGE);
@@ -92,6 +98,13 @@ static void button_init(void)
 {
     button_state = 0;
     BSP_PB_Init(BUTTON_WAKEUP, BUTTON_MODE_EXTI);
+}
+
+static void joystick_init(void)
+{
+    BSP_JOY_Init(JOY1, JOY_MODE_EXTI, JOY_ALL);
+    JoyPinPressed = 0;
+    Joy_State = JOY_NONE;
 }
 
 static void led_init(void)
@@ -205,6 +218,40 @@ static void handle_touch(void)
     }
 }
 
+static void handle_joystick(void)
+{
+    switch (JoyPinPressed)
+    {
+        case 0x01U:
+            Joy_State = JOY_SEL;
+            break;
+
+        case 0x02U:
+            Joy_State = JOY_DOWN;
+            break;
+
+        case 0x04U:
+            Joy_State = JOY_LEFT;
+            break;
+
+        case 0x08U:
+            Joy_State = JOY_RIGHT;
+            break;
+
+        case 0x10U:
+            Joy_State = JOY_UP;
+            break;
+        default:
+            Joy_State = JOY_NONE;
+            break;
+    }
+    if (JoyPinPressed != 0)
+    {
+        logg(LOG_DBG, "Joystick %u", JoyPinPressed);
+    }
+    JoyPinPressed = 0;
+}
+
 static inline int32_t limit_val(int32_t val, int32_t val_max)
 {
     if (val < 0)
@@ -303,4 +350,9 @@ void BSP_PB_Callback(Button_TypeDef button)
     {
         button_state = 1;
     }
+}
+
+void BSP_JOY_Callback(JOY_TypeDef JOY, uint32_t JoyPin)
+{
+    JoyPinPressed = JoyPin;
 }
