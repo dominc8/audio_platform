@@ -109,10 +109,10 @@ static void joystick_init(void)
 
 static void led_init(void)
 {
-    BSP_LED_Init(LED1);
-    BSP_LED_Init(LED2);
-    BSP_LED_Init(LED3);
-    BSP_LED_Init(LED4);
+    /* LED_RED is reserved for ErrorHandler on CM7 */
+    BSP_LED_Init(LED_GREEN);
+    BSP_LED_Init(LED_BLUE);
+    BSP_LED_Init(LED_ORANGE);
 }
 
 static void lcd_init(void)
@@ -142,7 +142,7 @@ static void lcd_init(void)
 
     if (BSP_ERROR_NONE != ts_status)
     {
-        BSP_LED_On(LED_RED);
+        logg(LOG_ERR, "lcd_init()<ts> failed with %d", ts_status);
     }
 }
 

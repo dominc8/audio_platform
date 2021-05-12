@@ -1,5 +1,5 @@
-#include "main.h"
 #include "stm32h7xx_it.h"
+#include "stm32h747i_discovery.h"
 
 void NMI_Handler(void)
 {

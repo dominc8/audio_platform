@@ -1,4 +1,3 @@
-#include "main.h"
 #include "intercore_comm.h"
 #include "perf_meas.h"
 #include "logger.h"
@@ -6,6 +5,14 @@
 #include "logger_task.h"
 #include "ui_task.h"
 #include "event_queue.h"
+
+#if 0
+#include "stm32h7xx_hal.h"
+#include "stm32h747i_discovery_lcd.h"
+#include "stm32h747i_discovery_ts.h"
+#include "stm32h747i_discovery_conf.h"
+#include "basic_gui.h"
+#endif
 
 int main(void)
 {
@@ -35,8 +42,6 @@ int main(void)
     ui_task_init();
     eq_m7_init();
 
-    BSP_LED_On(LED_ORANGE);
-
     while (1)
     {
         int32_t scheduler_status = scheduler_dequeue_task();
@@ -45,29 +50,6 @@ int main(void)
             logg(LOG_WRN, "Scheduler dequeue returned %d", scheduler_status);
         }
 
-    }
-}
-
-/**
- * @brief  This function is executed in case of error occurrence.
- * @param  None
- * @retval None
- */
-void Error_Handler(void)
-{
-    /* Turn LED REDon */
-    volatile int32_t i = 0;
-    logg(LOG_ERR, "Error Handler entered!");
-    while (1)
-    {
-        for (i = 0; i < 1000000; ++i)
-        {
-        }
-        BSP_LED_On(LED_RED);
-        for (i = 0; i < 1000000; ++i)
-        {
-        }
-        BSP_LED_Off(LED_RED);
     }
 }
 
