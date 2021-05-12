@@ -215,7 +215,6 @@ static inline int32_t limit_val(int32_t val, int32_t val_max)
         return val;
 }
 
-
 static void display_fft(void)
 {
     const int32_t x0 = 20;
@@ -284,7 +283,6 @@ static void setup_gui(void)
     GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
 }
 
-
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
     static uint32_t acc_fft_time = 0;
@@ -298,7 +296,6 @@ static void gather_and_log_fft_time(uint32_t fft_time)
         cnt = 0;
     }
 }
-
 
 void BSP_PB_Callback(Button_TypeDef button)
 {

@@ -26,7 +26,8 @@ static void gather_and_log_fft_time(uint32_t fft_time)
     ++cnt;
     if (2048 == cnt)
     {
-        event e = { .id = EVENT_M7_TRACE, .val = acc_fft_time >> 11 };
+        event e =
+        { .id = EVENT_M7_TRACE, .val = acc_fft_time >> 11 };
         eq_m7_add_event(e);
         acc_fft_time = 0;
         cnt = 0;
@@ -71,7 +72,8 @@ void analog_inout_demo(void)
             buf_idx = 0;
 
             uint32_t start = GET_CCNT();
-            fft_16hist((int16_t *)&shared_fft_l[0], (int16_t *)&shared_fft_r[0], &audio_buffer_out[buf_idx]);
+            fft_16hist((int16_t*) &shared_fft_l[0], (int16_t*) &shared_fft_r[0],
+                    &audio_buffer_out[buf_idx]);
             uint32_t stop = GET_CCNT();
 
             buf_idx = new_buf_idx;

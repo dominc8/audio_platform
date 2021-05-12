@@ -3,28 +3,24 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #define BUF_LEN             100
 #define LOG_HEADER_LEN      5
 
 static LOG_LEVEL log_level = LOG_DBG;
 
-static char* log_headers[LOG_N] = {
-        "ERR: ",
-        "WRN: ",
-        "INF: ",
-        "DBG: "
-};
+static char *log_headers[LOG_N] =
+{ "ERR: ", "WRN: ", "INF: ", "DBG: " };
 
 extern UART_HandleTypeDef hcom_uart[COMn];
 
 int32_t logger_init(uint32_t baudrate)
 {
-    COM_InitTypeDef COM_Init = { .BaudRate = baudrate,
-                                 .WordLength = COM_WORDLENGTH_8B,
-                                 .StopBits = UART_STOPBITS_1,
-                                 .Parity = UART_PARITY_NONE,
-                                 .HwFlowCtl = UART_HWCONTROL_NONE
+    COM_InitTypeDef COM_Init = {
+                                .BaudRate = baudrate,
+                                .WordLength = COM_WORDLENGTH_8B,
+                                .StopBits = UART_STOPBITS_1,
+                                .Parity = UART_PARITY_NONE,
+                                .HwFlowCtl = UART_HWCONTROL_NONE
                                };
 
     return BSP_COM_Init(COM1, &COM_Init);
@@ -46,7 +42,7 @@ int32_t logg(LOG_LEVEL log_lvl, const char *format, ...)
         memcpy(&buf[0], log_headers[log_lvl], LOG_HEADER_LEN);
 
         va_list args;
-        va_start (args, format);
+        va_start(args, format);
         ret_val = vsnprintf(&buf[LOG_HEADER_LEN], BUF_LEN + 1, format, args);
         va_end(args);
 
@@ -60,12 +56,11 @@ int32_t logg(LOG_LEVEL log_lvl, const char *format, ...)
         }
         buf[n_char] = '\n';
 
-        if (HAL_OK != HAL_UART_Transmit (&hcom_uart [COM1], (uint8_t *) &buf[0], n_char + 1, COM_POLL_TIMEOUT))
+        if (HAL_OK != HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*) &buf[0], n_char + 1, COM_POLL_TIMEOUT))
         {
             ret_val = 0;
         }
     }
     return ret_val;
 }
-
 

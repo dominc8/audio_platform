@@ -28,13 +28,12 @@ static inline int32_t is_queue_empty(int32_t head, int32_t tail)
     return head == tail;
 }
 
-
 void eq_m7_init(void)
 {
-    eq_m7_ptr = (void*)&m7_eq_buf[EQ_M7_HEADER_SIZE];
-    head_ptr = (void*)&m7_eq_buf[0];
+    eq_m7_ptr = (void*) &m7_eq_buf[EQ_M7_HEADER_SIZE];
+    head_ptr = (void*) &m7_eq_buf[0];
     *head_ptr = 0;
-    tail_ptr = (void*)&m7_eq_buf[4];
+    tail_ptr = (void*) &m7_eq_buf[4];
     *tail_ptr = 0;
 }
 

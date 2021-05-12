@@ -1,21 +1,21 @@
 /**
-  ******************************************************************************
-  * @file    BSP/CM7/Inc/main.h
-  * @author  MCD Application Team
-  * @brief   Header for main.c module for Cortex-M7.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    BSP/CM7/Inc/main.h
+ * @author  MCD Application Team
+ * @brief   Header for main.c module for Cortex-M7.
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
@@ -38,17 +38,15 @@
 /* Exported types ------------------------------------------------------------*/
 typedef struct
 {
-  void   (*DemoFunc)(void);
-  uint8_t DemoName[50];
-  uint32_t DemoIndex;
-}BSP_DemoTypedef;
+    void (*DemoFunc)(void);
+    uint8_t DemoName[50];
+    uint32_t DemoIndex;
+} BSP_DemoTypedef;
 
-typedef enum {
-  AUDIO_ERROR_NONE = 0,
-  AUDIO_ERROR_NOTREADY,
-  AUDIO_ERROR_IO,
-  AUDIO_ERROR_EOF,
-}AUDIO_ErrorTypeDef;
+typedef enum
+{
+    AUDIO_ERROR_NONE = 0, AUDIO_ERROR_NOTREADY, AUDIO_ERROR_IO, AUDIO_ERROR_EOF,
+} AUDIO_ErrorTypeDef;
 #define SD_DMA_MODE      0U
 #define SD_IT_MODE       1U
 #define SD_POLLING_MODE  2U
@@ -56,9 +54,9 @@ typedef enum {
 extern const unsigned char stlogo[];
 extern __IO uint32_t SRAMTest;
 #ifndef USE_FULL_ASSERT
-extern uint32_t    ErrorCounter;
+extern uint32_t ErrorCounter;
 #endif
-extern uint32_t JoyStickDemo ;
+extern uint32_t JoyStickDemo;
 extern __IO uint32_t ButtonState;
 extern __IO uint32_t JoystickStates;
 extern __IO uint32_t CameraTest;
@@ -66,16 +64,15 @@ extern __IO uint32_t SdramTest;
 extern __IO uint32_t SdmmcTest;
 /* Exported constants --------------------------------------------------------*/
 /**
-  * @brief  SDRAM Write read buffer start address after CAM Frame buffer
-  * Assuming Camera frame buffer is of size 800x480 and format ARGB8888 (32 bits per pixel).
-  */
+ * @brief  SDRAM Write read buffer start address after CAM Frame buffer
+ * Assuming Camera frame buffer is of size 800x480 and format ARGB8888 (32 bits per pixel).
+ */
 #define SDRAM_WRITE_READ_ADDR_OFFSET ((uint32_t)0x0800)
 
 /* Defines for the Audio playing process */
 #define PAUSE_STATUS     ((uint32_t)0x00) /* Audio Player in Pause Status */
 #define RESUME_STATUS    ((uint32_t)0x01) /* Audio Player in Resume Status */
 #define IDLE_STATUS      ((uint32_t)0x02) /* Audio Player in Idle Status */
-
 
 #define LED_GREEN      LED1
 #define LED_ORANGE      LED2
@@ -114,21 +111,21 @@ extern __IO uint32_t SdmmcTest;
 #endif /* USE_FULL_ASSERT */
 
 /* Exported functions ------------------------------------------------------- */
-void Touchscreen_demo1 (void);
-void Touchscreen_demo2 (void);
-void LCD_demo (void);
-void Camera_demo (void);
-void Joystick_demo (void);
+void Touchscreen_demo1(void);
+void Touchscreen_demo2(void);
+void LCD_demo(void);
+void Camera_demo(void);
+void Joystick_demo(void);
 void SD_DMA_demo(void);
 void SD_IT_demo(void);
 void SD_POLLING_demo(void);
 void Error_Handler(void);
 void SDRAM_demo(void);
-void SDRAM_DMA_demo (void);
-void AudioPlay_demo (void);
+void SDRAM_DMA_demo(void);
+void AudioPlay_demo(void);
 void analog_inout_demo(void);
 uint8_t AUDIO_Process(void);
-void QSPI_demo (void);
+void QSPI_demo(void);
 uint8_t CheckForUserInput(void);
 uint8_t TouchScreen_GetTouchPosition(void);
 void Touchscreen_DrawBackground_Circles(uint8_t state);

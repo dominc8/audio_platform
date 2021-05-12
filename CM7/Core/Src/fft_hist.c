@@ -7,9 +7,12 @@ static inline void fft_4p(float *out, float *in);
 static inline int16_t abs_comp(float *x);
 static inline void mul_comp(float *out, float *a);
 
-static const float w1[2] = {0.9239f, -0.3827f};
-static const float w2[2] = {0.7071f, -0.7071f};
-static const float w3[2] = {0.3827f, -0.9239f};
+static const float w1[2] =
+{ 0.9239f, -0.3827f };
+static const float w2[2] =
+{ 0.7071f, -0.7071f };
+static const float w3[2] =
+{ 0.3827f, -0.9239f };
 
 void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
 {
@@ -19,12 +22,13 @@ void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
     int16_t right2[16];
     for (int32_t i = 0; i < 16; ++i)
     {
-        left1[i] = in[4*i];
-        right1[i] = in[4*i+1];
-        left2[i] = in[4*i+2];
-        right2[i] = in[4*i+3];
+        left1[i] = in[4 * i];
+        right1[i] = in[4 * i + 1];
+        left2[i] = in[4 * i + 2];
+        right2[i] = in[4 * i + 3];
     }
-    float left[32] = {0};
+    float left[32] =
+    { 0 };
     for (int32_t i = 0; i < 32; ++i)
         left[i] = 0.f;
     fft_16p(&left[0], &left2[0]);
@@ -53,7 +57,7 @@ void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
     temp[1] = -0.9808f;
     mul_comp(&left[14], &temp[0]);
 
-    temp[0] = left[16];;
+    temp[0] = left[16];
     left[16] = left[17];
     left[17] = temp[0];
 
@@ -81,8 +85,8 @@ void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
 
     fft_16p(&left[0], &left1[0]);
 
-
-    float right[32] = {0};
+    float right[32] =
+    { 0 };
     fft_16p(&right[0], &right2[0]);
 
     temp[0] = 0.9808f;
@@ -107,7 +111,7 @@ void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
     temp[1] = -0.9808f;
     mul_comp(&right[14], &temp[0]);
 
-    temp[0] = right[16];;
+    temp[0] = right[16];
     right[16] = right[17];
     right[17] = temp[0];
 
@@ -137,11 +141,11 @@ void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
 
     for (int32_t i = 0; i < 16; ++i)
     {
-        out_l[i] = abs_comp(&left[2*i]);
+        out_l[i] = abs_comp(&left[2 * i]);
     }
     for (int32_t i = 0; i < 16; ++i)
     {
-        out_r[i] = abs_comp(&right[2*i]);
+        out_r[i] = abs_comp(&right[2 * i]);
     }
 }
 
@@ -287,7 +291,6 @@ static inline void fft_4p(float *out, float *in)
     out[6] = br - dr;
     out[7] = bi - di;
 }
-
 
 static inline int16_t abs_comp(float *x)
 {
