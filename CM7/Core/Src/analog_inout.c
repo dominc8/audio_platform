@@ -26,10 +26,10 @@ static void gather_and_log_fft_time(uint32_t fft_time)
     static int32_t cnt = 0;
     acc_fft_time += fft_time;
     ++cnt;
-    if (2048 == cnt)
+    if (1 << 15 == cnt)
     {
         event e =
-        { .id = EVENT_M7_TRACE, .val = acc_fft_time >> 11 };
+        { .id = EVENT_M7_TRACE, .val = acc_fft_time >> 15 };
         eq_m7_add_event(e);
         acc_fft_time = 0;
         cnt = 0;
