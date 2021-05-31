@@ -14,8 +14,8 @@
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 
 /* Private variables ---------------------------------------------------------*/
-ALIGN_32BYTES(static int16_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
-ALIGN_32BYTES(static int16_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ ((section(".AXI_SRAM")));
+ALIGN_32BYTES(static int32_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
+ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ ((section(".AXI_SRAM")));
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;

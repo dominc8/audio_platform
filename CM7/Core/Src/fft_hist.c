@@ -1,8 +1,8 @@
 #include "fft_hist.h"
 #include "arm_math.h"
 
-void fft_16p(float *out, int16_t *in);
-static inline void fft_4p_init(float *out, int16_t *in);
+void fft_16p(float *out, int32_t *in);
+static inline void fft_4p_init(float *out, int32_t *in);
 static inline void fft_4p(float *out, float *in);
 static inline int16_t abs_comp(float *x);
 static inline void mul_comp(float *out, float *a);
@@ -14,12 +14,12 @@ static const float w2[2] =
 static const float w3[2] =
 { 0.3827f, -0.9239f };
 
-void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
+void fft_16hist(int16_t *out_l, int16_t *out_r, int32_t *in)
 {
-    int16_t left1[16];
-    int16_t left2[16];
-    int16_t right1[16];
-    int16_t right2[16];
+    int32_t left1[16];
+    int32_t left2[16];
+    int32_t right1[16];
+    int32_t right2[16];
     for (int32_t i = 0; i < 16; ++i)
     {
         left1[i] = in[4 * i];
@@ -149,11 +149,11 @@ void fft_16hist(int16_t *out_l, int16_t *out_r, int16_t *in)
     }
 }
 
-void fft_16p(float *out, int16_t *in)
+void fft_16p(float *out, int32_t *in)
 {
     float a[8], b[8], c[8], d[8];
     float s[8], t[8], u[8], v[8];
-    int16_t tmp[4];
+    int32_t tmp[4];
 
     tmp[0] = in[0];
     tmp[1] = in[4];
@@ -254,7 +254,7 @@ void fft_16p(float *out, int16_t *in)
     out[31] += d[7];
 }
 
-static inline void fft_4p_init(float *out, int16_t *in)
+static inline void fft_4p_init(float *out, int32_t *in)
 {
     int32_t ar = in[0] + in[2];
     int32_t br = in[0] - in[2];
@@ -294,8 +294,7 @@ static inline void fft_4p(float *out, float *in)
 
 static inline int16_t abs_comp(float *x)
 {
-    //return fabsf(x[0] * x[0] + x[1] * x[1]) / 64;
-    return sqrt(x[0] * x[0] + x[1] * x[1]) / 64;
+    return __builtin_sqrtf(x[0] * x[0] + x[1] * x[1]) / (1<<22);
 }
 
 static inline void mul_comp(float *out, float *a)
