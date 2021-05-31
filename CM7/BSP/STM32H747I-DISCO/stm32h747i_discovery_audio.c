@@ -1480,11 +1480,11 @@ static void custom_SAI_MspInit()
 }
 
 
-void SAI1_Init()
+void SAI1_Init(int32_t audio_freq)
 {
 	__HAL_SAI_DISABLE(&haudio_out_sai);
 
-    haudio_out_sai.Init.AudioFrequency          = 48000;
+    haudio_out_sai.Init.AudioFrequency          = audio_freq;
     haudio_out_sai.Init.AudioMode               = SAI_MODEMASTER_TX;
     haudio_out_sai.Init.ClockStrobing           = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_out_sai.Init.CompandingMode          = SAI_NOCOMPANDING;
@@ -1518,7 +1518,7 @@ void SAI1_Init()
 
 	__HAL_SAI_DISABLE(&haudio_in_sai);
 
-    haudio_in_sai.Init.AudioFrequency = 48000;
+    haudio_in_sai.Init.AudioFrequency = audio_freq;
     haudio_in_sai.Init.AudioMode = SAI_MODESLAVE_RX;
     haudio_in_sai.Init.ClockStrobing = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_in_sai.Init.CompandingMode = SAI_NOCOMPANDING;
@@ -1559,14 +1559,12 @@ void SAI1_Init()
   * @param  AudioInit Init structure
   * @retval BSP status
   */
-void BSP_AUDIO_IN_OUT_Init()
+void BSP_AUDIO_IN_OUT_Init(int32_t audio_freq)
 {
-	int32_t sample_rate = 48000;
-
     Audio_In_Ctx[0].Device          = AUDIO_IN_DEVICE_ANALOG_MIC;
     Audio_In_Ctx[0].Instance        = 0;
     Audio_In_Ctx[0].ChannelsNbr     = 2;
-    Audio_In_Ctx[0].SampleRate      = sample_rate;
+    Audio_In_Ctx[0].SampleRate      = audio_freq;
     Audio_In_Ctx[0].BitsPerSample   = AUDIO_RESOLUTION_16B;
     Audio_In_Ctx[0].Volume          = 100;
     Audio_In_Ctx[0].State           = AUDIO_IN_STATE_RESET;
@@ -1574,12 +1572,12 @@ void BSP_AUDIO_IN_OUT_Init()
     Audio_Out_Ctx[0].Device         = AUDIO_OUT_DEVICE_HEADPHONE;
     Audio_Out_Ctx[0].Instance       = 0;
     Audio_Out_Ctx[0].ChannelsNbr    = 2;
-    Audio_Out_Ctx[0].SampleRate     = sample_rate;
+    Audio_Out_Ctx[0].SampleRate     = audio_freq;
     Audio_Out_Ctx[0].BitsPerSample  = AUDIO_RESOLUTION_16B;
     Audio_Out_Ctx[0].Volume         = 100;
     Audio_Out_Ctx[0].State          = AUDIO_OUT_STATE_RESET;
 
-    if (SAI1_ClockConfig(sample_rate) != 0)
+    if (SAI1_ClockConfig(audio_freq) != 0)
     {
     	Error_Handler();
     }
@@ -1588,7 +1586,7 @@ void BSP_AUDIO_IN_OUT_Init()
     haudio_out_sai.Instance = SAI1_Block_A;
 
     custom_SAI_MspInit();
-    SAI1_Init();
+    SAI1_Init(audio_freq);
 
     /* Initialize the codec internal registers */
     if(WM8994_Probe() == BSP_ERROR_NONE)

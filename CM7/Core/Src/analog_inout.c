@@ -14,8 +14,8 @@
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 
 /* Private variables ---------------------------------------------------------*/
-ALIGN_32BYTES(static int16_t audio_buffer_in[AUDIO_BLOCK_SIZE]);
-ALIGN_32BYTES(static int16_t audio_buffer_out[AUDIO_BUFFER_SIZE]);
+ALIGN_32BYTES(static int16_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
+ALIGN_32BYTES(static int16_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ ((section(".AXI_SRAM")));
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
@@ -43,12 +43,13 @@ static void gather_and_log_fft_time(uint32_t fft_time)
 void analog_inout(void)
 {
     int32_t buf_idx = 0;
+    const int32_t audio_freq = 48000;
 
 //    BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
 
     while (lock_hsem(HSEM_I2C4))
         ;
-    BSP_AUDIO_IN_OUT_Init();
+    BSP_AUDIO_IN_OUT_Init(audio_freq);
     unlock_hsem(HSEM_I2C4);
 
     err_cnt = 0;
