@@ -1395,7 +1395,7 @@ static int32_t SAI1_ClockConfig(uint32_t SampleRate)
   return ret;
 }
 
-static void custom_SAI_MspInit()
+static void custom_SAI_MspInit(uint32_t audio_resolution)
 {
     GPIO_InitTypeDef  gpio_init_structure;
     static DMA_HandleTypeDef hdma_sai_tx, hdma_sai_rx;
@@ -1424,8 +1424,8 @@ static void custom_SAI_MspInit()
     hdma_sai_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
     hdma_sai_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
     hdma_sai_tx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_sai_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_sai_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+    hdma_sai_tx.Init.PeriphDataAlignment = audio_resolution == 16 ? DMA_PDATAALIGN_HALFWORD : DMA_PDATAALIGN_WORD;
+    hdma_sai_tx.Init.MemDataAlignment    = audio_resolution == 16 ? DMA_MDATAALIGN_HALFWORD : DMA_MDATAALIGN_WORD;
     hdma_sai_tx.Init.Mode                = DMA_CIRCULAR;
     hdma_sai_tx.Init.Priority            = DMA_PRIORITY_HIGH;
     hdma_sai_tx.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
@@ -1453,8 +1453,8 @@ static void custom_SAI_MspInit()
     hdma_sai_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
     hdma_sai_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
     hdma_sai_rx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_sai_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_sai_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+    hdma_sai_rx.Init.PeriphDataAlignment = audio_resolution == 16 ? DMA_PDATAALIGN_HALFWORD : DMA_PDATAALIGN_WORD;
+    hdma_sai_rx.Init.MemDataAlignment    = audio_resolution == 16 ? DMA_MDATAALIGN_HALFWORD : DMA_MDATAALIGN_WORD;
     hdma_sai_rx.Init.Mode                = DMA_CIRCULAR;
     hdma_sai_rx.Init.Priority            = DMA_PRIORITY_HIGH;
     hdma_sai_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
@@ -1480,7 +1480,7 @@ static void custom_SAI_MspInit()
 }
 
 
-void SAI1_Init(int32_t audio_freq)
+void SAI1_Init(uint32_t audio_freq, uint32_t audio_resolution)
 {
 	__HAL_SAI_DISABLE(&haudio_out_sai);
 
@@ -1488,7 +1488,7 @@ void SAI1_Init(int32_t audio_freq)
     haudio_out_sai.Init.AudioMode               = SAI_MODEMASTER_TX;
     haudio_out_sai.Init.ClockStrobing           = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_out_sai.Init.CompandingMode          = SAI_NOCOMPANDING;
-    haudio_out_sai.Init.DataSize                = SAI_DATASIZE_32;
+    haudio_out_sai.Init.DataSize                = audio_resolution == 16 ? SAI_DATASIZE_16 : SAI_DATASIZE_32;
     haudio_out_sai.Init.FIFOThreshold           = SAI_FIFOTHRESHOLD_1QF;
     haudio_out_sai.Init.FirstBit                = SAI_FIRSTBIT_MSB;
     haudio_out_sai.Init.Mckdiv                  = 0;
@@ -1501,11 +1501,11 @@ void SAI1_Init(int32_t audio_freq)
     haudio_out_sai.Init.SynchroExt              = SAI_SYNCEXT_DISABLE;
     haudio_out_sai.Init.TriState                = SAI_OUTPUT_NOTRELEASED;
 
-    haudio_out_sai.FrameInit.ActiveFrameLength  = 64;
+    haudio_out_sai.FrameInit.ActiveFrameLength  = audio_resolution == 16 ? 32 : 64;
     haudio_out_sai.FrameInit.FSDefinition       = SAI_FS_CHANNEL_IDENTIFICATION;
     haudio_out_sai.FrameInit.FSOffset           = SAI_FS_BEFOREFIRSTBIT;
     haudio_out_sai.FrameInit.FSPolarity         = SAI_FS_ACTIVE_LOW;
-    haudio_out_sai.FrameInit.FrameLength        = 128;
+    haudio_out_sai.FrameInit.FrameLength        = audio_resolution == 16 ? 64 : 128;
 
     haudio_out_sai.SlotInit.FirstBitOffset      = 0;
     haudio_out_sai.SlotInit.SlotActive          = CODEC_AUDIOFRAME_SLOT_02;
@@ -1522,7 +1522,7 @@ void SAI1_Init(int32_t audio_freq)
     haudio_in_sai.Init.AudioMode = SAI_MODESLAVE_RX;
     haudio_in_sai.Init.ClockStrobing = SAI_CLOCKSTROBING_RISINGEDGE;
     haudio_in_sai.Init.CompandingMode = SAI_NOCOMPANDING;
-    haudio_in_sai.Init.DataSize = SAI_DATASIZE_32;
+    haudio_in_sai.Init.DataSize = audio_resolution == 16 ? SAI_DATASIZE_16 : SAI_DATASIZE_32;
     haudio_in_sai.Init.FIFOThreshold = SAI_FIFOTHRESHOLD_1QF;
     haudio_in_sai.Init.FirstBit = SAI_FIRSTBIT_MSB;
     haudio_in_sai.Init.Mckdiv = 0;
@@ -1535,11 +1535,11 @@ void SAI1_Init(int32_t audio_freq)
     haudio_in_sai.Init.SynchroExt = SAI_SYNCEXT_DISABLE;
     haudio_in_sai.Init.TriState = SAI_OUTPUT_RELEASED;
 
-    haudio_in_sai.FrameInit.ActiveFrameLength = 64;
+    haudio_in_sai.FrameInit.ActiveFrameLength = audio_resolution == 16 ? 32 : 64;
     haudio_in_sai.FrameInit.FSDefinition = SAI_FS_CHANNEL_IDENTIFICATION;
     haudio_in_sai.FrameInit.FSOffset = SAI_FS_BEFOREFIRSTBIT;
     haudio_in_sai.FrameInit.FSPolarity = SAI_FS_ACTIVE_LOW;
-    haudio_in_sai.FrameInit.FrameLength = 128;
+    haudio_in_sai.FrameInit.FrameLength = audio_resolution == 16 ? 64 : 128;
 
     haudio_in_sai.SlotInit.FirstBitOffset = 0;
     haudio_in_sai.SlotInit.SlotActive = CODEC_AUDIOFRAME_SLOT_02; // ??????
@@ -1551,21 +1551,17 @@ void SAI1_Init(int32_t audio_freq)
 	__HAL_SAI_ENABLE(&haudio_in_sai);
 }
 
-/**
-  * @brief  Initialize wave recording.
-  * @param  Instance  AUDIO IN Instance. It can be:
-  *       - 0 when SAI is used
-  *       - 1 if SAI PDM is used
-  * @param  AudioInit Init structure
-  * @retval BSP status
-  */
-void BSP_AUDIO_IN_OUT_Init(int32_t audio_freq)
+void BSP_AUDIO_IN_OUT_Init(uint32_t audio_freq, uint32_t audio_resolution)
 {
+    if (audio_resolution != 16 && audio_resolution != 32)
+    {
+        audio_resolution = 16;
+    }
     Audio_In_Ctx[0].Device          = AUDIO_IN_DEVICE_ANALOG_MIC;
     Audio_In_Ctx[0].Instance        = 0;
     Audio_In_Ctx[0].ChannelsNbr     = 2;
     Audio_In_Ctx[0].SampleRate      = audio_freq;
-    Audio_In_Ctx[0].BitsPerSample   = AUDIO_RESOLUTION_32B;
+    Audio_In_Ctx[0].BitsPerSample   = audio_resolution;
     Audio_In_Ctx[0].Volume          = 100;
     Audio_In_Ctx[0].State           = AUDIO_IN_STATE_RESET;
 
@@ -1573,7 +1569,7 @@ void BSP_AUDIO_IN_OUT_Init(int32_t audio_freq)
     Audio_Out_Ctx[0].Instance       = 0;
     Audio_Out_Ctx[0].ChannelsNbr    = 2;
     Audio_Out_Ctx[0].SampleRate     = audio_freq;
-    Audio_Out_Ctx[0].BitsPerSample  = AUDIO_RESOLUTION_32B;
+    Audio_Out_Ctx[0].BitsPerSample  = audio_resolution;
     Audio_Out_Ctx[0].Volume         = 100;
     Audio_Out_Ctx[0].State          = AUDIO_OUT_STATE_RESET;
 
@@ -1585,8 +1581,8 @@ void BSP_AUDIO_IN_OUT_Init(int32_t audio_freq)
     haudio_in_sai.Instance = SAI1_Block_B;
     haudio_out_sai.Instance = SAI1_Block_A;
 
-    custom_SAI_MspInit();
-    SAI1_Init(audio_freq);
+    custom_SAI_MspInit(audio_resolution);
+    SAI1_Init(audio_freq, audio_resolution);
 
     /* Initialize the codec internal registers */
     if(WM8994_Probe() == BSP_ERROR_NONE)
@@ -1597,7 +1593,7 @@ void BSP_AUDIO_IN_OUT_Init(int32_t audio_freq)
       codec_init.Frequency    = audio_freq;
       codec_init.InputDevice  = WM8994_IN_LINE1;
       codec_init.OutputDevice = AUDIO_OUT_DEVICE_HEADPHONE;
-      codec_init.Resolution   = WM8994_RESOLUTION_32b;
+      codec_init.Resolution   = audio_resolution == 16 ? WM8994_RESOLUTION_16b : WM8994_RESOLUTION_32b;
       codec_init.Volume       = VOLUME_IN_CONVERT(100);
 
       /* Initialize the codec internal registers */

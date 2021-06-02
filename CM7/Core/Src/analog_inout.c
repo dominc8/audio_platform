@@ -43,28 +43,23 @@ static void gather_and_log_fft_time(uint32_t fft_time)
 void analog_inout(void)
 {
     int32_t buf_idx = 0;
-    const int32_t audio_freq = 48000;
-
-//    BSP_JOY_Init(JOY1, JOY_MODE_GPIO, JOY_ALL);
+    const uint32_t audio_freq = 48000;
+    const uint32_t audio_resolution = 32;
 
     while (lock_hsem(HSEM_I2C4))
         ;
-    BSP_AUDIO_IN_OUT_Init(audio_freq);
+    BSP_AUDIO_IN_OUT_Init(audio_freq, audio_resolution);
     unlock_hsem(HSEM_I2C4);
 
     err_cnt = 0;
     race_cnt = 0;
     buf_out_idx = 0;
 
-    // GUI_DisplayStringAt(0, 40, (uint8_t*) "Start Demo", CENTER_MODE);
-
     while (lock_hsem(HSEM_I2C4))
         ;
     err_cnt += BSP_AUDIO_IN_Record(0, (uint8_t*) &audio_buffer_in[0], sizeof(audio_buffer_in));
     err_cnt += BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out));
     unlock_hsem(HSEM_I2C4);
-
-    // GUI_DisplayStringAt(0, 70, (uint8_t *)&shared_audio_data[0], LEFT_MODE);
 
     while (start_audio == 1)
     {
