@@ -1,8 +1,8 @@
 function [yl, yr] = fft_16hist(x)
     xl = x(1:2:end);
     xr = x(2:2:end);
-    yl = int16(fft_16hist_sch(xl)/64);
-    yr = int16(fft_16hist_sch(xr)/64);
+    yl = int16(fft_16hist_sch(xl)/(2^22));
+    yr = int16(fft_16hist_sch(xr)/(2^22));
 end
 
 function [y] = fft_16hist_sch(x)

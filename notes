@@ -10,6 +10,8 @@ SRAM4:      0x38000000 - 0x3800FFFF      64K
 
 Backup SRAM:0x38800000 - 0x38800FFF       4K
 
+DTCM is in D1, only MDMA works (use it to transfer data from AXI_SRAM to DTCM?)
+
 
 
 

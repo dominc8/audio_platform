@@ -9,7 +9,7 @@
 
 void fft_16hist_test(void)
 {
-    int16_t x[X_SIZE];
+    int32_t x[X_SIZE];
     int16_t yl_ref[Y_SIZE];
     int16_t yr_ref[Y_SIZE];
     int16_t yl[Y_SIZE];
