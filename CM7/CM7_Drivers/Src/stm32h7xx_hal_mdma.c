@@ -1658,7 +1658,7 @@ void HAL_MDMA_IRQHandler(MDMA_HandleTypeDef *hmdma)
   /* manage error case */
   if(hmdma->ErrorCode != HAL_MDMA_ERROR_NONE)
   {
-    hmdma->State = HAL_MDMA_STATE_ABORT;
+        hmdma->State = HAL_MDMA_STATE_ABORT;
 
     /* Disable the channel */
     __HAL_MDMA_DISABLE(hmdma);
