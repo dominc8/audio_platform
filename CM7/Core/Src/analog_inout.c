@@ -10,8 +10,8 @@
 #include "perf_meas.h"
 
 /* Private define ------------------------------------------------------------*/
-#define AUDIO_BLOCK_SIZE            ((uint32_t)128)
-#define N_AUDIO_BLOCKS              ((uint32_t)4)
+#define AUDIO_BLOCK_SIZE            ((uint32_t)2)
+#define N_AUDIO_BLOCKS              ((uint32_t)32)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 
 /* Private variables ---------------------------------------------------------*/
@@ -48,16 +48,30 @@ static void gather_and_log_fft_time(uint32_t fft_time)
         acc_fft_time = 0;
         cnt = 0;
 
-        e.id = EVENT_DBG;
-        e.val = mdma_cnt;
-        eq_m7_add_event(e);
+//        e.id = EVENT_DBG;
+//        e.val = mdma_cnt;
+//        eq_m7_add_event(e);
     }
 
 }
 
 void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
-    ++mdma_cnt;
+
+    uint32_t curr_time = GET_CCNT();
+    acc_time += DIFF_CCNT(prev_time, curr_time);
+    prev_time = curr_time;
+    ++n_acc_time;
+
+    if (n_acc_time >= 1 << 15)
+    {
+        event e =
+        { .id = EVENT_DBG, .val = acc_time >> 15 };
+        eq_m7_add_event(e);
+        n_acc_time = 0;
+        acc_time = 0;
+    }
+//    ++mdma_cnt;
 }
 
 
@@ -313,16 +327,5 @@ void MDMA_IRQHandler(void)
 //    __HAL_MDMA_ENABLE(&hmdma);
     HAL_MDMA_IRQHandler(&hmdma);
 //    HAL_MDMA_Start_IT(&hmdma, (uint32_t)&audio_buffer_out[0], (uint32_t)&test_buffer2[0], sizeof(uint32_t), 3);
-
-    uint32_t curr_time = GET_CCNT();
-    acc_time += DIFF_CCNT(prev_time, curr_time);
-    prev_time = curr_time;
-    ++n_acc_time;
-
-    if (n_acc_time >= 10000)
-    {
-        n_acc_time = 0;
-        acc_time = 0;
-    }
 }
 
