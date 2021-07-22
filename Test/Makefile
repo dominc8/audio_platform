@@ -2,7 +2,7 @@ CC := gcc
 DEBUG_FLAGS := -O0 -g3 -Wall -fmessage-length=0 -Wno-unused-variable
 RELEASE_FLAGS := -O3 -Wall -fmessage-length=0 -Wno-unused-variable
 
-SUBDIRS = fft_16hist scheduler event_queue
+SUBDIRS = event_queue fft_16hist fir scheduler
 
 build: $(SUBDIRS)
 

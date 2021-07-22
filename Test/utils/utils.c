@@ -31,3 +31,13 @@ void print_i16array(int16_t *arr, int32_t size)
     printf("\n");
 }
 
+void print_i32array(int32_t *arr, int32_t size)
+{
+    int32_t i;
+    for (i = 0; i < size; ++i)
+    {
+        printf("%d, ", arr[i]);
+    }
+    printf("\n");
+}
+
