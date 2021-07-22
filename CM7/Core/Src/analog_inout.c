@@ -17,8 +17,7 @@
 /* Private variables ---------------------------------------------------------*/
 ALIGN_32BYTES(static int32_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
 ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ ((section(".AXI_SRAM")));
-ALIGN_32BYTES(static int32_t mdma_left[4]);
-ALIGN_32BYTES(static int32_t mdma_right[4]);
+ALIGN_32BYTES(static int32_t audio_in[2]);
 ALIGN_32BYTES(static int32_t dtcm_buffer_out[AUDIO_BUFFER_SIZE]);
 ALIGN_32BYTES(static int32_t test_buffer1[4]);
 ALIGN_32BYTES(static int32_t test_buffer2[4]);
@@ -27,6 +26,12 @@ typedef struct fir5 {
     float coeff[3];
     float samples[6];
 } fir5;
+
+typedef struct fir {
+    float coeff[10];
+    float samples[20];
+    int32_t n_coeff;
+} fir;
 
 static fir5 lowpass_02;
 static fir5 highpass_025;
@@ -40,7 +45,6 @@ static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
 static MDMA_HandleTypeDef hmdma;
 static MDMA_LinkNodeTypeDef node1 __attribute__ ((section(".AXI_SRAM")));
-static MDMA_LinkNodeTypeDef node2 __attribute__ ((section(".AXI_SRAM")));
 
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
@@ -73,11 +77,11 @@ static int32_t fir5_apply(fir5 *f, int32_t in)
         out += f->coeff[i] * (*sample_ptr);
         ++sample_ptr;
     }
-    f->samples[0] = (float)in;
-    for (int32_t i = 1; i < 6; ++i)
+    for (int32_t i = 0; i < 5; ++i)
     {
-        f->samples[i] = f->samples[i - 1];
+        f->samples[i] = f->samples[i + 1];
     }
+    f->samples[5] = (float)in;
     return out;
 }
 
@@ -95,11 +99,11 @@ static int32_t fir5_apply_highpass(fir5 *f, int32_t in)
         out -= f->coeff[i] * (*sample_ptr);
         ++sample_ptr;
     }
-    f->samples[0] = (float)in;
-    for (int32_t i = 1; i < 6; ++i)
+    for (int32_t i = 0; i < 5; ++i)
     {
-        f->samples[i] = f->samples[i - 1];
+        f->samples[i] = f->samples[i + 1];
     }
+    f->samples[5] = (float)in;
     return out;
 }
 
@@ -138,12 +142,15 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     int32_t out;
 //    out = low_pass(mdma_left[0]);
 //    out = fir5_apply(&lowpass_02, mdma_left[0]);
-    out = mdma_left[0];
+//    out = audio_in[0];
+//    out = fir5_apply(&lowpass_02, audio_in[0]);
+    out = low_pass(audio_in[0]);
     audio_buffer_out[buf_idx] = out;
     dtcm_buffer_out[buf_idx] = out;
 //    out = high_pass(mdma_right[0]);
 //    out = fir5_apply_highpass(&highpass_025, mdma_right[0]);
-    out = mdma_right[0];
+//    out = audio_in[1];
+    out = fir5_apply_highpass(&highpass_025, audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
     dtcm_buffer_out[buf_idx + 1] = out;
     SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
@@ -190,9 +197,9 @@ void analog_inout(void)
     lowpass_02.coeff[1] = 0.1949f;
     lowpass_02.coeff[2] = 0.2624f;
     memset(&lowpass_02.samples[0], 0, sizeof(lowpass_02.samples));
-    highpass_025.coeff[0] =  0.1051f;
-    highpass_025.coeff[1] = -0.1964f;
-    highpass_025.coeff[2] = -0.6251f;
+    highpass_025.coeff[0] =  0.0217f;
+    highpass_025.coeff[1] = -0.1054f;
+    highpass_025.coeff[2] = -0.5978f;
     memset(&highpass_025.samples[0], 0, sizeof(highpass_025.samples));
 
     while (lock_hsem(HSEM_I2C4))
@@ -268,19 +275,19 @@ static void config_MDMA()
     __HAL_RCC_MDMA_CLK_ENABLE();
 
     hmdma.Instance = MDMA_Channel1;
-    hmdma.Init.BufferTransferLength = 4;
+    hmdma.Init.BufferTransferLength = 8;
     hmdma.Init.DataAlignment = MDMA_DATAALIGN_RIGHT;;
     hmdma.Init.DestBlockAddressOffset = 0;
-    hmdma.Init.DestBurst = MDMA_DEST_BURST_SINGLE;
+    hmdma.Init.DestBurst = MDMA_DEST_BURST_2BEATS;
     hmdma.Init.DestDataSize = MDMA_DEST_DATASIZE_WORD;
-    hmdma.Init.DestinationInc = MDMA_DEST_INC_DISABLE;
+    hmdma.Init.DestinationInc = MDMA_DEST_INC_WORD;
     hmdma.Init.Endianness = MDMA_LITTLE_ENDIANNESS_PRESERVE;
     hmdma.Init.Priority = MDMA_PRIORITY_VERY_HIGH;
     hmdma.Init.Request = MDMA_REQUEST_DMA2_Stream4_TC;
     hmdma.Init.SourceBlockAddressOffset = 0;
-    hmdma.Init.SourceBurst = MDMA_SOURCE_BURST_SINGLE;
+    hmdma.Init.SourceBurst = MDMA_SOURCE_BURST_2BEATS;
     hmdma.Init.SourceDataSize = MDMA_SRC_DATASIZE_WORD;
-    hmdma.Init.SourceInc = MDMA_SRC_INC_DISABLE;
+    hmdma.Init.SourceInc = MDMA_SRC_INC_WORD;
     hmdma.Init.TransferTriggerMode = MDMA_REPEAT_BLOCK_TRANSFER;
     status = HAL_MDMA_Init(&hmdma);
     e.val = status << 0;
@@ -295,9 +302,9 @@ static void config_MDMA()
     node_conf.PostRequestMaskAddress = (uint32_t)&(DMA2->HIFCR);
     node_conf.PostRequestMaskData = DMA_HIFCR_CTCIF4;
     node_conf.BlockCount = 1;
-    node_conf.BlockDataLength = 4;
+    node_conf.BlockDataLength = 8;
 
-    node_conf.DstAddress = (uint32_t)&mdma_left[0];
+    node_conf.DstAddress = (uint32_t)&audio_in[0];
     node_conf.SrcAddress = (uint32_t)&audio_buffer_in[0];
 
     status = HAL_MDMA_LinkedList_CreateNode(&node1, &node_conf);
@@ -307,22 +314,11 @@ static void config_MDMA()
     e.val = status << 6;
     eq_m7_add_event(e);
 
-    node_conf.DstAddress = (uint32_t)&mdma_right[0];
-    node_conf.SrcAddress = (uint32_t)&audio_buffer_in[1];
-
-    status = HAL_MDMA_LinkedList_CreateNode(&node2, &node_conf);
-    e.val = status << 8;
-    eq_m7_add_event(e);
-    status = HAL_MDMA_LinkedList_AddNode(&hmdma, &node2, 0);
-    e.val = status << 10;
-    eq_m7_add_event(e);
-
     status = HAL_MDMA_LinkedList_EnableCircularMode(&hmdma);
     e.val = status << 12;
     eq_m7_add_event(e);
 
     SCB_CleanDCache_by_Addr((uint32_t *)&node1, sizeof(node1));
-    SCB_CleanDCache_by_Addr((uint32_t *)&node2, sizeof(node2));
 
     HAL_NVIC_SetPriority(MDMA_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(MDMA_IRQn);
