@@ -12,7 +12,7 @@ int32_t fir_f32(fir_f32_t *f, int32_t in)
         out += *coeff_ptr * *(sample_ptr + 1);
         *sample_ptr = *(sample_ptr + 1);
     }
-    *sample_ptr = (float)in;
+    *sample_ptr = (float) in;
     out += *coeff_ptr * in;
 
     return out;
