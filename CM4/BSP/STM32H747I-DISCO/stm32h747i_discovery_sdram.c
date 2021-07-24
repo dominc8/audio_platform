@@ -446,8 +446,8 @@ static void SDRAM_MspInit(SDRAM_HandleTypeDef  *hsdram)
   (void)HAL_MDMA_Init(&mdma_handle);
 
   /* NVIC configuration for DMA transfer complete interrupt */
-  HAL_NVIC_SetPriority(SDRAM_MDMAx_IRQn, BSP_SDRAM_IT_PRIORITY, 0);
-  HAL_NVIC_EnableIRQ(SDRAM_MDMAx_IRQn);
+//  HAL_NVIC_SetPriority(SDRAM_MDMAx_IRQn, BSP_SDRAM_IT_PRIORITY, 0);
+//  HAL_NVIC_EnableIRQ(SDRAM_MDMAx_IRQn);
 }
 
 /**
@@ -462,7 +462,7 @@ static void SDRAM_MspDeInit(SDRAM_HandleTypeDef  *hsdram)
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hsdram);
   /* Disable NVIC configuration for MDMA interrupt */
-  HAL_NVIC_DisableIRQ(SDRAM_MDMAx_IRQn);
+//  HAL_NVIC_DisableIRQ(SDRAM_MDMAx_IRQn);
 
   /* Deinitialize the stream for new transfer */
   mdma_handle.Instance = SDRAM_MDMAx_CHANNEL;
