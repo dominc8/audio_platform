@@ -8,6 +8,7 @@
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
+#include "fir.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
@@ -20,14 +21,8 @@ ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ 
 ALIGN_32BYTES(static int32_t audio_in[2]);
 ALIGN_32BYTES(static int32_t dtcm_buffer_out[AUDIO_BUFFER_SIZE]);
 
-typedef struct fir5
-{
-    float coeff[3];
-    float samples[6];
-} fir5;
-
-static fir5 lowpass_02;
-static fir5 highpass_025;
+static fir_f32_t fir_left_ch;
+static fir_f32_t fir_right_ch;
 
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
@@ -52,50 +47,6 @@ static void gather_and_log_fft_time(uint32_t fft_time)
 
 }
 
-static int32_t fir5_apply(fir5 *f, int32_t in)
-{
-    float out = 0.f;
-    float *sample_ptr = &f->samples[0];
-    for (int32_t i = 0; i < 3; ++i)
-    {
-        out += f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 2; i >= 3; --i)
-    {
-        out += f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 0; i < 5; ++i)
-    {
-        f->samples[i] = f->samples[i + 1];
-    }
-    f->samples[5] = (float) in;
-    return out;
-}
-
-static int32_t fir5_apply_highpass(fir5 *f, int32_t in)
-{
-    float out = 0.f;
-    float *sample_ptr = &f->samples[0];
-    for (int32_t i = 0; i < 3; ++i)
-    {
-        out += f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 2; i >= 3; --i)
-    {
-        out -= f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 0; i < 5; ++i)
-    {
-        f->samples[i] = f->samples[i + 1];
-    }
-    f->samples[5] = (float) in;
-    return out;
-}
-
 void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
     if (buf_out_idx < 0 || buf_out_idx >= AUDIO_BUFFER_SIZE)
@@ -106,10 +57,10 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     int32_t buf_idx = buf_out_idx;
     int32_t out;
 
-    out = fir5_apply(&lowpass_02, audio_in[0]);
+    out = fir_f32(&fir_left_ch, audio_in[0]);
     audio_buffer_out[buf_idx] = out;
     dtcm_buffer_out[buf_idx] = out;
-    out = fir5_apply_highpass(&highpass_025, audio_in[1]);
+    out = fir_f32(&fir_right_ch, audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
     dtcm_buffer_out[buf_idx + 1] = out;
     SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
@@ -145,14 +96,24 @@ void analog_inout(void)
     err_cnt = 0;
     race_cnt = 0;
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
-    lowpass_02.coeff[0] = 0.0955f;
-    lowpass_02.coeff[1] = 0.1949f;
-    lowpass_02.coeff[2] = 0.2624f;
-    memset(&lowpass_02.samples[0], 0, sizeof(lowpass_02.samples));
-    highpass_025.coeff[0] = 0.0217f;
-    highpass_025.coeff[1] = -0.1054f;
-    highpass_025.coeff[2] = -0.5978f;
-    memset(&highpass_025.samples[0], 0, sizeof(highpass_025.samples));
+
+    // setup FIR filters
+    fir_left_ch.coeff[0] = 0.0955f;
+    fir_left_ch.coeff[1] = 0.1949f;
+    fir_left_ch.coeff[2] = 0.2624f;
+    fir_left_ch.coeff[3] = 0.2624f;
+    fir_left_ch.coeff[4] = 0.1949f;
+    fir_left_ch.coeff[5] = 0.0955f;
+    fir_left_ch.order = 5;
+    memset(&fir_left_ch.samples[0], 0, sizeof(fir_left_ch.samples));
+    fir_right_ch.coeff[0] = 0.0217f;
+    fir_right_ch.coeff[1] = -0.1054f;
+    fir_right_ch.coeff[2] = -0.5978f;
+    fir_right_ch.coeff[3] = 0.5978f;
+    fir_right_ch.coeff[4] = 0.1054f;
+    fir_right_ch.coeff[5] = -0.0217f;
+    fir_right_ch.order = 5;
+    memset(&fir_right_ch.samples[0], 0, sizeof(fir_right_ch.samples));
 
     while (lock_hsem(HSEM_I2C4))
         ;
