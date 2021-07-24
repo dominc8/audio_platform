@@ -12,6 +12,7 @@
 #include "basic_gui.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 static TS_MultiTouch_State_t ts_mt_state =
 { 0 };
@@ -47,6 +48,16 @@ int32_t ui_task_init(void)
 
 int32_t ui_task(void *arg)
 {
+    static uint32_t last_ccnt;
+    uint32_t new_ccnt;
+    uint32_t diff;
+
+    do {
+        new_ccnt = GET_CCNT();
+        diff = DIFF_CCNT(last_ccnt, new_ccnt);
+    } while ( ccnt_to_ms(diff) < 33);
+    last_ccnt = new_ccnt;
+
     static int32_t i = 0;
     if (++i > 10000)
     {
@@ -262,6 +273,74 @@ static inline int32_t limit_val(int32_t val, int32_t val_max)
         return val;
 }
 
+extern DMA2D_HandleTypeDef hlcd_dma2d;
+extern LTDC_HandleTypeDef  hlcd_ltdc;
+extern BSP_LCD_Ctx_t       Lcd_Ctx[1];
+
+static uint32_t fft_bin[128] =
+{
+    0xFFFF0000, 0xFFFF0400, 0xFFFF0800, 0xFFFF0C00, 0xFFFF1000, 0xFFFF1400, 0xFFFF1800, 0xFFFF1C00,
+    0xFFFF2000, 0xFFFF2400, 0xFFFF2800, 0xFFFF2C00, 0xFFFF3000, 0xFFFF3400, 0xFFFF3800, 0xFFFF3C00,
+    0xFFFF4000, 0xFFFF4400, 0xFFFF4800, 0xFFFF4C00, 0xFFFF5000, 0xFFFF5400, 0xFFFF5800, 0xFFFF5C00,
+    0xFFFF6000, 0xFFFF6400, 0xFFFF6800, 0xFFFF6C00, 0xFFFF7000, 0xFFFF7400, 0xFFFF7800, 0xFFFF7C00,
+    0xFFFF8000, 0xFFFF8400, 0xFFFF8800, 0xFFFF8C00, 0xFFFF9000, 0xFFFF9400, 0xFFFF9800, 0xFFFF9C00,
+    0xFFFFA000, 0xFFFFA400, 0xFFFFA800, 0xFFFFAC00, 0xFFFFB000, 0xFFFFB400, 0xFFFFB800, 0xFFFFBC00,
+    0xFFFFC000, 0xFFFFC400, 0xFFFFC800, 0xFFFFCC00, 0xFFFFD000, 0xFFFFD400, 0xFFFFD800, 0xFFFFDC00,
+    0xFFFFE000, 0xFFFFE400, 0xFFFFE800, 0xFFFFEC00, 0xFFFFF000, 0xFFFFF400, 0xFFFFF800, 0xFFFFFC00,
+
+    0xFFFCFF00, 0xFFF8FF00, 0xFFF4FF00, 0xFFF0FF00, 0xFFECFF00, 0xFFE8FF00, 0xFFE4FF00, 0xFFE0FF00,
+    0xFFDCFF00, 0xFFD8FF00, 0xFFD4FF00, 0xFFD0FF00, 0xFFCCFF00, 0xFFC8FF00, 0xFFC4FF00, 0xFFC0FF00,
+    0xFFBCFF00, 0xFFB8FF00, 0xFFB4FF00, 0xFFB0FF00, 0xFFACFF00, 0xFFA8FF00, 0xFFA4FF00, 0xFFA0FF00,
+    0xFF9CFF00, 0xFF98FF00, 0xFF94FF00, 0xFF90FF00, 0xFF8CFF00, 0xFF88FF00, 0xFF84FF00, 0xFF80FF00,
+    0xFF7CFF00, 0xFF78FF00, 0xFF74FF00, 0xFF70FF00, 0xFF6CFF00, 0xFF68FF00, 0xFF64FF00, 0xFF60FF00,
+    0xFF5CFF00, 0xFF58FF00, 0xFF54FF00, 0xFF50FF00, 0xFF4CFF00, 0xFF48FF00, 0xFF44FF00, 0xFF40FF00,
+    0xFF3CFF00, 0xFF38FF00, 0xFF34FF00, 0xFF30FF00, 0xFF2CFF00, 0xFF28FF00, 0xFF24FF00, 0xFF20FF00,
+    0xFF1CFF00, 0xFF18FF00, 0xFF14FF00, 0xFF10FF00, 0xFF0CFF00, 0xFF08FF00, 0xFF04FF00, 0xFF00FF00,
+};
+
+static void draw_bin(int32_t val, int32_t bin, int32_t y_offset)
+{
+    if (val <= 0)
+    {
+        return;
+    }
+
+  uint32_t *pSrc = &fft_bin[128 - val];
+  uint32_t pDst = (hlcd_ltdc.LayerCfg[Lcd_Ctx[0].ActiveLayer].FBStartAdress) + (Lcd_Ctx[0].BppFactor*(Lcd_Ctx[0].XSize*(y_offset + (128 - val)) + 20 + 40*bin));
+  uint32_t line_dx = Lcd_Ctx[0].BppFactor;
+
+  hlcd_dma2d.Init.Mode         = DMA2D_M2M_PFC;
+  hlcd_dma2d.Init.ColorMode    = DMA2D_OUTPUT_ARGB8888;
+  hlcd_dma2d.Init.OutputOffset = Lcd_Ctx[0].XSize - 1;
+
+  /* Foreground Configuration */
+  hlcd_dma2d.LayerCfg[1].AlphaMode = DMA2D_NO_MODIF_ALPHA;
+  hlcd_dma2d.LayerCfg[1].InputAlpha = 0xFF;
+  hlcd_dma2d.LayerCfg[1].InputColorMode = DMA2D_INPUT_ARGB8888;
+  hlcd_dma2d.LayerCfg[1].InputOffset = 0;
+
+  hlcd_dma2d.Instance = DMA2D;
+
+
+  /* DMA2D Initialization */
+  if(HAL_DMA2D_Init(&hlcd_dma2d) == HAL_OK)
+  {
+    if(HAL_DMA2D_ConfigLayer(&hlcd_dma2d, 1) == HAL_OK)
+    {
+        for(int32_t i = 0; i < 40; ++i)
+        {
+              if (HAL_DMA2D_Start(&hlcd_dma2d, (uint32_t)pSrc, (uint32_t)pDst, 1, val) == HAL_OK)
+              {
+                /* Polling For DMA transfer */
+                (void)HAL_DMA2D_PollForTransfer(&hlcd_dma2d, 50);
+              }
+              pDst += line_dx;
+        }
+    }
+  }
+
+}
+
 static void display_fft(void)
 {
     const int32_t x0 = 20;
@@ -269,18 +348,23 @@ static void display_fft(void)
     const int32_t y_left = 150;
     const int32_t y_right = 300;
     const int32_t ymax = 128;
-    const int32_t ymax_shift = 16;
-    const int32_t val_shift = 16 - ymax_shift; // theoretically should be 16..18 - ymax_shift
+
+    GUI_FillRect(x0, y_left, dx * SHARED_FFT_SIZE, ymax, GUI_COLOR_WHITE);
 
     for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
     {
-        int32_t val_left = limit_val(shared_fft_l[i] >> (val_shift), ymax);
-        int32_t val_right = limit_val(shared_fft_r[i] >> (val_shift), ymax);
-
-        GUI_FillRect(x0 + i * dx, y_left + ymax - val_left, dx, val_left, GUI_COLOR_GREEN);
-        GUI_FillRect(x0 + i * dx, y_left, dx, ymax - val_left, GUI_COLOR_WHITE);
-        GUI_FillRect(x0 + i * dx, y_right + ymax - val_right, dx, val_right, GUI_COLOR_GREEN);
-        GUI_FillRect(x0 + i * dx, y_right, dx, ymax - val_right, GUI_COLOR_WHITE);
+        int32_t val_left = limit_val(shared_fft_l[i], ymax);
+        draw_bin(val_left, i, y_left);
+//        GUI_FillRect(x0 + i * dx, y_left + ymax - val_left, dx, val_left, GUI_COLOR_GREEN);
+//        GUI_FillRect(x0 + i * dx, y_left, dx, ymax - val_left, GUI_COLOR_WHITE);
+    }
+    GUI_FillRect(x0, y_right, dx * SHARED_FFT_SIZE, ymax, GUI_COLOR_WHITE);
+    for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
+    {
+        int32_t val_right = limit_val(shared_fft_r[i], ymax);
+        draw_bin(val_right, i, y_right);
+//        GUI_FillRect(x0 + i * dx, y_right + ymax - val_right, dx, val_right, GUI_COLOR_GREEN);
+//        GUI_FillRect(x0 + i * dx, y_right, dx, ymax - val_right, GUI_COLOR_WHITE);
     }
 }
 

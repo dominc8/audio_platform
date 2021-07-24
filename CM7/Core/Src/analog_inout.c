@@ -44,7 +44,6 @@ static void gather_and_log_fft_time(uint32_t fft_time)
         acc_fft_time = 0;
         cnt = 0;
     }
-
 }
 
 void mdma_callback(MDMA_HandleTypeDef *_hmdma)
