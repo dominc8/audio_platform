@@ -80,6 +80,7 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
 static void deinit_mdma(void);
+static void sync_fir_coeffs(void);
 
 /*----------------------------------------------------------------------------*/
 void analog_inout(void)
@@ -97,24 +98,30 @@ void analog_inout(void)
     err_cnt = 0;
     race_cnt = 0;
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
+    fir_update_flag = 0;
 
     // setup FIR filters
-    fir_left_ch.coeff[0] = 0.0955f;
-    fir_left_ch.coeff[1] = 0.1949f;
-    fir_left_ch.coeff[2] = 0.2624f;
-    fir_left_ch.coeff[3] = 0.2624f;
-    fir_left_ch.coeff[4] = 0.1949f;
-    fir_left_ch.coeff[5] = 0.0955f;
-    fir_left_ch.order = 5;
-    memset(&fir_left_ch.samples[0], 0, sizeof(fir_left_ch.samples));
-    fir_right_ch.coeff[0] = 0.0217f;
-    fir_right_ch.coeff[1] = -0.1054f;
-    fir_right_ch.coeff[2] = -0.5978f;
-    fir_right_ch.coeff[3] = 0.5978f;
-    fir_right_ch.coeff[4] = 0.1054f;
-    fir_right_ch.coeff[5] = -0.0217f;
-    fir_right_ch.order = 5;
-    memset(&fir_right_ch.samples[0], 0, sizeof(fir_right_ch.samples));
+    if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
+    {
+        fir_orders[0] = 5;
+        fir_coeffs[0][0] = 0.0955f;
+        fir_coeffs[0][1] = 0.1949f;
+        fir_coeffs[0][2] = 0.2624f;
+        fir_coeffs[0][3] = 0.2624f;
+        fir_coeffs[0][4] = 0.1949f;
+        fir_coeffs[0][5] = 0.0955f;
+    }
+    if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
+    {
+        fir_orders[1] = 5;
+        fir_coeffs[1][0] = 0.0217f;
+        fir_coeffs[1][1] = -0.1054f;
+        fir_coeffs[1][2] = -0.5978f;
+        fir_coeffs[1][3] = 0.5978f;
+        fir_coeffs[1][4] = 0.1054f;
+        fir_coeffs[1][5] = -0.0217f;
+    }
+    sync_fir_coeffs();
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -134,6 +141,10 @@ void analog_inout(void)
 
             ++new_data_flag;
         }
+        if (fir_update_flag == 1)
+        {
+            sync_fir_coeffs();
+        }
     }
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -145,6 +156,14 @@ void analog_inout(void)
 
     deinit_mdma();
 
+}
+
+static void sync_fir_coeffs(void)
+{
+    fir_left_ch.order = fir_orders[0];
+    memcpy(&fir_left_ch.coeff[0], &fir_coeffs[0][0], fir_left_ch.order * sizeof(float));
+    fir_right_ch.order = fir_orders[1];
+    memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], fir_right_ch.order * sizeof(float));
 }
 
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
