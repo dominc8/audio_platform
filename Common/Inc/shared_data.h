@@ -20,10 +20,8 @@ extern volatile uint16_t shared_fft_r[SHARED_FFT_SIZE];
 extern volatile uint16_t start_audio;
 extern volatile int32_t new_data_flag;
 extern volatile uint8_t m7_eq_buf[M7_EQ_BUF_SIZE];
-extern volatile float fir_left_coeff[MAX_FIR_ORDER + 1];
-extern volatile float fir_right_coeff[MAX_FIR_ORDER + 1];
-extern volatile int32_t fir_left_order;
-extern volatile int32_t fir_right_order;
+extern volatile float fir_coeffs[2][MAX_FIR_ORDER + 1];
+extern volatile int32_t fir_orders[2];
 
 #endif /* SHARED_DATA_H */
 

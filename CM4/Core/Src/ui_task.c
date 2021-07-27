@@ -18,6 +18,7 @@ static TS_MultiTouch_State_t ts_mt_state =
 static volatile int32_t button_state;
 static volatile uint32_t JoyPinPressed = 0;
 static JOYPin_TypeDef Joy_State;
+static JOYPin_TypeDef Joy_Last_State;
 
 static TS_Init_t hts_init;
 static TS_Init_t *hts;
@@ -81,8 +82,9 @@ int32_t ui_task(void *arg)
 
     if (state->f_handle_ui != NULL)
     {
-        next_state = state->f_handle_ui(state, &ts_mt_state, get_button_state(), Joy_State);
+        next_state = state->f_handle_ui(state, &ts_mt_state, get_button_state(), Joy_State & (Joy_State ^ Joy_Last_State));
     }
+    Joy_Last_State = Joy_State;
     if (next_state < UI_STATE_START_SCREEN || next_state >= UI_STATE_N)
     {
         next_state = UI_STATE_START_SCREEN;
@@ -101,6 +103,7 @@ static void joystick_init(void)
     BSP_JOY_Init(JOY1, JOY_MODE_EXTI, JOY_ALL);
     JoyPinPressed = 0;
     Joy_State = JOY_NONE;
+    Joy_Last_State = JOY_NONE;
 }
 
 static void led_init(void)
@@ -152,35 +155,7 @@ static void init_ui_states(void)
 
 static void update_joy_state(void)
 {
-    switch (JoyPinPressed)
-    {
-        case 0x01U:
-            Joy_State = JOY_SEL;
-            break;
-
-        case 0x02U:
-            Joy_State = JOY_DOWN;
-            break;
-
-        case 0x04U:
-            Joy_State = JOY_LEFT;
-            break;
-
-        case 0x08U:
-            Joy_State = JOY_RIGHT;
-            break;
-
-        case 0x10U:
-            Joy_State = JOY_UP;
-            break;
-        default:
-            Joy_State = JOY_NONE;
-            break;
-    }
-    if (JoyPinPressed != 0)
-    {
-        logg(LOG_DBG, "Joystick %u", JoyPinPressed);
-    }
+    Joy_State ^= JoyPinPressed;
     JoyPinPressed = 0;
 }
 
