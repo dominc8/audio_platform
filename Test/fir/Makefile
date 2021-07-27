@@ -1,5 +1,5 @@
 CC := gcc
-INCLUDE_DIRS += ../../CM7/Core/Inc ../Stubs ../cunit ../utils
+INCLUDE_DIRS += ../../Common/Inc ../Stubs ../cunit ../utils
 SOURCES := fir_test.c ../../CM7/Core/Src/fir.c
 
 BIN = fir_test

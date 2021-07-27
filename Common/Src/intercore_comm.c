@@ -41,11 +41,18 @@ void lock_unlock_callback(uint32_t sem_mask)
 #endif
 
 #ifdef CORE_CM7
+
+extern volatile int32_t fir_update_flag;
+
 void lock_unlock_callback(uint32_t sem_mask)
 {
     if (IS_HSEMID_IN_MASK(HSEM_START_AUDIO, sem_mask))
     {
         start_audio = start_audio == 1 ? 0 : 1;
+    }
+    if (IS_HSEMID_IN_MASK(HSEM_FIR_UPDATE, sem_mask))
+    {
+        fir_update_flag = 1;
     }
 }
 #endif

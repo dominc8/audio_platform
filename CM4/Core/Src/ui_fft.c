@@ -5,6 +5,7 @@
 #include "shared_data.h"
 #include "perf_meas.h"
 #include "logger.h"
+#include "ui_utils.h"
 
 #define N_FFT_BIN   133
 
@@ -16,8 +17,12 @@ static uint32_t fft_bin[N_FFT_BIN];
 
 static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
+static UI_STATE handle_ui_init_from_fir(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
+        int32_t button_state, JOYPin_TypeDef joy_pin);
 static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
+
+static ui_button_t ui_button_fir;
 
 static void display_fft(void);
 static void gather_and_log_fft_time(uint32_t fft_time);
@@ -44,6 +49,11 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
         init_ui_fft(self);
         next_state = UI_STATE_START_SCREEN;
         toggle_audio_on_m7();
+    }
+    else if (is_ui_button_touched(&ui_button_fir, touch_state) == 1)
+    {
+        self->f_handle_ui = &handle_ui_init_from_fir;
+        next_state = UI_STATE_FIR_ADJ;
     }
     else
     {
@@ -75,12 +85,52 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     GUI_SetFont(&Font24);
     GUI_DisplayStringAt(0, 10, (uint8_t*) "Audio visualization", CENTER_MODE);
 
+    ui_button_fir.x0 = 3 * x_size / 4;
+    ui_button_fir.x1 = x_size;
+    ui_button_fir.y0 = 0;
+    ui_button_fir.y1 = 30;
+    ui_button_fir.color = GUI_COLOR_DARKBLUE;
+    ui_button_fir.font = &Font24;
+    ui_button_fir.x0_text = 7 * x_size / 8 - Font24.Width * 3 / 2;
+    ui_button_fir.y0_text = 3;
+    ui_button_fir.text = "FIR";
+
+    draw_ui_button(&ui_button_fir);
+
     BSP_LED_Off(LED_ORANGE);
     BSP_LED_On(LED_BLUE);
 
     new_data_flag = 0;
     toggle_audio_on_m7();
     init_fft_bin();
+
+    self->f_handle_ui = &handle_ui;
+    logg(LOG_DBG, "handle_ui_init in ui_fft");
+    return UI_STATE_AUDIO_VISUALIZATION;
+}
+
+static UI_STATE handle_ui_init_from_fir(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
+        int32_t button_state, JOYPin_TypeDef joy_pin)
+{
+    uint32_t x_size, y_size;
+
+    BSP_LCD_GetXSize(0, &x_size);
+    BSP_LCD_GetYSize(0, &y_size);
+
+    GUI_Clear(GUI_COLOR_BLACK);
+
+    GUI_FillRect(0, 38, x_size, 2, GUI_COLOR_RED);
+    GUI_SetTextColor(GUI_COLOR_WHITE);
+    GUI_SetBackColor(GUI_COLOR_BLACK);
+    GUI_SetFont(&Font24);
+    GUI_DisplayStringAt(0, 10, (uint8_t*) "Audio visualization", CENTER_MODE);
+
+    draw_ui_button(&ui_button_fir);
+
+    BSP_LED_Off(LED_ORANGE);
+    BSP_LED_On(LED_BLUE);
+
+    new_data_flag = 0;
 
     self->f_handle_ui = &handle_ui;
     logg(LOG_DBG, "handle_ui_init in ui_fft");

@@ -140,12 +140,14 @@ static void lcd_init(void)
     {
         logg(LOG_ERR, "lcd_init()<ts> failed with %d", ts_status);
     }
+    logg(LOG_DBG, "lcd resolution: %u %u", x_size, y_size);
 }
 
 static void init_ui_states(void)
 {
     init_ui_start_screen(&ui_states[UI_STATE_START_SCREEN]);
     init_ui_fft(&ui_states[UI_STATE_AUDIO_VISUALIZATION]);
+    init_ui_fir_adj(&ui_states[UI_STATE_FIR_ADJ]);
 }
 
 static void update_joy_state(void)

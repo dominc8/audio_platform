@@ -15,6 +15,8 @@
 #define N_AUDIO_BLOCKS              ((uint32_t)32)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 
+volatile int32_t fir_update_flag;
+
 /* Private variables ---------------------------------------------------------*/
 ALIGN_32BYTES(static int32_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
 ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ ((section(".AXI_SRAM")));
