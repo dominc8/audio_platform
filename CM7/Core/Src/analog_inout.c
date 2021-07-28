@@ -103,6 +103,7 @@ void analog_inout(void)
     // setup FIR filters
     if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
     {
+        memset(&fir_coeffs[0][0], 0, sizeof(fir_coeffs[0]));
         fir_orders[0] = 5;
         fir_coeffs[0][0] = 0.0955f;
         fir_coeffs[0][1] = 0.1949f;
@@ -113,6 +114,7 @@ void analog_inout(void)
     }
     if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
     {
+        memset(&fir_coeffs[1][0], 0, sizeof(fir_coeffs[1]));
         fir_orders[1] = 5;
         fir_coeffs[1][0] = 0.0217f;
         fir_coeffs[1][1] = -0.1054f;
@@ -144,6 +146,7 @@ void analog_inout(void)
         if (fir_update_flag == 1)
         {
             sync_fir_coeffs();
+            fir_update_flag = 0;
         }
     }
     while (lock_hsem(HSEM_I2C4))

@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-#define MAX_FIR_ORDER     15
+#define MAX_FIR_ORDER       15
+#define FIR_COEFF_MAX       2.F
+#define FIR_COEFF_MIN       -2.F
 
 typedef struct fir_f32_t
 {

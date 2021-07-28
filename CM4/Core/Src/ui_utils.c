@@ -58,3 +58,28 @@ int32_t update_ui_slider(ui_slider_t *s, const TS_MultiTouch_State_t *state)
     }
     return ret;
 }
+
+void set_x0_text_centered(ui_button_t *b)
+{
+    int32_t x0_text = b->x0;
+    if ((b->text != NULL) || (b->font != NULL))
+    {
+        char *ptr = b->text;
+        int32_t n_chars = 0;
+        while (*(ptr++))
+            ++n_chars;
+
+        x0_text = (b->x0 + b->x1 - b->font->Width * n_chars) / 2;
+    }
+    b->x0_text = x0_text;
+}
+
+void set_y0_text_centered(ui_button_t *b)
+{
+    int32_t y0_text = (b->y0 + b->y1) / 2;
+    if (b->font != NULL)
+    {
+        y0_text -= b->font->Height / 2;
+    }
+    b->y0_text = y0_text;
+}

@@ -27,5 +27,7 @@ void draw_ui_button(const ui_button_t *b);
 void draw_ui_slider(const ui_slider_t *s);
 int32_t is_ui_button_touched(const ui_button_t *b, const TS_MultiTouch_State_t *state);
 int32_t update_ui_slider(ui_slider_t *s, const TS_MultiTouch_State_t *state);
+void set_x0_text_centered(ui_button_t *b);
+void set_y0_text_centered(ui_button_t *b);
 
 #endif /* UI_UTILS_H */

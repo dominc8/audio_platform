@@ -86,14 +86,14 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     GUI_DisplayStringAt(0, 10, (uint8_t*) "Audio visualization", CENTER_MODE);
 
     ui_button_fir.x0 = 3 * x_size / 4;
-    ui_button_fir.x1 = x_size;
-    ui_button_fir.y0 = 0;
-    ui_button_fir.y1 = 30;
+    ui_button_fir.x1 = x_size - 2;
+    ui_button_fir.y0 = 42;
+    ui_button_fir.y1 = 82;
     ui_button_fir.color = GUI_COLOR_DARKBLUE;
     ui_button_fir.font = &Font24;
-    ui_button_fir.x0_text = 7 * x_size / 8 - Font24.Width * 3 / 2;
-    ui_button_fir.y0_text = 3;
     ui_button_fir.text = "FIR";
+    set_x0_text_centered(&ui_button_fir);
+    set_y0_text_centered(&ui_button_fir);
 
     draw_ui_button(&ui_button_fir);
 

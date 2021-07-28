@@ -17,11 +17,6 @@ static float get_coeff_from_slider(const ui_slider_t *s)
 
 static void put_coeff_to_slider(ui_slider_t *s, float coeff)
 {
-    if (coeff < -1.f || coeff > 1.f)
-    {
-        logg(LOG_WRN, "coeff is out of range (%f), changing to 0.f", coeff);
-        coeff = 0.f;
-    }
     coeff = coeff * s->width + s->width;
     s->val = coeff / 2;
 }
@@ -37,7 +32,7 @@ static void print_fir_slider_val(const ui_slider_t *s)
     str[7] = '\0';
     uint32_t x0 = s->x0 + s->width / 2 - Font16.Width * 3;
     uint32_t y0 = s->y0 + s->height / 2 - Font16.Height / 2;
-    GUI_DisplayStringAt(x0, y0, &str[0], LEFT_MODE);
+    GUI_DisplayStringAt(x0, y0, (uint8_t*) &str[0], LEFT_MODE);
     GUI_SetFont(font);
 }
 
@@ -54,6 +49,8 @@ static void debug_fir_coeff(void)
 }
 
 static ui_slider_t fir_slider;
+static ui_button_t fir_order_up;
+static ui_button_t fir_order_down;
 
 static int32_t fir_coeff_idx;
 static int32_t fir_channel;
@@ -67,6 +64,7 @@ static void handle_joy(JOYPin_TypeDef joy_pin);
 static void save_fir_coeff(void);
 static void update_fir_coeff(void);
 static void print_fir_info(void);
+static void force_coeffs_in_range(void);
 
 void init_ui_fir_adj(ui_state_t *ui_state)
 {
@@ -94,14 +92,28 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
         next_state = UI_STATE_AUDIO_VISUALIZATION;
         update_fir_coeff();
         debug_fir_coeff();
-        // signalize updated fir coeff
     }
     else
     {
         update_ui_slider(&fir_slider, touch_state);
         draw_ui_slider(&fir_slider);
 
-        // handle fir adjustment
+        if (is_ui_button_touched(&fir_order_up, touch_state) == 1)
+        {
+            if (fir_orders[fir_channel] < MAX_FIR_ORDER)
+            {
+                fir_orders[fir_channel]++;
+            }
+            print_fir_info();
+        }
+        if (is_ui_button_touched(&fir_order_down, touch_state) == 1)
+        {
+            if (fir_orders[fir_channel] > 0)
+            {
+                fir_orders[fir_channel]--;
+            }
+            print_fir_info();
+        }
     }
     return next_state;
 }
@@ -136,8 +148,31 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
 
     print_fir_info();
 
+    fir_order_up.x0 = 3 * x_size / 4;
+    fir_order_up.y0 = y_size / 8;
+    fir_order_up.x1 = x_size;
+    fir_order_up.y1 = 3 * y_size / 8;
+    fir_order_up.text = "Order++";
+    fir_order_up.font = &Font24;
+    fir_order_up.color = 0xFF19784E;
+    fir_order_down.x0 = 0;
+    fir_order_down.y0 = y_size / 8;
+    fir_order_down.x1 = x_size / 4;
+    fir_order_down.y1 = 3 * y_size / 8;
+    fir_order_down.text = "Order--";
+    fir_order_down.font = &Font24;
+    fir_order_down.color = 0xFFAF2F44;
+    set_x0_text_centered(&fir_order_up);
+    set_y0_text_centered(&fir_order_up);
+    set_x0_text_centered(&fir_order_down);
+    set_y0_text_centered(&fir_order_down);
+    draw_ui_button(&fir_order_up);
+    draw_ui_button(&fir_order_down);
+
     BSP_LED_Off(LED_ORANGE);
     BSP_LED_On(LED_BLUE);
+
+    force_coeffs_in_range();
 
     self->f_handle_ui = &handle_ui;
     logg(LOG_DBG, "handle_ui_init in ui_fir_adj");
@@ -180,14 +215,14 @@ static void handle_joy(JOYPin_TypeDef joy_pin)
 static void print_fir_info(void)
 {
     uint32_t x_size, y_size;
-    char str[20];
+    char str[32];
 
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
     GUI_FillRect(0, y_size - 40, x_size, 40, GUI_COLOR_BLACK);
-    snprintf(&str[0], sizeof(str), "ch: %ld, idx: %ld", fir_channel, fir_coeff_idx);
+    snprintf(&str[0], sizeof(str), "ch: %ld, idx: %ld, order: %ld", fir_channel, fir_coeff_idx,
+            fir_orders[fir_channel]);
     GUI_DisplayStringAt(0, y_size - 32, (uint8_t*) &str[0], CENTER_MODE);
-
 }
 
 static void save_fir_coeff(void)
@@ -206,4 +241,24 @@ static void update_fir_coeff(void)
     {
         logg(LOG_INF, "HSEM FIR update succedeed");
     }
+}
+
+static void force_coeffs_in_range(void)
+{
+    int32_t n_reset = 0;
+    for (int32_t ch = 0; ch < 2; ++ch)
+    {
+        for (int32_t idx = 0; idx <= MAX_FIR_ORDER; ++idx)
+        {
+            float coeff = fir_coeffs[ch][idx];
+            if ((coeff < FIR_COEFF_MIN) || (coeff > FIR_COEFF_MAX))
+            {
+                fir_coeffs[ch][idx] = 0.F;
+                ++n_reset;
+            }
+        }
+
+    }
+    update_fir_coeff();
+    logg(LOG_INF, "Reset %ld FIR out-of-range coeffs", n_reset);
 }
