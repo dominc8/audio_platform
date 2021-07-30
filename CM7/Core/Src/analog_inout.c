@@ -186,9 +186,9 @@ void analog_inout(void)
 static void sync_fir_coeffs(void)
 {
     fir_left_ch.order = fir_orders[0];
-    memcpy(&fir_left_ch.coeff[0], &fir_coeffs[0][0], fir_left_ch.order * sizeof(float));
+    memcpy(&fir_left_ch.coeff[0], &fir_coeffs[0][0], (fir_left_ch.order + 1) * sizeof(float));
     fir_right_ch.order = fir_orders[1];
-    memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], fir_right_ch.order * sizeof(float));
+    memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], (fir_right_ch.order + 1) * sizeof(float));
 }
 
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
