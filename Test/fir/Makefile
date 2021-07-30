@@ -1,6 +1,6 @@
 CC := gcc
 INCLUDE_DIRS += ../../Common/Inc ../Stubs ../cunit ../utils
-SOURCES := fir_test.c ../../CM7/Core/Src/fir.c
+SOURCES := fir_test.c ../../CM7/Core/Src/fir.c ../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_fir_f32.c ../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_fir_init_f32.c
 
 BIN = fir_test
 GEN = ../gensh/fir_generate.sh
