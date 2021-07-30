@@ -54,7 +54,7 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
     static int32_t cnt = 0;
     acc_dsp_time += dsp_time;
     ++cnt;
-    if (1 << 15 == cnt)
+    if (1 << 17 == cnt)
     {
         event e =
         { .id = EVENT_M7_DSP, .val = acc_dsp_time >> 15 };
@@ -82,10 +82,11 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     out = fir_f32(&fir_right_ch, audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
     dtcm_buffer_out[buf_idx + 1] = out;
-    SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
 
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
+
+    SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
 
     if (buf_idx != buf_out_idx)
     {

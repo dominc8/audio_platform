@@ -45,7 +45,7 @@ static const char* event_to_str(EVENT_ID id)
     static const char *event_names[EVENT_N] =
     { "FFT", "DSP", "MDMA_CFG" };
 
-    if ((id > 0) && (id < EVENT_N))
+    if ((id >= 0) && (id < EVENT_N))
     {
         return event_names[id];
     }

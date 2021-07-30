@@ -64,7 +64,7 @@ void set_x0_text_centered(ui_button_t *b)
     int32_t x0_text = b->x0;
     if ((b->text != NULL) || (b->font != NULL))
     {
-        char *ptr = b->text;
+        const char *ptr = b->text;
         int32_t n_chars = 0;
         while (*(ptr++))
             ++n_chars;
