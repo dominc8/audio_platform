@@ -2,23 +2,23 @@
 #include "logger.h"
 #include "scheduler.h"
 #include "intercore_comm.h"
-#include "shared_data.h"
 #include "perf_meas.h"
-#include "agh_logo.h"
+#include "ui_states.h"
 
 #include "stm32h747i_discovery.h"
 #include "stm32h747i_discovery_lcd.h"
 #include "stm32h747i_discovery_ts.h"
 #include "basic_gui.h"
-#include <stddef.h>
-#include <stdio.h>
+
+static ui_state_t ui_states[UI_STATE_N];
 
 static TS_MultiTouch_State_t ts_mt_state =
 { 0 };
 
 static volatile int32_t button_state;
-static volatile uint32_t JoyPinPressed = 0;
-static uint32_t Joy_State;
+static volatile uint32_t joy_pin_pressed = 0;
+static JOYPin_TypeDef joy_state;
+static JOYPin_TypeDef joy_old_state;
 
 static TS_Init_t hts_init;
 static TS_Init_t *hts;
@@ -28,12 +28,9 @@ static void button_init(void);
 static void joystick_init(void);
 static void lcd_init(void);
 static void led_init(void);
-static void handle_touch(void);
-static void handle_joystick(void);
-static void display_fft(void);
-static void display_start_info(void);
-static void setup_gui(void);
-static void gather_and_log_fft_time(uint32_t fft_time);
+static void init_ui_states(void);
+static void update_joy_state(void);
+static int32_t get_button_state(void);
 
 int32_t ui_task_init(void)
 {
@@ -41,57 +38,59 @@ int32_t ui_task_init(void)
     joystick_init();
     led_init();
     lcd_init();
-    display_start_info();
+    init_ui_states();
     return scheduler_enqueue_task(&ui_task, NULL);
 }
 
 int32_t ui_task(void *arg)
 {
+    static uint32_t last_ccnt;
+    uint32_t new_ccnt;
+    uint32_t diff;
+
+    do
+    {
+        new_ccnt = GET_CCNT();
+        diff = DIFF_CCNT(last_ccnt, new_ccnt);
+    } while (ccnt_to_ms(diff) < 33);
+    last_ccnt = new_ccnt;
+
     static int32_t i = 0;
     if (++i > 10000)
     {
         i = 0;
         logg(LOG_DBG, "UI task");
     }
-    handle_touch();
-    handle_joystick();
-    if (ui_get_button_state() == 1)
+
+    ui_state_t *state = (ui_state_t*) arg;
+    UI_STATE next_state = UI_STATE_START_SCREEN;
+    if (state == NULL)
     {
-        BSP_LED_Off(LED_ORANGE);
-        BSP_LED_On(LED_BLUE);
-
-        setup_gui();
-        new_data_flag = 0;
-        if (0 == lock_unlock_hsem(HSEM_START_AUDIO))
-        {
-            BSP_LED_On(LED_GREEN);
-        }
-        else
-        {
-            BSP_LED_On(LED_ORANGE);
-        }
+        logg(LOG_ERR, "UI State == NULL!");
+        state = &ui_states[UI_STATE_START_SCREEN];
     }
-    if (new_data_flag != 0)
+
+    while (lock_hsem(HSEM_I2C4))
+        ;
+    int32_t ts_status = BSP_TS_Get_MultiTouchState(0, &ts_mt_state);
+    unlock_hsem(HSEM_I2C4);
+    if (ts_status != BSP_ERROR_NONE)
     {
-        uint32_t start = GET_CCNT();
-        display_fft();
-        uint32_t stop = GET_CCNT();
-        uint32_t fft_time = DIFF_CCNT(start, stop);
-        gather_and_log_fft_time(ccnt_to_us(fft_time));
+        ts_mt_state.TouchDetected = 0;
     }
-    return scheduler_enqueue_task(&ui_task, NULL);
-}
+    update_joy_state();
 
-int32_t ui_peek_button_state()
-{
-    return button_state;
-}
-
-int32_t ui_get_button_state()
-{
-    int32_t ret_val = button_state;
-    button_state = 0;
-    return ret_val;
+    if (state->f_handle_ui != NULL)
+    {
+        next_state = state->f_handle_ui(state, &ts_mt_state, get_button_state(),
+                joy_state & (joy_state ^ joy_old_state));
+    }
+    joy_old_state = joy_state;
+    if (next_state < UI_STATE_START_SCREEN || next_state >= UI_STATE_N)
+    {
+        next_state = UI_STATE_START_SCREEN;
+    }
+    return scheduler_enqueue_task(&ui_task, &ui_states[next_state]);
 }
 
 static void button_init(void)
@@ -103,8 +102,9 @@ static void button_init(void)
 static void joystick_init(void)
 {
     BSP_JOY_Init(JOY1, JOY_MODE_EXTI, JOY_ALL);
-    JoyPinPressed = 0;
-    Joy_State = JOY_NONE;
+    joy_pin_pressed = 0;
+    joy_state = JOY_NONE;
+    joy_old_state = JOY_NONE;
 }
 
 static void led_init(void)
@@ -144,204 +144,27 @@ static void lcd_init(void)
     {
         logg(LOG_ERR, "lcd_init()<ts> failed with %d", ts_status);
     }
+    logg(LOG_DBG, "lcd resolution: %u %u", x_size, y_size);
 }
 
-static uint16_t saturate_u16(uint16_t x, uint16_t min, uint16_t max)
+static void init_ui_states(void)
 {
-    if (x < min)
-    {
-        x = min;
-    }
-    else if (x > max)
-    {
-        x = max;
-    }
-    return x;
+    init_ui_start_screen(&ui_states[UI_STATE_START_SCREEN]);
+    init_ui_fft(&ui_states[UI_STATE_AUDIO_VISUALIZATION]);
+    init_ui_fir_adj(&ui_states[UI_STATE_FIR_ADJ]);
 }
 
-static void handle_touch(void)
+static void update_joy_state(void)
 {
-    const uint16_t circle_radius = 10;
-    uint32_t gesture_id = GESTURE_ID_NO_GESTURE;
-    uint16_t x = 0;
-    uint16_t y = 0;
-    uint32_t ts_status = BSP_ERROR_NONE;
-    uint32_t x_size, y_size;
-
-    BSP_LCD_GetXSize(0, &x_size);
-    BSP_LCD_GetYSize(0, &y_size);
-
-    /* Check in polling mode in touch screen the touch status and coordinates */
-    /* of touches if touch occurred                                           */
-
-    while (lock_hsem(HSEM_I2C4))
-        ;
-    ts_status = BSP_TS_Get_MultiTouchState(0, &ts_mt_state);
-    unlock_hsem(HSEM_I2C4);
-
-    if (BSP_ERROR_NONE == ts_status && ts_mt_state.TouchDetected)
-    {
-        /* One or dual touch have been detected  */
-
-        /* Get X and Y position of the first touch post calibrated */
-        x = saturate_u16(ts_mt_state.TouchX[0], circle_radius, x_size - circle_radius);
-        y = saturate_u16(ts_mt_state.TouchY[0], circle_radius, y_size - circle_radius);
-
-        GUI_FillCircle(x, y, circle_radius, GUI_COLOR_ORANGE);
-
-        logg(LOG_DBG, "x1 = %u, y1 = %u, Event = %lu, Weight = %lu", x, y,
-                ts_mt_state.TouchEvent[0], ts_mt_state.TouchWeight[0]);
-
-        if (ts_mt_state.TouchDetected > 1)
-        {
-            /* Get X and Y position of the second touch post calibrated */
-            x = saturate_u16(ts_mt_state.TouchX[1], circle_radius, x_size - circle_radius);
-            y = saturate_u16(ts_mt_state.TouchY[1], circle_radius, y_size - circle_radius);
-
-            GUI_FillCircle(x, y, circle_radius, GUI_COLOR_ORANGE);
-
-            logg(LOG_DBG, "x2 = %u, y2 = %u, Event = %lu, Weight = %lu", x, y,
-                    ts_mt_state.TouchEvent[0], ts_mt_state.TouchWeight[0]);
-
-            return;
-            while (lock_hsem(HSEM_I2C4))
-                ;
-            ts_status = BSP_TS_GetGestureId(0, &gesture_id);
-            unlock_hsem(HSEM_I2C4);
-
-            if (BSP_ERROR_NONE == ts_status)
-            {
-                logg(LOG_DBG, "Gesture Id = %lu", gesture_id);
-            }
-        }
-
-    }
+    joy_state ^= joy_pin_pressed;
+    joy_pin_pressed = 0;
 }
 
-static void handle_joystick(void)
+static int32_t get_button_state(void)
 {
-    switch (JoyPinPressed)
-    {
-        case 0x01U:
-            Joy_State = JOY_SEL;
-            break;
-
-        case 0x02U:
-            Joy_State = JOY_DOWN;
-            break;
-
-        case 0x04U:
-            Joy_State = JOY_LEFT;
-            break;
-
-        case 0x08U:
-            Joy_State = JOY_RIGHT;
-            break;
-
-        case 0x10U:
-            Joy_State = JOY_UP;
-            break;
-        default:
-            Joy_State = JOY_NONE;
-            break;
-    }
-    if (JoyPinPressed != 0)
-    {
-        logg(LOG_DBG, "Joystick %u", JoyPinPressed);
-    }
-    JoyPinPressed = 0;
-}
-
-static inline int32_t limit_val(int32_t val, int32_t val_max)
-{
-    if (val < 0)
-        return 0;
-    else if (val > val_max)
-        return val_max;
-    else
-        return val;
-}
-
-static void display_fft(void)
-{
-    const int32_t x0 = 20;
-    const int32_t dx = 40;
-    const int32_t y_left = 150;
-    const int32_t y_right = 300;
-    const int32_t ymax = 128;
-    const int32_t ymax_shift = 16;
-    const int32_t val_shift = 16 - ymax_shift; // theoretically should be 16..18 - ymax_shift
-
-    for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
-    {
-        int32_t val_left = limit_val(shared_fft_l[i] >> (val_shift), ymax);
-        int32_t val_right = limit_val(shared_fft_r[i] >> (val_shift), ymax);
-
-        GUI_FillRect(x0 + i * dx, y_left + ymax - val_left, dx, val_left, GUI_COLOR_GREEN);
-        GUI_FillRect(x0 + i * dx, y_left, dx, ymax - val_left, GUI_COLOR_WHITE);
-        GUI_FillRect(x0 + i * dx, y_right + ymax - val_right, dx, val_right, GUI_COLOR_GREEN);
-        GUI_FillRect(x0 + i * dx, y_right, dx, ymax - val_right, GUI_COLOR_WHITE);
-    }
-}
-
-static void display_start_info(void)
-{
-    uint32_t x_size;
-    uint32_t y_size;
-
-    BSP_LCD_GetXSize(0, &x_size);
-    BSP_LCD_GetYSize(0, &y_size);
-
-    GUI_SetFont(&GUI_DEFAULT_FONT);
-
-    GUI_SetBackColor(GUI_COLOR_WHITE);
-    GUI_Clear(GUI_COLOR_WHITE);
-
-    GUI_SetTextColor(GUI_COLOR_DARKBLUE);
-
-    GUI_DisplayStringAt(0, 10, (uint8_t*) "Start screen", CENTER_MODE);
-
-    GUI_DrawBitmap(x_size / 2 - 15, y_size - 80, (uint8_t*) aghlogo);
-
-    GUI_SetFont(&Font16);
-    BSP_LCD_FillRect(0, 0, y_size / 2 + 15, x_size, 60, GUI_COLOR_BLUE);
-    GUI_SetTextColor(GUI_COLOR_WHITE);
-    GUI_SetBackColor(GUI_COLOR_BLUE);
-    GUI_DisplayStringAt(0, y_size / 2 + 30, (uint8_t*) "Press Wakeup button to start :",
-            CENTER_MODE);
-}
-
-static void setup_gui(void)
-{
-    uint32_t x_size, y_size;
-
-    BSP_LCD_GetXSize(0, &x_size);
-    BSP_LCD_GetYSize(0, &y_size);
-
-    GUI_Clear(GUI_COLOR_WHITE);
-
-    GUI_FillRect(0, 0, x_size, 90, GUI_COLOR_BLUE);
-    GUI_SetTextColor(GUI_COLOR_WHITE);
-    GUI_SetBackColor(GUI_COLOR_BLUE);
-    GUI_SetFont(&Font24);
-    GUI_DisplayStringAt(0, 0, (uint8_t*) "Analog input/output demo", CENTER_MODE);
-
-    GUI_DrawRect(10, 100, x_size - 20, y_size - 110, GUI_COLOR_BLUE);
-    GUI_DrawRect(11, 101, x_size - 22, y_size - 112, GUI_COLOR_BLUE);
-}
-
-static void gather_and_log_fft_time(uint32_t fft_time)
-{
-    static uint32_t acc_fft_time = 0;
-    static int32_t cnt = 0;
-    acc_fft_time += fft_time;
-    ++cnt;
-    if (1024 == cnt)
-    {
-        logg(LOG_DBG, "Avg FFT display time: %u us", acc_fft_time >> 10);
-        acc_fft_time = 0;
-        cnt = 0;
-    }
+    int32_t ret_val = button_state;
+    button_state = 0;
+    return ret_val;
 }
 
 void BSP_PB_Callback(Button_TypeDef button)
@@ -354,5 +177,5 @@ void BSP_PB_Callback(Button_TypeDef button)
 
 void BSP_JOY_Callback(JOY_TypeDef JOY, uint32_t JoyPin)
 {
-    JoyPinPressed = JoyPin;
+    joy_pin_pressed = JoyPin;
 }

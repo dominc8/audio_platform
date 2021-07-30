@@ -8,11 +8,14 @@
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
+#include "fir.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
 #define N_AUDIO_BLOCKS              ((uint32_t)32)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
+
+volatile int32_t fir_update_flag;
 
 /* Private variables ---------------------------------------------------------*/
 ALIGN_32BYTES(static int32_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
@@ -20,14 +23,8 @@ ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ 
 ALIGN_32BYTES(static int32_t audio_in[2]);
 ALIGN_32BYTES(static int32_t dtcm_buffer_out[AUDIO_BUFFER_SIZE]);
 
-typedef struct fir5
-{
-    float coeff[3];
-    float samples[6];
-} fir5;
-
-static fir5 lowpass_02;
-static fir5 highpass_025;
+static fir_f32_t fir_left_ch;
+static fir_f32_t fir_right_ch;
 
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
@@ -44,56 +41,27 @@ static void gather_and_log_fft_time(uint32_t fft_time)
     if (1 << 15 == cnt)
     {
         event e =
-        { .id = EVENT_M7_TRACE, .val = acc_fft_time >> 15 };
+        { .id = EVENT_M7_FFT, .val = acc_fft_time >> 15 };
         eq_m7_add_event(e);
         acc_fft_time = 0;
         cnt = 0;
     }
-
 }
 
-static int32_t fir5_apply(fir5 *f, int32_t in)
+static void gather_and_log_dsp_time(uint32_t dsp_time)
 {
-    float out = 0.f;
-    float *sample_ptr = &f->samples[0];
-    for (int32_t i = 0; i < 3; ++i)
+    static uint32_t acc_dsp_time = 0;
+    static int32_t cnt = 0;
+    acc_dsp_time += dsp_time;
+    ++cnt;
+    if (1 << 17 == cnt)
     {
-        out += f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
+        event e =
+        { .id = EVENT_M7_DSP, .val = acc_dsp_time >> 15 };
+        eq_m7_add_event(e);
+        acc_dsp_time = 0;
+        cnt = 0;
     }
-    for (int32_t i = 2; i >= 3; --i)
-    {
-        out += f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 0; i < 5; ++i)
-    {
-        f->samples[i] = f->samples[i + 1];
-    }
-    f->samples[5] = (float) in;
-    return out;
-}
-
-static int32_t fir5_apply_highpass(fir5 *f, int32_t in)
-{
-    float out = 0.f;
-    float *sample_ptr = &f->samples[0];
-    for (int32_t i = 0; i < 3; ++i)
-    {
-        out += f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 2; i >= 3; --i)
-    {
-        out -= f->coeff[i] * (*sample_ptr);
-        ++sample_ptr;
-    }
-    for (int32_t i = 0; i < 5; ++i)
-    {
-        f->samples[i] = f->samples[i + 1];
-    }
-    f->samples[5] = (float) in;
-    return out;
 }
 
 void mdma_callback(MDMA_HandleTypeDef *_hmdma)
@@ -106,12 +74,18 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     int32_t buf_idx = buf_out_idx;
     int32_t out;
 
-    out = fir5_apply(&lowpass_02, audio_in[0]);
+    uint32_t start = GET_CCNT();
+
+    out = fir_f32(&fir_left_ch, audio_in[0]);
     audio_buffer_out[buf_idx] = out;
     dtcm_buffer_out[buf_idx] = out;
-    out = fir5_apply_highpass(&highpass_025, audio_in[1]);
+    out = fir_f32(&fir_right_ch, audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
     dtcm_buffer_out[buf_idx + 1] = out;
+
+    uint32_t stop = GET_CCNT();
+    gather_and_log_dsp_time(DIFF_CCNT(start, stop));
+
     SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
 
     if (buf_idx != buf_out_idx)
@@ -128,6 +102,7 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
 static void deinit_mdma(void);
+static void sync_fir_coeffs(void);
 
 /*----------------------------------------------------------------------------*/
 void analog_inout(void)
@@ -145,14 +120,32 @@ void analog_inout(void)
     err_cnt = 0;
     race_cnt = 0;
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
-    lowpass_02.coeff[0] = 0.0955f;
-    lowpass_02.coeff[1] = 0.1949f;
-    lowpass_02.coeff[2] = 0.2624f;
-    memset(&lowpass_02.samples[0], 0, sizeof(lowpass_02.samples));
-    highpass_025.coeff[0] = 0.0217f;
-    highpass_025.coeff[1] = -0.1054f;
-    highpass_025.coeff[2] = -0.5978f;
-    memset(&highpass_025.samples[0], 0, sizeof(highpass_025.samples));
+    fir_update_flag = 0;
+
+    // setup FIR filters
+    if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
+    {
+        memset(&fir_coeffs[0][0], 0, sizeof(fir_coeffs[0]));
+        fir_orders[0] = 5;
+        fir_coeffs[0][0] = 0.0955f;
+        fir_coeffs[0][1] = 0.1949f;
+        fir_coeffs[0][2] = 0.2624f;
+        fir_coeffs[0][3] = 0.2624f;
+        fir_coeffs[0][4] = 0.1949f;
+        fir_coeffs[0][5] = 0.0955f;
+    }
+    if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
+    {
+        memset(&fir_coeffs[1][0], 0, sizeof(fir_coeffs[1]));
+        fir_orders[1] = 5;
+        fir_coeffs[1][0] = 0.0217f;
+        fir_coeffs[1][1] = -0.1054f;
+        fir_coeffs[1][2] = -0.5978f;
+        fir_coeffs[1][3] = 0.5978f;
+        fir_coeffs[1][4] = 0.1054f;
+        fir_coeffs[1][5] = -0.0217f;
+    }
+    sync_fir_coeffs();
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -172,6 +165,11 @@ void analog_inout(void)
 
             ++new_data_flag;
         }
+        if (fir_update_flag == 1)
+        {
+            sync_fir_coeffs();
+            fir_update_flag = 0;
+        }
     }
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -183,6 +181,14 @@ void analog_inout(void)
 
     deinit_mdma();
 
+}
+
+static void sync_fir_coeffs(void)
+{
+    fir_left_ch.order = fir_orders[0];
+    memcpy(&fir_left_ch.coeff[0], &fir_coeffs[0][0], (fir_left_ch.order + 1) * sizeof(float));
+    fir_right_ch.order = fir_orders[1];
+    memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], (fir_right_ch.order + 1) * sizeof(float));
 }
 
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
@@ -205,7 +211,7 @@ static void init_mdma(void)
     HAL_StatusTypeDef status;
     MDMA_LinkNodeConfTypeDef node_conf;
     event e =
-    { .id = EVENT_MDMA_CFG, .val = 0U };
+    { .id = EVENT_M7_MDMA_CFG, .val = 0U };
 
     __HAL_RCC_MDMA_CLK_ENABLE();
 

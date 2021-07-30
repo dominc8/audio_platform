@@ -199,6 +199,60 @@
   },
   {
     "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "event_queue_test",
+      "event_queue_test.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue/event_queue_test.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue/event_queue_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "event_queue_test",
+      "../../Common/Src/event_queue.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue/../../Common/Src/event_queue.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue/event_queue_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "event_queue_test",
+      "../Stubs/shared_data.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue/../Stubs/shared_data.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/event_queue/event_queue_test"
+  },
+  {
+    "arguments": [
       "/usr/bin/gcc",
       "-c",
       "-I../../CM7/Core/Inc",
@@ -232,5 +286,113 @@
     "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist",
     "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/../../CM7/Core/Src/fft_hist.c",
     "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fft_16hist/fft_16hist_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "fir_test",
+      "fir_test.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fir",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/fir_test.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/fir_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "fir_test",
+      "../../CM7/Core/Src/fir.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fir",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/../../CM7/Core/Src/fir.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/fir_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "fir_test",
+      "../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_fir_f32.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fir",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_fir_f32.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/fir_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "fir_test",
+      "../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_fir_init_f32.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/fir",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_fir_init_f32.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/fir/fir_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../CM4/Core/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "scheduler_test",
+      "scheduler_test.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/scheduler",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/scheduler/scheduler_test.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/scheduler/scheduler_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-I../../CM4/Core/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "scheduler_test",
+      "../../CM4/Core/Src/scheduler.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/scheduler",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/scheduler/../../CM4/Core/Src/scheduler.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/scheduler/scheduler_test"
   }
 ]

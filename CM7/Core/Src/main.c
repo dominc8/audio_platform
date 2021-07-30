@@ -7,7 +7,6 @@
 #include "stm32h747i_discovery.h"
 #include "stm32h747i_discovery_sdram.h"
 
-
 static void SystemClock_Config(void);
 static void MPU_Config(void);
 static void CPU_CACHE_Enable(void);
@@ -63,11 +62,14 @@ int main(void)
     }
 
     __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_FIR_UPDATE));
     HAL_NVIC_SetPriority(HSEM1_IRQn, 5, 0);
     HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
     HAL_NVIC_EnableIRQ(HSEM1_IRQn);
     start_audio = 0;
+
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
+    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_FIR_UPDATE));
     BSP_LED_Init(LED_RED);
     ccnt_init();
     eq_m7_init();
@@ -78,7 +80,8 @@ int main(void)
         while (start_audio != 1)
         {
         }
-        event e = { .id = EVENT_DBG, .val = (uint32_t)i };
+        event e =
+        { .id = EVENT_DBG, .val = (uint32_t) i };
         i += eq_m7_add_event(e) + 10;
         analog_inout();
     }

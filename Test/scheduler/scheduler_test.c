@@ -79,7 +79,6 @@ void scheduler_auto_enqueue_task(void)
     CU_ASSERT_EQUAL(gVar, n_iterations);
 }
 
-
 #define TESTS                                               \
     CUNIT_CI_TEST(scheduler_init_test),                     \
     CUNIT_CI_TEST(scheduler_single_enqueue_dequeue_test),   \

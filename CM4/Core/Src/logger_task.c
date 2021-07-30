@@ -4,6 +4,8 @@
 #include "event_queue.h"
 #include <stddef.h>
 
+static const char* event_to_str(EVENT_ID id);
+
 int32_t logger_task_init(void)
 {
     logger_init(115200);
@@ -19,7 +21,15 @@ int32_t logger_task(void *arg)
 
     if (get_event_status == 0)
     {
-        logg(LOG_INF, "M7: (%d, %u)", e.id, e.val);
+        const char *event_name = event_to_str(e.id);
+        if (event_name == NULL)
+        {
+            logg(LOG_INF, "M7: (%d, %u)", e.id, e.val);
+        }
+        else
+        {
+            logg(LOG_INF, "M7 %s: %u", event_name, e.val);
+        }
     }
 
     if (++i > 10000)
@@ -28,5 +38,20 @@ int32_t logger_task(void *arg)
         logg(LOG_DBG, "Logger task");
     }
     return scheduler_enqueue_task(&logger_task, NULL);
+}
+
+static const char* event_to_str(EVENT_ID id)
+{
+    static const char *event_names[EVENT_N] =
+    { "FFT", "DSP", "MDMA_CFG" };
+
+    if ((id >= 0) && (id < EVENT_N))
+    {
+        return event_names[id];
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
