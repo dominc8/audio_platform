@@ -41,9 +41,25 @@ static void gather_and_log_fft_time(uint32_t fft_time)
     if (1 << 15 == cnt)
     {
         event e =
-        { .id = EVENT_M7_TRACE, .val = acc_fft_time >> 15 };
+        { .id = EVENT_M7_FFT, .val = acc_fft_time >> 15 };
         eq_m7_add_event(e);
         acc_fft_time = 0;
+        cnt = 0;
+    }
+}
+
+static void gather_and_log_dsp_time(uint32_t dsp_time)
+{
+    static uint32_t acc_dsp_time = 0;
+    static int32_t cnt = 0;
+    acc_dsp_time += dsp_time;
+    ++cnt;
+    if (1 << 15 == cnt)
+    {
+        event e =
+        { .id = EVENT_M7_DSP, .val = acc_dsp_time >> 15 };
+        eq_m7_add_event(e);
+        acc_dsp_time = 0;
         cnt = 0;
     }
 }
@@ -58,6 +74,8 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     int32_t buf_idx = buf_out_idx;
     int32_t out;
 
+    uint32_t start = GET_CCNT();
+
     out = fir_f32(&fir_left_ch, audio_in[0]);
     audio_buffer_out[buf_idx] = out;
     dtcm_buffer_out[buf_idx] = out;
@@ -65,6 +83,9 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     audio_buffer_out[buf_idx + 1] = out;
     dtcm_buffer_out[buf_idx + 1] = out;
     SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
+
+    uint32_t stop = GET_CCNT();
+    gather_and_log_dsp_time(DIFF_CCNT(start, stop));
 
     if (buf_idx != buf_out_idx)
     {
@@ -189,7 +210,7 @@ static void init_mdma(void)
     HAL_StatusTypeDef status;
     MDMA_LinkNodeConfTypeDef node_conf;
     event e =
-    { .id = EVENT_MDMA_CFG, .val = 0U };
+    { .id = EVENT_M7_MDMA_CFG, .val = 0U };
 
     __HAL_RCC_MDMA_CLK_ENABLE();
 

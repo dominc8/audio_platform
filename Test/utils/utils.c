@@ -1,7 +1,7 @@
 #include "utils.h"
 #include <stdio.h>
 
-int32_t load_array(void *arr, int32_t el_size, int32_t n, const char* filename)
+int32_t load_array(void *arr, int32_t el_size, int32_t n, const char *filename)
 {
     FILE *f = fopen(filename, "rb");
     if (NULL == f)

@@ -12,7 +12,8 @@ static void assert_events(event a, event b)
 void eq_m7_add_event_test(void)
 {
     int32_t add_status;
-    event e = { .id = EVENT_M7_TRACE, .val = 10 };
+    event e =
+    { .id = EVENT_M7_FFT, .val = 10 };
 
     eq_m7_init();
     add_status = eq_m7_add_event(e);
@@ -23,8 +24,10 @@ void eq_m7_add_event_test(void)
 void eq_m7_add_and_get_event_test(void)
 {
     int32_t add_status, get_status;
-    event e1 = { .id = EVENT_M7_TRACE, .val = 10 };
-    event e2 = { .id = EVENT_N, .val = 20 };
+    event e1 =
+    { .id = EVENT_M7_FFT, .val = 10 };
+    event e2 =
+    { .id = EVENT_N, .val = 20 };
 
     eq_m7_init();
 
@@ -50,7 +53,8 @@ void eq_m7_get_event_empty_eq_test(void)
 void eq_m7_add_event_full_eq_test(void)
 {
     int32_t add_status;
-    event e = { .id = EVENT_M7_TRACE, .val = 10 };
+    event e =
+    { .id = EVENT_M7_FFT, .val = 10 };
 
     eq_m7_init();
 
@@ -68,8 +72,10 @@ void eq_m7_add_get_full_empty_test(void)
 {
     int32_t add_status;
     int32_t get_status;
-    event e = { .id = EVENT_M7_TRACE};
-    event e_ref = { .id = EVENT_M7_TRACE};
+    event e =
+    { .id = EVENT_M7_FFT };
+    event e_ref =
+    { .id = EVENT_M7_FFT };
 
     eq_m7_init();
 
@@ -100,8 +106,10 @@ void eq_m7_add_get_full_empty_rotate_test(void)
     int32_t n_iter = 3;
     int32_t add_status;
     int32_t get_status;
-    event e = { .id = EVENT_M7_TRACE};
-    event e_ref = { .id = EVENT_M7_TRACE};
+    event e =
+    { .id = EVENT_M7_FFT };
+    event e_ref =
+    { .id = EVENT_M7_FFT };
 
     eq_m7_init();
 
@@ -129,7 +137,6 @@ void eq_m7_add_get_full_empty_rotate_test(void)
         CU_ASSERT_EQUAL(get_status, -1);
     }
 }
-
 
 #define TESTS                                               \
     CUNIT_CI_TEST(eq_m7_add_event_test),                    \
