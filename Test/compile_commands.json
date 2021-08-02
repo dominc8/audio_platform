@@ -245,6 +245,52 @@
   },
   {
     "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "biquad_test",
+      "../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "biquad_test",
+      "../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test"
+  },
+  {
+    "arguments": [
       "/usr/bin/cc",
       "-c",
       "-O3",

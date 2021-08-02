@@ -1,6 +1,6 @@
 CC := gcc
 INCLUDE_DIRS += ../../Common/Inc ../Stubs ../cunit ../utils
-SOURCES := biquad_test.c ../../CM7/Core/Src/biquad.c #../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c ../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c
+SOURCES := biquad_test.c ../../CM7/Core/Src/biquad.c ../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c ../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c
 
 BIN = biquad_test
 GEN = ../gensh/biquad_generate.sh

@@ -1,6 +1,10 @@
 #ifndef ARM_MATH_H
 #define ARM_MATH_H
 
+#define ARM_MATH_CM7
+#define LOW_OPTIMIZATION_ENTER
+#define LOW_OPTIMIZATION_EXIT
+
 #include "math.h"
 #include "stdint.h"
 #include "string.h"
@@ -14,6 +18,13 @@ float32_t *pState;    /**< points to the state variable array. The array is of l
 float32_t *pCoeffs;   /**< points to the coefficient array. The array is of length numTaps. */
 } arm_fir_instance_f32;
 
+typedef struct
+{
+uint8_t numStages;         /**< number of 2nd order stages in the filter.  Overall order is 2*numStages. */
+float32_t *pState;         /**< points to the array of state coefficients.  The array is of length 2*numStages. */
+float32_t *pCoeffs;        /**< points to the array of coefficients.  The array is of length 5*numStages. */
+} arm_biquad_cascade_df2T_instance_f32;
+
 void arm_fir_f32(
 const arm_fir_instance_f32 * S,
 float32_t * pSrc,
@@ -26,6 +37,18 @@ uint16_t numTaps,
 float32_t * pCoeffs,
 float32_t * pState,
 uint32_t blockSize);
+
+void arm_biquad_cascade_df2T_f32(
+const arm_biquad_cascade_df2T_instance_f32 * S,
+float32_t * pSrc,
+float32_t * pDst,
+uint32_t blockSize);
+
+void arm_biquad_cascade_df2T_init_f32(
+arm_biquad_cascade_df2T_instance_f32 * S,
+uint8_t numStages,
+float32_t * pCoeffs,
+float32_t * pState);
 
 #endif /* ARM_MATH_H */
 
