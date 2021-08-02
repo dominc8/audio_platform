@@ -8,7 +8,7 @@ INPUT_DATA = x.dat coeff.dat y.dat
 
 #########################################
 
-FLAGS := $(DEBUG_FLAGS)
+FLAGS := $(BUILD_FLAGS)
 FLAGS += $(addprefix -I,$(INCLUDE_DIRS))
 LD_FLAGS = -lm
 

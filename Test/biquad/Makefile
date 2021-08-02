@@ -1,10 +1,10 @@
 CC := gcc
-INCLUDE_DIRS += ../../CM7/Core/Inc ../Stubs ../cunit ../utils
-SOURCES := fft_16hist_test.c ../../CM7/Core/Src/fft_hist.c
+INCLUDE_DIRS += ../../Common/Inc ../Stubs ../cunit ../utils
+SOURCES := biquad_test.c ../../CM7/Core/Src/biquad.c #../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c ../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c
 
-BIN = fft_16hist_test
-GEN = ../gensh/fft_16hist_generate.sh
-INPUT_DATA = x.dat yl.dat yr.dat
+BIN = biquad_test
+GEN = ../gensh/biquad_generate.sh
+INPUT_DATA = x.dat coeff.dat y.dat
 
 #########################################
 

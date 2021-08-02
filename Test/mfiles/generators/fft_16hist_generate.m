@@ -1,10 +1,11 @@
 function fft_16hist_generate(base_path)
+
     fs = 48000;
     dt = 1/fs;
     fft_size = 16;
     channel_size = 2*fft_size;
     t = 0:dt:(channel_size - 1)*dt;
-    
+
     % audio samples from some music file
     audio_data = [
    -0.0060   -0.0127;
@@ -40,7 +41,7 @@ function fft_16hist_generate(base_path)
    -0.0382    0.0026;
    -0.0653   -0.0120
    ];
-   
+
     x = zeros(1, channel_size*2, 'single');
     x(1:2:end) = audio_data(:, 1);
     x(2:2:end) = audio_data(:, 2);
@@ -48,13 +49,10 @@ function fft_16hist_generate(base_path)
     x = single(int16(x * 2^22) * 256);  % Convert to 24bit samples shifted by 8 bits
 
     [yl, yr] = fft_16hist(x);
-%     yl_ref = abs(fft(x(1:2:end)));
-%     yr_ref = abs(fft(x(2:2:end)));
-%     int16(yl_ref(1:16)/64)
-%     int16(yr_ref(1:16)/64)
 
     save_arr(int32(x), append(base_path, 'x.dat'));
     save_arr(yl, append(base_path, 'yl.dat'));
     save_arr(yr, append(base_path, 'yr.dat'));
 
 end
+

@@ -6,7 +6,7 @@ BIN = scheduler_test
 
 #########################################
 
-FLAGS := $(DEBUG_FLAGS)
+FLAGS := $(BUILD_FLAGS)
 FLAGS += $(addprefix -I,$(INCLUDE_DIRS))
 FLAGS += -lm
 
