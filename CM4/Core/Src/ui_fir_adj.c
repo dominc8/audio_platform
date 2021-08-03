@@ -1,7 +1,6 @@
 #include "ui_states.h"
 #include "basic_gui.h"
 #include "stm32h747i_discovery_lcd.h"
-#include "intercore_comm.h"
 #include "shared_data.h"
 #include "perf_meas.h"
 #include "logger.h"
@@ -233,14 +232,8 @@ static void save_fir_coeff(void)
 
 static void update_fir_coeff(void)
 {
-    if (0 != lock_unlock_hsem(HSEM_FIR_UPDATE))
-    {
-        logg(LOG_WRN, "HSEM FIR update failed");
-    }
-    else
-    {
-        logg(LOG_INF, "HSEM FIR update succedeed");
-    }
+    dsp_update_mask = 0x01U << fir_channel;
+    logg(LOG_INF, "HSEM FIR update");
 }
 
 static void force_coeffs_in_range(void)
