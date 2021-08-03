@@ -152,6 +152,7 @@ static void init_ui_states(void)
     init_ui_start_screen(&ui_states[UI_STATE_START_SCREEN]);
     init_ui_fft(&ui_states[UI_STATE_AUDIO_VISUALIZATION]);
     init_ui_fir_adj(&ui_states[UI_STATE_FIR_ADJ]);
+    init_ui_biquad_adj(&ui_states[UI_STATE_BIQUAD_ADJ]);
 }
 
 static void update_joy_state(void)

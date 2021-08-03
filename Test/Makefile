@@ -1,8 +1,17 @@
 CC := gcc
 DEBUG_FLAGS := -O0 -g3 -Wall -fmessage-length=0 -Wno-unused-variable
-RELEASE_FLAGS := -O3 -Wall -fmessage-length=0 -Wno-unused-variable
+RELEASE_FLAGS := -O3 -g3 -Wall -fmessage-length=0 -Wno-unused-variable
 
-SUBDIRS = event_queue fft_16hist fir scheduler
+export BUILD_FLAGS
+
+SUBDIRS = biquad event_queue fft_16hist fir scheduler
+
+
+build_release: BUILD_FLAGS = $(RELEASE_FLAGS)
+build_release: build
+
+build_debug: BUILD_FLAGS = $(DEBUG_FLAGS)
+build_debug: build
 
 build: $(SUBDIRS)
 

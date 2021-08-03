@@ -1,7 +1,5 @@
 CC := gcc
-DEBUG_FLAGS := -O0 -g3 -Wall -fmessage-length=0 -Wno-unused-variable
-RELEASE_FLAGS := -O3 -Wall -fmessage-length=0 -Wno-unused-variable
-FLAGS := $(DEBUG_FLAGS) -I./
+FLAGS := $(BUILD_FLAGS) -I./
 
 CUNIT_SRC := $(wildcard ./Sources/**/*.c)
 CUNIT_OBJ := $(CUNIT_SRC:%.c=%.c.o)

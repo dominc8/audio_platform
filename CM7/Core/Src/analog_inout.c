@@ -9,13 +9,12 @@
 #include "event_queue.h"
 #include "perf_meas.h"
 #include "fir.h"
+#include "biquad.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
 #define N_AUDIO_BLOCKS              ((uint32_t)32)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
-
-volatile int32_t fir_update_flag;
 
 /* Private variables ---------------------------------------------------------*/
 ALIGN_32BYTES(static int32_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
@@ -25,6 +24,8 @@ ALIGN_32BYTES(static int32_t dtcm_buffer_out[AUDIO_BUFFER_SIZE]);
 
 static fir_f32_t fir_left_ch;
 static fir_f32_t fir_right_ch;
+static biquad_f32_t biquad_left_ch;
+static biquad_f32_t biquad_right_ch;
 
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
@@ -64,6 +65,29 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
     }
 }
 
+static int32_t dsp_fir_left(int32_t input)
+{
+    return fir_f32(&fir_left_ch, input);
+}
+
+static int32_t dsp_fir_right(int32_t input)
+{
+    return fir_f32(&fir_right_ch, input);
+}
+
+static int32_t dsp_biquad_left(int32_t input)
+{
+    return biquad_f32(&biquad_left_ch, input);
+}
+
+static int32_t dsp_biquad_right(int32_t input)
+{
+    return biquad_f32(&biquad_right_ch, input);
+}
+
+static int32_t (*dsp_left)(int32_t input) = &dsp_fir_left;
+static int32_t (*dsp_right)(int32_t input) = &dsp_fir_right;
+
 void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
     if (buf_out_idx < 0 || buf_out_idx >= AUDIO_BUFFER_SIZE)
@@ -76,10 +100,10 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 
     uint32_t start = GET_CCNT();
 
-    out = fir_f32(&fir_left_ch, audio_in[0]);
+    out = dsp_left(audio_in[0]);
     audio_buffer_out[buf_idx] = out;
     dtcm_buffer_out[buf_idx] = out;
-    out = fir_f32(&fir_right_ch, audio_in[1]);
+    out = dsp_right(audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
     dtcm_buffer_out[buf_idx + 1] = out;
 
@@ -102,7 +126,7 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
 static void deinit_mdma(void);
-static void sync_fir_coeffs(void);
+static void sync_dsp_filters(uint32_t dsp_mask);
 
 /*----------------------------------------------------------------------------*/
 void analog_inout(void)
@@ -120,7 +144,7 @@ void analog_inout(void)
     err_cnt = 0;
     race_cnt = 0;
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
-    fir_update_flag = 0;
+    dsp_update_mask = 0;
 
     // setup FIR filters
     if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
@@ -133,6 +157,7 @@ void analog_inout(void)
         fir_coeffs[0][3] = 0.2624f;
         fir_coeffs[0][4] = 0.1949f;
         fir_coeffs[0][5] = 0.0955f;
+        sync_dsp_filters(0x01U);
     }
     if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
     {
@@ -144,8 +169,40 @@ void analog_inout(void)
         fir_coeffs[1][3] = 0.5978f;
         fir_coeffs[1][4] = 0.1054f;
         fir_coeffs[1][5] = -0.0217f;
+        sync_dsp_filters(0x02U);
     }
-    sync_fir_coeffs();
+    if (biquad_stages[0] <= 0 || biquad_stages[0] > MAX_BIQUAD_STAGES)
+    {
+        memset(&biquad_coeffs[0][0], 0, sizeof(biquad_coeffs[0]));
+        biquad_stages[0] = 2;
+        biquad_coeffs[0][0] = 0.0472f;
+        biquad_coeffs[0][1] = 0.0198f;
+        biquad_coeffs[0][2] = 0.0472f;
+        biquad_coeffs[0][3] = 0.4060f;
+        biquad_coeffs[0][4] = -0.9598f;
+        biquad_coeffs[0][5] = 0.4434f;
+        biquad_coeffs[0][6] = 0.5240f;
+        biquad_coeffs[0][7] = 0.4434f;
+        biquad_coeffs[0][8] = 1.0785f;
+        biquad_coeffs[0][9] = -0.8450f;
+        sync_dsp_filters(0x04U);
+    }
+    if (biquad_stages[1] <= 0 || biquad_stages[1] > MAX_BIQUAD_STAGES)
+    {
+        memset(&biquad_coeffs[1][0], 0, sizeof(biquad_coeffs[1]));
+        biquad_stages[1] = 2;
+        biquad_coeffs[1][0] = 0.0472f;
+        biquad_coeffs[1][1] = 0.0198f;
+        biquad_coeffs[1][2] = 0.0472f;
+        biquad_coeffs[1][3] = 0.4060f;
+        biquad_coeffs[1][4] = -0.9598f;
+        biquad_coeffs[1][5] = 0.4434f;
+        biquad_coeffs[1][6] = 0.5240f;
+        biquad_coeffs[1][7] = 0.4434f;
+        biquad_coeffs[1][8] = 1.0785f;
+        biquad_coeffs[1][9] = -0.8450f;
+        sync_dsp_filters(0x08U);
+    }
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -165,10 +222,11 @@ void analog_inout(void)
 
             ++new_data_flag;
         }
-        if (fir_update_flag == 1)
+        uint32_t dsp_mask = dsp_update_mask;
+        if (dsp_mask != 0)
         {
-            sync_fir_coeffs();
-            fir_update_flag = 0;
+            dsp_update_mask &= ~dsp_mask;
+            sync_dsp_filters(dsp_mask);
         }
     }
     while (lock_hsem(HSEM_I2C4))
@@ -183,12 +241,34 @@ void analog_inout(void)
 
 }
 
-static void sync_fir_coeffs(void)
+static void sync_dsp_filters(uint32_t dsp_mask)
 {
-    fir_left_ch.order = fir_orders[0];
-    memcpy(&fir_left_ch.coeff[0], &fir_coeffs[0][0], (fir_left_ch.order + 1) * sizeof(float));
-    fir_right_ch.order = fir_orders[1];
-    memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], (fir_right_ch.order + 1) * sizeof(float));
+    if (dsp_mask & 0x01U)
+    {
+        fir_left_ch.order = fir_orders[0];
+        memcpy(&fir_left_ch.coeff[0], &fir_coeffs[0][0], (fir_left_ch.order + 1) * sizeof(float));
+        dsp_left = &dsp_fir_left;
+    }
+    if (dsp_mask & 0x02U)
+    {
+        fir_right_ch.order = fir_orders[1];
+        memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], (fir_right_ch.order + 1) * sizeof(float));
+        dsp_right = &dsp_fir_right;
+    }
+    if (dsp_mask & 0x04U)
+    {
+        biquad_left_ch.n_stage = biquad_stages[0];
+        memcpy(&biquad_left_ch.coeff[0], &biquad_coeffs[0][0],
+                (biquad_left_ch.n_stage * N_COEFF_IN_STAGE) * sizeof(float));
+        dsp_left = &dsp_biquad_left;
+    }
+    if (dsp_mask & 0x08U)
+    {
+        biquad_right_ch.n_stage = biquad_stages[1];
+        memcpy(&biquad_right_ch.coeff[0], &biquad_coeffs[1][0],
+                (biquad_right_ch.n_stage * N_COEFF_IN_STAGE) * sizeof(float));
+        dsp_right = &dsp_biquad_right;
+    }
 }
 
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)

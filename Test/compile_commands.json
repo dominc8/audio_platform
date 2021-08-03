@@ -2,7 +2,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -20,7 +20,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -38,7 +38,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -56,7 +56,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -74,7 +74,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -92,7 +92,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -110,7 +110,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -128,7 +128,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -146,7 +146,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -164,7 +164,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -182,7 +182,7 @@
   {
     "arguments": [
       "/usr/bin/gcc",
-      "-O0",
+      "-O3",
       "-g3",
       "-Wall",
       "-fmessage-length=0",
@@ -199,8 +199,105 @@
   },
   {
     "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "biquad_test",
+      "biquad_test.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "biquad_test",
+      "../../CM7/Core/Src/biquad.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/../../CM7/Core/Src/biquad.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "biquad_test",
+      "../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_f32.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
+      "-I../../Common/Inc",
+      "-I../Stubs",
+      "-I../cunit",
+      "-I../utils",
+      "../cunit/libCUnit.a",
+      "../utils/libutils.a",
+      "-o",
+      "biquad_test",
+      "../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c"
+    ],
+    "directory": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad",
+    "file": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/../../Drivers/CMSIS/DSP/Source/FilteringFunctions/arm_biquad_cascade_df2T_init_f32.c",
+    "output": "/home/dominik/repos/h747_audio/audio_platform/Test/biquad/biquad_test"
+  },
+  {
+    "arguments": [
       "/usr/bin/cc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -219,6 +316,11 @@
     "arguments": [
       "/usr/bin/cc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -237,6 +339,11 @@
     "arguments": [
       "/usr/bin/cc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -255,6 +362,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../CM7/Core/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -273,6 +385,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../CM7/Core/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -291,6 +408,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -309,6 +431,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -327,6 +454,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -345,6 +477,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../Common/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -363,6 +500,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../CM4/Core/Inc",
       "-I../Stubs",
       "-I../cunit",
@@ -381,6 +523,11 @@
     "arguments": [
       "/usr/bin/gcc",
       "-c",
+      "-O3",
+      "-g3",
+      "-Wall",
+      "-fmessage-length=0",
+      "-Wno-unused-variable",
       "-I../../CM4/Core/Inc",
       "-I../Stubs",
       "-I../cunit",

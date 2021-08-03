@@ -7,7 +7,11 @@
 
 typedef enum UI_STATE
 {
-    UI_STATE_START_SCREEN = 0, UI_STATE_AUDIO_VISUALIZATION, UI_STATE_FIR_ADJ, UI_STATE_N
+    UI_STATE_START_SCREEN = 0,
+    UI_STATE_AUDIO_VISUALIZATION,
+    UI_STATE_FIR_ADJ,
+    UI_STATE_BIQUAD_ADJ,
+    UI_STATE_N
 } UI_STATE;
 
 typedef struct ui_state_t
@@ -19,5 +23,6 @@ typedef struct ui_state_t
 void init_ui_start_screen(ui_state_t *ui_state);
 void init_ui_fft(ui_state_t *ui_state);
 void init_ui_fir_adj(ui_state_t *ui_state);
+void init_ui_biquad_adj(ui_state_t *ui_state);
 
 #endif /* UI_STATES_H */
