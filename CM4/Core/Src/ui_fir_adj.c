@@ -50,6 +50,7 @@ static void debug_fir_coeff(void)
 static ui_slider_t fir_slider;
 static ui_button_t fir_order_up;
 static ui_button_t fir_order_down;
+static ui_button_t fir_force_coeffs;
 
 static int32_t fir_coeff_idx;
 static int32_t fir_channel;
@@ -89,7 +90,6 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     {
         init_ui_fir_adj(self);
         next_state = UI_STATE_AUDIO_VISUALIZATION;
-        update_fir_coeff();
         debug_fir_coeff();
     }
     else
@@ -111,6 +111,11 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
             {
                 fir_orders[fir_channel]--;
             }
+            print_fir_info();
+        }
+        if (is_ui_button_touched(&fir_force_coeffs, touch_state) == 1)
+        {
+            force_coeffs_in_range();
             print_fir_info();
         }
     }
@@ -161,17 +166,25 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     fir_order_down.text = "Order--";
     fir_order_down.font = &Font24;
     fir_order_down.color = 0xFFAF2F44;
+    fir_force_coeffs.x0 = 3 * x_size / 8;
+    fir_force_coeffs.y0 = y_size / 8;
+    fir_force_coeffs.x1 = 5 * x_size / 8;
+    fir_force_coeffs.y1 = 3 * y_size / 8;
+    fir_force_coeffs.text = "Fix coeffs";
+    fir_force_coeffs.font = &Font24;
+    fir_force_coeffs.color = 0xFF2E89FF;
     set_x0_text_centered(&fir_order_up);
     set_y0_text_centered(&fir_order_up);
     set_x0_text_centered(&fir_order_down);
     set_y0_text_centered(&fir_order_down);
+    set_x0_text_centered(&fir_force_coeffs);
+    set_y0_text_centered(&fir_force_coeffs);
     draw_ui_button(&fir_order_up);
     draw_ui_button(&fir_order_down);
+    draw_ui_button(&fir_force_coeffs);
 
     BSP_LED_Off(LED_ORANGE);
     BSP_LED_On(LED_BLUE);
-
-    force_coeffs_in_range();
 
     self->f_handle_ui = &handle_ui;
     logg(LOG_DBG, "handle_ui_init in ui_fir_adj");
@@ -233,7 +246,7 @@ static void save_fir_coeff(void)
 static void update_fir_coeff(void)
 {
     dsp_update_mask = 0x01U << fir_channel;
-    logg(LOG_INF, "HSEM FIR update");
+    logg(LOG_INF, "FIR %ld channel update", fir_channel);
 }
 
 static void force_coeffs_in_range(void)

@@ -17,12 +17,13 @@ static uint32_t fft_bin[N_FFT_BIN];
 
 static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
-static UI_STATE handle_ui_init_from_fir(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
-        int32_t button_state, JOYPin_TypeDef joy_pin);
+static UI_STATE handle_ui_init_from_fir_biquad(ui_state_t *self,
+        const TS_MultiTouch_State_t *touch_state, int32_t button_state, JOYPin_TypeDef joy_pin);
 static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
 
 static ui_button_t ui_button_fir;
+static ui_button_t ui_button_biquad;
 
 static void display_fft(void);
 static void gather_and_log_fft_time(uint32_t fft_time);
@@ -52,8 +53,13 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     }
     else if (is_ui_button_touched(&ui_button_fir, touch_state) == 1)
     {
-        self->f_handle_ui = &handle_ui_init_from_fir;
+        self->f_handle_ui = &handle_ui_init_from_fir_biquad;
         next_state = UI_STATE_FIR_ADJ;
+    }
+    else if (is_ui_button_touched(&ui_button_biquad, touch_state) == 1)
+    {
+        self->f_handle_ui = &handle_ui_init_from_fir_biquad;
+        next_state = UI_STATE_BIQUAD_ADJ;
     }
     else
     {
@@ -94,8 +100,18 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     ui_button_fir.text = "FIR";
     set_x0_text_centered(&ui_button_fir);
     set_y0_text_centered(&ui_button_fir);
-
     draw_ui_button(&ui_button_fir);
+
+    ui_button_biquad.x0 = 3 * x_size / 4;
+    ui_button_biquad.x1 = x_size - 2;
+    ui_button_biquad.y0 = 102;
+    ui_button_biquad.y1 = 142;
+    ui_button_biquad.color = GUI_COLOR_DARKBLUE;
+    ui_button_biquad.font = &Font24;
+    ui_button_biquad.text = "BIQUAD";
+    set_x0_text_centered(&ui_button_biquad);
+    set_y0_text_centered(&ui_button_biquad);
+    draw_ui_button(&ui_button_biquad);
 
     BSP_LED_Off(LED_ORANGE);
     BSP_LED_On(LED_BLUE);
@@ -109,8 +125,8 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     return UI_STATE_AUDIO_VISUALIZATION;
 }
 
-static UI_STATE handle_ui_init_from_fir(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
-        int32_t button_state, JOYPin_TypeDef joy_pin)
+static UI_STATE handle_ui_init_from_fir_biquad(ui_state_t *self,
+        const TS_MultiTouch_State_t *touch_state, int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     uint32_t x_size, y_size;
 
@@ -126,6 +142,7 @@ static UI_STATE handle_ui_init_from_fir(ui_state_t *self, const TS_MultiTouch_St
     GUI_DisplayStringAt(0, 10, (uint8_t*) "Audio visualization", CENTER_MODE);
 
     draw_ui_button(&ui_button_fir);
+    draw_ui_button(&ui_button_biquad);
 
     BSP_LED_Off(LED_ORANGE);
     BSP_LED_On(LED_BLUE);

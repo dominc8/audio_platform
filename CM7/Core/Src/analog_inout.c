@@ -171,6 +171,38 @@ void analog_inout(void)
         fir_coeffs[1][5] = -0.0217f;
         sync_dsp_filters(0x02U);
     }
+    if (biquad_stages[0] <= 0 || biquad_stages[0] > MAX_BIQUAD_STAGES)
+    {
+        memset(&biquad_coeffs[0][0], 0, sizeof(biquad_coeffs[0]));
+        biquad_stages[0] = 2;
+        biquad_coeffs[0][0] = 0.0472f;
+        biquad_coeffs[0][1] = 0.0198f;
+        biquad_coeffs[0][2] = 0.0472f;
+        biquad_coeffs[0][3] = 0.4060f;
+        biquad_coeffs[0][4] = -0.9598f;
+        biquad_coeffs[0][5] = 0.4434f;
+        biquad_coeffs[0][6] = 0.5240f;
+        biquad_coeffs[0][7] = 0.4434f;
+        biquad_coeffs[0][8] = 1.0785f;
+        biquad_coeffs[0][9] = -0.8450f;
+        sync_dsp_filters(0x04U);
+    }
+    if (biquad_stages[1] <= 0 || biquad_stages[1] > MAX_BIQUAD_STAGES)
+    {
+        memset(&biquad_coeffs[1][0], 0, sizeof(biquad_coeffs[1]));
+        biquad_stages[1] = 2;
+        biquad_coeffs[1][0] = 0.0472f;
+        biquad_coeffs[1][1] = 0.0198f;
+        biquad_coeffs[1][2] = 0.0472f;
+        biquad_coeffs[1][3] = 0.4060f;
+        biquad_coeffs[1][4] = -0.9598f;
+        biquad_coeffs[1][5] = 0.4434f;
+        biquad_coeffs[1][6] = 0.5240f;
+        biquad_coeffs[1][7] = 0.4434f;
+        biquad_coeffs[1][8] = 1.0785f;
+        biquad_coeffs[1][9] = -0.8450f;
+        sync_dsp_filters(0x08U);
+    }
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -222,6 +254,20 @@ static void sync_dsp_filters(uint32_t dsp_mask)
         fir_right_ch.order = fir_orders[1];
         memcpy(&fir_right_ch.coeff[0], &fir_coeffs[1][0], (fir_right_ch.order + 1) * sizeof(float));
         dsp_right = &dsp_fir_right;
+    }
+    if (dsp_mask & 0x04U)
+    {
+        biquad_left_ch.n_stage = biquad_stages[0];
+        memcpy(&biquad_left_ch.coeff[0], &biquad_coeffs[0][0],
+                (biquad_left_ch.n_stage * N_COEFF_IN_STAGE) * sizeof(float));
+        dsp_left = &dsp_biquad_left;
+    }
+    if (dsp_mask & 0x08U)
+    {
+        biquad_right_ch.n_stage = biquad_stages[1];
+        memcpy(&biquad_right_ch.coeff[0], &biquad_coeffs[1][0],
+                (biquad_right_ch.n_stage * N_COEFF_IN_STAGE) * sizeof(float));
+        dsp_right = &dsp_biquad_right;
     }
 }
 
