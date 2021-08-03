@@ -4,6 +4,7 @@
 #include "intercore_comm.h"
 #include "event_queue.h"
 #include "perf_meas.h"
+#include "trace.h"
 #include "stm32h747i_discovery.h"
 #include "stm32h747i_discovery_sdram.h"
 
@@ -69,6 +70,7 @@ int main(void)
 
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
     BSP_LED_Init(LED_RED);
+    trace_init();
     ccnt_init();
     eq_m7_init();
     int32_t i = 0;

@@ -5,7 +5,6 @@
 
 #define GET_CCNT()                  DWT->CYCCNT
 #define DIFF_CCNT(start, stop)      (stop - start)
-//(stop > start ? (stop - start) : start - stop)
 
 void ccnt_init();
 uint32_t ccnt_to_ms(uint32_t ccnt);
