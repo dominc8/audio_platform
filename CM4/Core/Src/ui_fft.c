@@ -70,6 +70,7 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
             uint32_t stop = GET_CCNT();
             uint32_t fft_time = DIFF_CCNT(start, stop);
             gather_and_log_fft_time(ccnt_to_us(fft_time));
+            new_data_flag = 0;
         }
     }
     return next_state;

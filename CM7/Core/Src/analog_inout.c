@@ -214,6 +214,13 @@ void analog_inout(void)
     {
         if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
         {
+            // 128point fft (256 but remove second half)
+            // pack to 16 bins like that: 1, 2, 2, 4, 4, 5, 5, 8, 8, 10, 10, 12, 12, 14, 14, 15
+            // for each bin find peak power from each fft point, take its logarithm (its int16 so find first nonzero bit? or logarithm with taylor)
+            // have 2 buffers so M4 draws bin as prev_power * constfloat(0.1f) + curr_peak_power * (1-constfloat)
+            // draw bins each time new_data_flag == some slice rate
+            //
+            // 256 samples for each channel = 5ms, so maybe slice rate should be sth low, like 8 or 16
             uint32_t start = GET_CCNT();
             fft_16hist((int16_t*) &shared_fft_l[0], (int16_t*) &shared_fft_r[0],
                     &dtcm_buffer_out[0]);
