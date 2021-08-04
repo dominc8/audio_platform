@@ -14,7 +14,7 @@ typedef struct fir_f32_t
     int32_t order;
 } fir_f32_t;
 
-int32_t fir_f32(fir_f32_t *f, int32_t in);
+int32_t fir_f32(fir_f32_t *f, int32_t in) __attribute__((section("ITCM_RAM")));
 
 #endif /* FIR_H */
 

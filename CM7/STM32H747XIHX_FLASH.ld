@@ -174,6 +174,7 @@ SECTIONS
   .RAM_D3 : { *(.RAM_D3) } >SRAM4
   .RAM3_SHARED : { *(.RAM3_SHARED) } >SRAM3
   .AXI_SRAM : { *(.AXI_SRAM) } >AXISRAM
+  .ITCM_RAM : { *(.ITCM_RAM) } >ITCMRAM
 }
 
 

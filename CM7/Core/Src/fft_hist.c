@@ -1,7 +1,6 @@
 #include "fft_hist.h"
 #include "arm_math.h"
 
-void fft_16p(float *out, int32_t *in);
 static inline void fft_4p_init(float *out, int32_t *in);
 static inline void fft_4p(float *out, float *in);
 static inline int16_t abs_comp(float *x);

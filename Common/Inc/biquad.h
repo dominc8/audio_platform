@@ -15,7 +15,7 @@ typedef struct biquad_f32_t
     int32_t n_stage;
 } biquad_f32_t;
 
-int32_t biquad_f32(biquad_f32_t *f, int32_t in);
+int32_t biquad_f32(biquad_f32_t *f, int32_t in) __attribute__((section("ITCM_RAM")));
 
 
 #endif /* BIQUAD_H */
