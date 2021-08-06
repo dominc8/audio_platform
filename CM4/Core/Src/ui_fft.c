@@ -63,7 +63,7 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     }
     else
     {
-        if (new_data_flag != 0)
+        if (new_data_flag >= SHARED_FFT_SLICE_RATE)
         {
             uint32_t start = GET_CCNT();
             display_fft();
