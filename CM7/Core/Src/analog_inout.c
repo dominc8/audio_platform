@@ -10,17 +10,22 @@
 #include "perf_meas.h"
 #include "fir.h"
 #include "biquad.h"
+#include "arm_math.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
-#define N_AUDIO_BLOCKS              ((uint32_t)32)
+#define N_AUDIO_BLOCKS              ((uint32_t)64)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
+#define FFT_N_SAMPLES               ((uint32_t)256)
+#define FFT_GAMMA_SHIFT             (3)
 
 /* Private variables ---------------------------------------------------------*/
 ALIGN_32BYTES(static int32_t audio_buffer_in[AUDIO_BLOCK_SIZE]) __attribute__ ((section(".AXI_SRAM")));
 ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ ((section(".AXI_SRAM")));
 ALIGN_32BYTES(static int32_t audio_in[2]);
-ALIGN_32BYTES(static int32_t dtcm_buffer_out[AUDIO_BUFFER_SIZE]);
+ALIGN_32BYTES(static float audio_tmp[2][FFT_N_SAMPLES]);
+ALIGN_32BYTES(static float audio_fft[FFT_N_SAMPLES]);
+ALIGN_32BYTES(static uint16_t last_fft_bins[2][SHARED_FFT_SIZE]);
 
 static fir_f32_t fir_left_ch;
 static fir_f32_t fir_right_ch;
@@ -88,7 +93,7 @@ static int32_t dsp_biquad_right(int32_t input)
 static int32_t (*dsp_left)(int32_t input) = &dsp_fir_left;
 static int32_t (*dsp_right)(int32_t input) = &dsp_fir_right;
 
-void mdma_callback(MDMA_HandleTypeDef *_hmdma)
+static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
     if (buf_out_idx < 0 || buf_out_idx >= AUDIO_BUFFER_SIZE)
     {
@@ -102,10 +107,8 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 
     out = dsp_left(audio_in[0]);
     audio_buffer_out[buf_idx] = out;
-    dtcm_buffer_out[buf_idx] = out;
     out = dsp_right(audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
-    dtcm_buffer_out[buf_idx + 1] = out;
 
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
@@ -126,13 +129,20 @@ void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
 static void deinit_mdma(void);
+static void setup_filters(void);
 static void sync_dsp_filters(uint32_t dsp_mask);
+static void update_fft_bins_channel(float *new_fft, int32_t channel);
+static void apply_gamma_fft_bins_channel(int32_t channel);
+static inline float fft_power(float re, float im);
 
 /*----------------------------------------------------------------------------*/
 void analog_inout(void)
 {
     const uint32_t audio_freq = 48000;
     const uint32_t audio_resolution = 32;
+    int32_t tmp_idx = 0;
+    arm_rfft_fast_instance_f32 arm_rfft;
+    arm_rfft_fast_init_f32(&arm_rfft, FFT_N_SAMPLES);
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -146,7 +156,138 @@ void analog_inout(void)
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
     dsp_update_mask = 0;
 
-    // setup FIR filters
+    setup_filters();
+
+    while (lock_hsem(HSEM_I2C4))
+        ;
+    err_cnt += BSP_AUDIO_IN_Record(0, (uint8_t*) &audio_buffer_in[0], sizeof(audio_buffer_in));
+    err_cnt += BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out));
+    unlock_hsem(HSEM_I2C4);
+
+    while (start_audio == 1)
+    {
+        if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
+        {
+            uint32_t start = GET_CCNT();
+            float *audio_left = &audio_tmp[0][tmp_idx];
+            float *audio_right = &audio_tmp[1][tmp_idx];
+            int32_t i;
+
+            for (i = 0; i < AUDIO_BUFFER_SIZE;)
+            {
+                /* >> 8 because of 24bit samples being positioned that way,
+                 * prevents potential overflows */
+                *audio_left++ = audio_buffer_out[i++] >> 8;
+                *audio_right++ = audio_buffer_out[i++] >> 8;
+            }
+            tmp_idx += AUDIO_BUFFER_SIZE / 2;
+            tmp_idx %= FFT_N_SAMPLES;
+
+            if (0 == tmp_idx && new_data_flag < SHARED_FFT_SLICE_RATE)
+            {
+                if (0 == new_data_flag)
+                {
+                    memcpy(&last_fft_bins[0][0], (const void*) &shared_fft[0][0],
+                            sizeof(shared_fft));
+                }
+                /* CMSIS DSP rfft for each frequency puts real and complex parts
+                 * next to each other. For f=0 and f=fs/2 there are no complex parts
+                 * so first 2 values are not real and complex for f=0 but real values
+                 * for f=0 and f=fs/2. Because of that for bin=0 value is additionally
+                 * divided by 2. Also it seems that audio codec on this board has
+                 * much bigger gain for low frequencies (possibly to be fixed with
+                 * some default filter).
+                 * */
+
+                // left
+                arm_rfft_fast_f32(&arm_rfft, &audio_tmp[0][0], &audio_fft[0], 0);
+                audio_fft[0] *= 0.5F;
+                audio_fft[1] *= 0.5F;
+                update_fft_bins_channel(&audio_fft[0], 0);
+
+                // right
+                arm_rfft_fast_f32(&arm_rfft, &audio_tmp[1][0], &audio_fft[0], 0);
+                audio_fft[0] *= 0.5F;
+                audio_fft[1] *= 0.5F;
+                update_fft_bins_channel(&audio_fft[0], 1);
+
+                ++new_data_flag;
+
+                if (new_data_flag == SHARED_FFT_SLICE_RATE)
+                {
+                    apply_gamma_fft_bins_channel(0);
+                    apply_gamma_fft_bins_channel(1);
+                }
+            }
+            uint32_t stop = GET_CCNT();
+            gather_and_log_fft_time(DIFF_CCNT(start, stop));
+
+        }
+        uint32_t dsp_mask = dsp_update_mask;
+        if (dsp_mask != 0)
+        {
+            dsp_update_mask &= ~dsp_mask;
+            sync_dsp_filters(dsp_mask);
+        }
+    }
+    while (lock_hsem(HSEM_I2C4))
+        ;
+    BSP_AUDIO_OUT_Stop(0);
+    BSP_AUDIO_OUT_DeInit(0);
+    BSP_AUDIO_IN_Stop(0);
+    BSP_AUDIO_IN_DeInit(0);
+    unlock_hsem(HSEM_I2C4);
+
+    deinit_mdma();
+
+}
+
+static void update_fft_bins_channel(float *new_fft, int32_t channel)
+{
+    const static int32_t n_freq_in_bins[SHARED_FFT_SIZE] =
+    { 1, 2, 2, 4, 4, 5, 5, 8, 8, 10, 10, 12, 12, 14, 14, 15 };
+
+    int32_t i = 0;
+    for (int32_t bin = 0; bin < 16; ++bin)
+    {
+        float peak_in_bin = 0.F;
+        for (int32_t freq_idx = 0; freq_idx < n_freq_in_bins[bin]; ++freq_idx)
+        {
+            float freq_power = fft_power(new_fft[i], new_fft[i + 1]);
+            if (freq_power > peak_in_bin)
+            {
+                peak_in_bin = freq_power;
+            }
+            i += 2;
+        }
+        uint32_t val = peak_in_bin;
+        val = val >> 17;
+        if (0 == new_data_flag || (new_data_flag > 0 && shared_fft[channel][bin] < val))
+        {
+            shared_fft[channel][bin] = val;
+        }
+    }
+}
+
+static void apply_gamma_fft_bins_channel(int32_t channel)
+{
+    for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
+    {
+        uint32_t curr = shared_fft[channel][i];
+        uint32_t prev = last_fft_bins[channel][i];
+        curr = curr - (curr >> FFT_GAMMA_SHIFT);
+        prev = prev >> FFT_GAMMA_SHIFT;
+        shared_fft[channel][i] = curr + prev;
+    }
+}
+
+static inline float fft_power(float re, float im)
+{
+    return __builtin_sqrtf(re * re + im * im / (1 << 24));
+}
+
+static void setup_filters(void)
+{
     if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
     {
         memset(&fir_coeffs[0][0], 0, sizeof(fir_coeffs[0]));
@@ -203,42 +344,6 @@ void analog_inout(void)
         biquad_coeffs[1][9] = -0.8450f;
         sync_dsp_filters(0x08U);
     }
-
-    while (lock_hsem(HSEM_I2C4))
-        ;
-    err_cnt += BSP_AUDIO_IN_Record(0, (uint8_t*) &audio_buffer_in[0], sizeof(audio_buffer_in));
-    err_cnt += BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out));
-    unlock_hsem(HSEM_I2C4);
-
-    while (start_audio == 1)
-    {
-        if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
-        {
-            uint32_t start = GET_CCNT();
-            fft_16hist((int16_t*) &shared_fft_l[0], (int16_t*) &shared_fft_r[0],
-                    &dtcm_buffer_out[0]);
-            uint32_t stop = GET_CCNT();
-            gather_and_log_fft_time(DIFF_CCNT(start, stop));
-
-            ++new_data_flag;
-        }
-        uint32_t dsp_mask = dsp_update_mask;
-        if (dsp_mask != 0)
-        {
-            dsp_update_mask &= ~dsp_mask;
-            sync_dsp_filters(dsp_mask);
-        }
-    }
-    while (lock_hsem(HSEM_I2C4))
-        ;
-    BSP_AUDIO_OUT_Stop(0);
-    BSP_AUDIO_OUT_DeInit(0);
-    BSP_AUDIO_IN_Stop(0);
-    BSP_AUDIO_IN_DeInit(0);
-    unlock_hsem(HSEM_I2C4);
-
-    deinit_mdma();
-
 }
 
 static void sync_dsp_filters(uint32_t dsp_mask)
@@ -341,8 +446,8 @@ static void init_mdma(void)
     HAL_NVIC_EnableIRQ(MDMA_IRQn);
 
     // Useless parameters, function called to start MDMA in Interrupt Mode
-    status = HAL_MDMA_Start_IT(&hmdma, (uint32_t) &audio_buffer_out[0],
-            (uint32_t) &dtcm_buffer_out[0], sizeof(uint32_t), 1);
+    status = HAL_MDMA_Start_IT(&hmdma, (uint32_t) &audio_buffer_out[0], (uint32_t) &audio_tmp[0],
+            sizeof(uint32_t), 1);
     e.val += status << 10;
     eq_m7_add_event(e);
 }

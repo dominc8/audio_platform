@@ -7,13 +7,13 @@
 #include "logger.h"
 #include "ui_utils.h"
 
-#define N_FFT_BIN   133
+#define N_FFT_BIN_LEVELS    133
 
 extern DMA2D_HandleTypeDef hlcd_dma2d;
 extern LTDC_HandleTypeDef hlcd_ltdc;
 extern BSP_LCD_Ctx_t Lcd_Ctx[LCD_INSTANCES_NBR];
 
-static uint32_t fft_bin[N_FFT_BIN];
+static uint32_t fft_bin[N_FFT_BIN_LEVELS];
 
 static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
@@ -63,13 +63,14 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     }
     else
     {
-        if (new_data_flag != 0)
+        if (new_data_flag >= SHARED_FFT_SLICE_RATE)
         {
             uint32_t start = GET_CCNT();
             display_fft();
             uint32_t stop = GET_CCNT();
             uint32_t fft_time = DIFF_CCNT(start, stop);
             gather_and_log_fft_time(ccnt_to_us(fft_time));
+            new_data_flag = 0;
         }
     }
     return next_state;
@@ -173,10 +174,10 @@ static void draw_bin(int32_t val, int32_t bin, int32_t bin_width, int32_t y_offs
 
     int32_t x_offset = bin_width >> 1;
 
-    uint32_t *pSrc = &fft_bin[N_FFT_BIN - val];
+    uint32_t *pSrc = &fft_bin[N_FFT_BIN_LEVELS - val];
     uint32_t pDst = (hlcd_ltdc.LayerCfg[Lcd_Ctx[0].ActiveLayer].FBStartAdress)
             + (Lcd_Ctx[0].BppFactor
-                    * (Lcd_Ctx[0].XSize * (y_offset + (N_FFT_BIN - val)) + x_offset
+                    * (Lcd_Ctx[0].XSize * (y_offset + (N_FFT_BIN_LEVELS - val)) + x_offset
                             + bin_width * bin));
     uint32_t line_dx = Lcd_Ctx[0].BppFactor;
 
@@ -215,23 +216,21 @@ static void draw_bin(int32_t val, int32_t bin, int32_t bin_width, int32_t y_offs
 static void display_fft(void)
 {
     const int32_t bin_width = 40;
-    const int32_t y_left = 150;
-    const int32_t y_right = 300;
-    const int32_t ymax = N_FFT_BIN;
+    const int32_t y0[2] =
+    { 150, 300 };
+    const int32_t ymax = N_FFT_BIN_LEVELS;
 
-    GUI_FillRect(bin_width >> 1, y_left, bin_width * SHARED_FFT_SIZE, ymax, GUI_COLOR_BLACK);
+    for (int32_t channel = 0; channel < 2; ++channel)
+    {
+        GUI_FillRect(bin_width >> 1, y0[channel], bin_width * SHARED_FFT_SIZE, ymax,
+                GUI_COLOR_BLACK);
+        for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
+        {
+            int32_t val = limit_val(shared_fft[channel][i], ymax);
+            draw_bin(val, i, bin_width, y0[channel]);
+        }
+    }
 
-    for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
-    {
-        int32_t val_left = limit_val(shared_fft_l[i], ymax);
-        draw_bin(val_left, i, bin_width, y_left);
-    }
-    GUI_FillRect(bin_width >> 1, y_right, bin_width * SHARED_FFT_SIZE, ymax, GUI_COLOR_BLACK);
-    for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
-    {
-        int32_t val_right = limit_val(shared_fft_r[i], ymax);
-        draw_bin(val_right, i, bin_width, y_right);
-    }
 }
 
 static void gather_and_log_fft_time(uint32_t fft_time)
@@ -270,15 +269,15 @@ static void init_fft_bin(void)
         0xFF10A010
     };
     // @formatter:on
-    for (int32_t i = 0; i < N_FFT_BIN;)
+    for (int32_t i = 0; i < N_FFT_BIN_LEVELS;)
     {
-        for (int32_t j = 0; j < 15 && i < N_FFT_BIN; ++j)
+        for (int32_t j = 0; j < 15 && i < N_FFT_BIN_LEVELS; ++j)
         {
-            for (int32_t k = 0; k < 7 && i < N_FFT_BIN; ++k)
+            for (int32_t k = 0; k < 7 && i < N_FFT_BIN_LEVELS; ++k)
             {
                 fft_bin[i++] = colors[j];
             }
-            for (int32_t k = 0; k < 2 && i < N_FFT_BIN; ++k)
+            for (int32_t k = 0; k < 2 && i < N_FFT_BIN_LEVELS; ++k)
             {
                 fft_bin[i++] = 0xFF000000;
             }
