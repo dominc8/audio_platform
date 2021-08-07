@@ -15,8 +15,7 @@
 #define M7_EQ_BUF_SIZE              (512)
 
 /* Exported variables --------------------------------------------------------*/
-extern volatile uint16_t shared_fft_l[SHARED_FFT_SIZE];
-extern volatile uint16_t shared_fft_r[SHARED_FFT_SIZE];
+extern volatile uint16_t shared_fft[2][SHARED_FFT_SIZE];
 extern volatile uint16_t start_audio;
 extern volatile int32_t new_data_flag;
 extern volatile uint8_t m7_eq_buf[M7_EQ_BUF_SIZE];
