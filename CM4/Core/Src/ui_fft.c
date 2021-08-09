@@ -39,6 +39,7 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
         int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     static int32_t cnt = 0;
+    (void) joy_pin;
     if (++cnt > 1000)
     {
         cnt = 0;
@@ -80,6 +81,9 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
         int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     uint32_t x_size, y_size;
+    (void) touch_state;
+    (void) button_state;
+    (void) joy_pin;
 
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
@@ -130,6 +134,9 @@ static UI_STATE handle_ui_init_from_fir_biquad(ui_state_t *self,
         const TS_MultiTouch_State_t *touch_state, int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     uint32_t x_size, y_size;
+    (void) touch_state;
+    (void) button_state;
+    (void) joy_pin;
 
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
@@ -223,7 +230,7 @@ static void display_fft(void)
     for (int32_t channel = 0; channel < 2; ++channel)
     {
         GUI_FillRect(bin_width >> 1, y0[channel], bin_width * SHARED_FFT_SIZE, ymax,
-                GUI_COLOR_BLACK);
+        GUI_COLOR_BLACK);
         for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
         {
             int32_t val = limit_val(shared_fft[channel][i], ymax);

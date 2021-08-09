@@ -4,7 +4,8 @@
 int32_t is_ui_button_touched(const ui_button_t *b, const TS_MultiTouch_State_t *state)
 {
     int32_t ret = 0;
-    for (int32_t i = 0; i < state->TouchDetected; ++i)
+    int32_t n_touches = (int32_t) (state->TouchDetected);
+    for (int32_t i = 0; i < n_touches; ++i)
     {
         int32_t x = state->TouchX[i];
         int32_t y = state->TouchY[i];
@@ -45,7 +46,8 @@ void draw_ui_slider(const ui_slider_t *s)
 int32_t update_ui_slider(ui_slider_t *s, const TS_MultiTouch_State_t *state)
 {
     int32_t ret = 0;
-    for (int32_t i = 0; i < state->TouchDetected; ++i)
+    int32_t n_touches = (int32_t) (state->TouchDetected);
+    for (int32_t i = 0; i < n_touches; ++i)
     {
         int32_t x = state->TouchX[i];
         int32_t y = state->TouchY[i];

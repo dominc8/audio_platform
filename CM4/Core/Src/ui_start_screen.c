@@ -17,6 +17,8 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
         int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     UI_STATE next_state = UI_STATE_START_SCREEN;
+    (void) touch_state;
+    (void) joy_pin;
     if (button_state == 1)
     {
         init_ui_start_screen(self);
@@ -30,6 +32,9 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
 {
     uint32_t x_size;
     uint32_t y_size;
+    (void) touch_state;
+    (void) button_state;
+    (void) joy_pin;
 
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);

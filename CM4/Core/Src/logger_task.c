@@ -17,6 +17,7 @@ int32_t logger_task(void *arg)
     static int32_t i = 0;
     event e;
     int32_t get_event_status;
+    (void) arg;
     get_event_status = eq_m7_get_event(&e);
 
     if (get_event_status == 0)

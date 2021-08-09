@@ -126,6 +126,9 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
         int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     uint32_t x_size, y_size;
+    (void) touch_state;
+    (void) button_state;
+    (void) joy_pin;
 
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);

@@ -36,7 +36,7 @@ void unlock_hsem(HSEM_ID hsem_id)
 #ifdef CORE_CM4
 void lock_unlock_callback(uint32_t sem_mask)
 {
-
+    (void) sem_mask;
 }
 #endif
 
