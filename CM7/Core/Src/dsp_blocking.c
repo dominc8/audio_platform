@@ -1,3 +1,4 @@
+#if 0
 /* Includes ------------------------------------------------------------------*/
 #include <error_handler.h>
 #include "stm32h747i_discovery_audio.h"
@@ -35,7 +36,6 @@ static biquad_f32_t biquad_right_ch;
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
-static MDMA_HandleTypeDef hmdma;
 static MDMA_LinkNodeTypeDef ll_node __attribute__ ((section(".AXI_SRAM")));
 
 static void gather_and_log_fft_time(uint32_t fft_time)
@@ -137,7 +137,7 @@ static void apply_gamma_fft_bins_channel(int32_t channel);
 static inline float fft_power(float re, float im);
 
 /*----------------------------------------------------------------------------*/
-void analog_inout(void)
+void dsp_blocking(void)
 {
     const uint32_t audio_freq = 48000;
     const uint32_t audio_resolution = 32;
@@ -380,22 +380,6 @@ static void sync_dsp_filters(uint32_t dsp_mask)
     }
 }
 
-void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
-{
-    UNUSED(Instance);
-}
-
-void BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
-{
-    UNUSED(Instance);
-}
-
-void BSP_AUDIO_IN_Error_CallBack(uint32_t Instance)
-{
-    UNUSED(Instance);
-    Error_Handler();
-}
-
 static void init_mdma(void)
 {
     HAL_StatusTypeDef status;
@@ -404,7 +388,6 @@ static void init_mdma(void)
     { .id = EVENT_M7_MDMA_CFG, .val = 0U };
 
     __HAL_RCC_MDMA_CLK_ENABLE();
-    set_mdma_handler(&hmdma);
 
     hmdma.Instance = MDMA_Channel1;
     hmdma.Init.BufferTransferLength = 8;
@@ -465,3 +448,4 @@ static void deinit_mdma(void)
     HAL_MDMA_DeInit(&hmdma);
 }
 
+#endif
