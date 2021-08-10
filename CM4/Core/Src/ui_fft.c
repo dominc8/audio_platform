@@ -294,7 +294,7 @@ static void init_fft_bin(void)
 
 static void toggle_audio_on_m7(void)
 {
-    if (0 == lock_unlock_hsem(HSEM_START_AUDIO))
+    if (0 == lock_unlock_hsem(HSEM_START_DSP_BLOCKING))
     {
         BSP_LED_On(LED_GREEN);
     }
@@ -303,3 +303,4 @@ static void toggle_audio_on_m7(void)
         BSP_LED_On(LED_ORANGE);
     }
 }
+

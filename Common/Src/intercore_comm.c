@@ -48,6 +48,10 @@ void lock_unlock_callback(uint32_t sem_mask)
     {
         start_audio = start_audio == 1 ? 0 : 1;
     }
+    if (IS_HSEMID_IN_MASK(HSEM_START_DSP_BLOCKING, sem_mask))
+    {
+        start_dsp_blocking = start_dsp_blocking == 1 ? 0 : 1;
+    }
 }
 #endif
 

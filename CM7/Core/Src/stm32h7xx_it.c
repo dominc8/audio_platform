@@ -2,6 +2,7 @@
 #include "stm32h7xx_hal.h"
 #include "stm32h747i_discovery_audio.h"
 #include "intercore_comm.h"
+#include "perf_meas.h"
 
 static MDMA_HandleTypeDef *p_hmdma;
 
@@ -83,8 +84,15 @@ void HSEM2_IRQHandler(void)
     // sem_unlock_callback(statusreg);
 }
 
+static volatile uint32_t last;
+static volatile uint32_t curr;
+static volatile uint32_t diff;
+
 void MDMA_IRQHandler(void)
 {
+    last = curr;
+    curr = GET_CCNT();
+    diff = curr - last;
     HAL_MDMA_IRQHandler(p_hmdma);
 }
 

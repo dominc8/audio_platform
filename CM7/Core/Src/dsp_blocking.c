@@ -1,4 +1,3 @@
-#if 0
 /* Includes ------------------------------------------------------------------*/
 #include <error_handler.h>
 #include "stm32h747i_discovery_audio.h"
@@ -14,7 +13,7 @@
 #include "arm_math.h"
 
 /* Private define ------------------------------------------------------------*/
-#define AUDIO_BLOCK_SIZE            ((uint32_t)2)
+#define AUDIO_BLOCK_SIZE            ((uint32_t)4)
 #define N_AUDIO_BLOCKS              ((uint32_t)64)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 #define FFT_N_SAMPLES               ((uint32_t)256)
@@ -27,6 +26,11 @@ ALIGN_32BYTES(static int32_t audio_in[2]);
 ALIGN_32BYTES(static float audio_tmp[2][FFT_N_SAMPLES]);
 ALIGN_32BYTES(static float audio_fft[FFT_N_SAMPLES]);
 ALIGN_32BYTES(static uint16_t last_fft_bins[2][SHARED_FFT_SIZE]);
+ALIGN_32BYTES(static int32_t test_buffer1[32]);
+ALIGN_32BYTES(static int32_t test_buffer2[32]);
+ALIGN_32BYTES(static int32_t test_buffer3[32]);
+ALIGN_32BYTES(static int32_t test_buffer4[32]);
+ALIGN_32BYTES(static int32_t test_buffer5[32]);
 
 static fir_f32_t fir_left_ch;
 static fir_f32_t fir_right_ch;
@@ -36,7 +40,11 @@ static biquad_f32_t biquad_right_ch;
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
-static MDMA_LinkNodeTypeDef ll_node __attribute__ ((section(".AXI_SRAM")));
+static volatile int32_t debug_cnt;
+static MDMA_HandleTypeDef hmdma;
+static MDMA_LinkNodeTypeDef ll_node1 __attribute__ ((section(".AXI_SRAM")));
+static MDMA_LinkNodeTypeDef ll_node2 __attribute__ ((section(".AXI_SRAM")));
+static MDMA_LinkNodeTypeDef ll_node3 __attribute__ ((section(".AXI_SRAM")));
 
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
@@ -96,6 +104,8 @@ static int32_t (*dsp_right)(int32_t input) = &dsp_fir_right;
 static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
     (void) _hmdma;
+    ++debug_cnt;
+    return;
     if ((uint32_t) buf_out_idx >= AUDIO_BUFFER_SIZE)
     {
         buf_out_idx = 0;
@@ -116,6 +126,8 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 
     SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
 
+    memset(&test_buffer3[0], 0, sizeof(test_buffer3));
+    memset(&test_buffer4[0], 0, sizeof(test_buffer4));
     if (buf_idx != buf_out_idx)
     {
         race_cnt++;
@@ -125,10 +137,15 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
         buf_out_idx += AUDIO_BLOCK_SIZE;
         buf_out_idx %= AUDIO_BUFFER_SIZE;
     }
+
+//    HAL_MDMA_Start_IT(&hmdma, (uint32_t) &test_buffer1[2], (uint32_t) &test_buffer2[0],
+//            sizeof(uint32_t), 1);
+
 }
 
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
+static void init_mdma2(void);
 static void deinit_mdma(void);
 static void setup_filters(void);
 static void sync_dsp_filters(uint32_t dsp_mask);
@@ -150,6 +167,16 @@ void dsp_blocking(void)
     BSP_AUDIO_IN_OUT_Init(audio_freq, audio_resolution);
     unlock_hsem(HSEM_I2C4);
 
+    for (int32_t i = 0; i < 32; ++i)
+    {
+        test_buffer1[i] = i+1;
+        test_buffer2[i] = 0;
+        test_buffer3[i] = 0;
+        test_buffer4[i] = 0;
+    }
+    debug_cnt = 0;
+
+    set_mdma_handler(&hmdma);
     init_mdma();
 
     err_cnt = 0;
@@ -165,9 +192,14 @@ void dsp_blocking(void)
     err_cnt += BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out));
     unlock_hsem(HSEM_I2C4);
 
-    while (start_audio == 1)
+    while (start_dsp_blocking == 1)
     {
-        if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
+        if (debug_cnt != 0)
+        {
+            debug_cnt = 0;
+            init_mdma2();
+        }
+        if (0 && (0 == (buf_out_idx % AUDIO_BUFFER_SIZE)))
         {
             uint32_t start = GET_CCNT();
             float *audio_left = &audio_tmp[0][tmp_idx];
@@ -380,6 +412,22 @@ static void sync_dsp_filters(uint32_t dsp_mask)
     }
 }
 
+void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
+{
+    UNUSED(Instance);
+}
+
+void BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance)
+{
+    UNUSED(Instance);
+}
+
+void BSP_AUDIO_IN_Error_CallBack(uint32_t Instance)
+{
+    UNUSED(Instance);
+    Error_Handler();
+}
+
 static void init_mdma(void)
 {
     HAL_StatusTypeDef status;
@@ -389,25 +437,24 @@ static void init_mdma(void)
 
     __HAL_RCC_MDMA_CLK_ENABLE();
 
-    hmdma.Instance = MDMA_Channel1;
-    hmdma.Init.BufferTransferLength = 8;
+    hmdma.Instance = MDMA_Channel2;
+    hmdma.Init.BufferTransferLength = 36;
     hmdma.Init.DataAlignment = MDMA_DATAALIGN_RIGHT;
-    ;
     hmdma.Init.DestBlockAddressOffset = 0;
-    hmdma.Init.DestBurst = MDMA_DEST_BURST_2BEATS;
+    hmdma.Init.DestBurst = MDMA_DEST_BURST_SINGLE;
     hmdma.Init.DestDataSize = MDMA_DEST_DATASIZE_WORD;
     hmdma.Init.DestinationInc = MDMA_DEST_INC_WORD;
     hmdma.Init.Endianness = MDMA_LITTLE_ENDIANNESS_PRESERVE;
     hmdma.Init.Priority = MDMA_PRIORITY_VERY_HIGH;
     hmdma.Init.Request = MDMA_REQUEST_DMA2_Stream4_TC;
     hmdma.Init.SourceBlockAddressOffset = 0;
-    hmdma.Init.SourceBurst = MDMA_SOURCE_BURST_2BEATS;
+    hmdma.Init.SourceBurst = MDMA_SOURCE_BURST_SINGLE;
     hmdma.Init.SourceDataSize = MDMA_SRC_DATASIZE_WORD;
-    hmdma.Init.SourceInc = MDMA_SRC_INC_WORD;
-    hmdma.Init.TransferTriggerMode = MDMA_REPEAT_BLOCK_TRANSFER;
+    hmdma.Init.SourceInc = MDMA_SRC_INC_DOUBLEWORD;
+    hmdma.Init.TransferTriggerMode = MDMA_FULL_TRANSFER;
     status = HAL_MDMA_Init(&hmdma);
     e.val += status << 0;
-    status = HAL_MDMA_RegisterCallback(&hmdma, HAL_MDMA_XFER_REPBLOCKCPLT_CB_ID, &mdma_callback);
+    status = HAL_MDMA_RegisterCallback(&hmdma, HAL_MDMA_XFER_CPLT_CB_ID, &mdma_callback);
     e.val += status << 2;
 
     HAL_MDMA_ConfigPostRequestMask(&hmdma, (uint32_t) &(DMA2->HIFCR), DMA_HIFCR_CTCIF4);
@@ -416,29 +463,60 @@ static void init_mdma(void)
     node_conf.PostRequestMaskAddress = (uint32_t) &(DMA2->HIFCR);
     node_conf.PostRequestMaskData = DMA_HIFCR_CTCIF4;
     node_conf.BlockCount = 1;
-    node_conf.BlockDataLength = 8;
+    node_conf.BlockDataLength = 16;
 
-    node_conf.DstAddress = (uint32_t) &audio_in[0];
-    node_conf.SrcAddress = (uint32_t) &audio_buffer_in[0];
+    node_conf.DstAddress = (uint32_t) &test_buffer3[0];
+    node_conf.SrcAddress = (uint32_t) &test_buffer1[0];
 
-    status = HAL_MDMA_LinkedList_CreateNode(&ll_node, &node_conf);
+    status = HAL_MDMA_LinkedList_CreateNode(&ll_node1, &node_conf);
     e.val += status << 4;
-    status = HAL_MDMA_LinkedList_AddNode(&hmdma, &ll_node, 0);
+    status = HAL_MDMA_LinkedList_AddNode(&hmdma, &ll_node1, 0);
     e.val += status << 6;
 
-    status = HAL_MDMA_LinkedList_EnableCircularMode(&hmdma);
-    e.val += status << 8;
+    node_conf.DstAddress = (uint32_t) &test_buffer4[0];
+    node_conf.SrcAddress = (uint32_t) &test_buffer1[1];
 
-    SCB_CleanDCache_by_Addr((uint32_t*) &ll_node, sizeof(ll_node));
+    status = HAL_MDMA_LinkedList_CreateNode(&ll_node2, &node_conf);
+    e.val += status << 8;
+    status = HAL_MDMA_LinkedList_AddNode(&hmdma, &ll_node2, 0);
+    e.val += status << 10;
+
+    node_conf.DstAddress = (uint32_t) &test_buffer5[0];
+    node_conf.SrcAddress = (uint32_t) &test_buffer1[2];
+
+    SCB_CleanDCache_by_Addr((uint32_t*) &ll_node1, sizeof(ll_node1));
+    SCB_CleanDCache_by_Addr((uint32_t*) &ll_node2, sizeof(ll_node2));
 
     HAL_NVIC_SetPriority(MDMA_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(MDMA_IRQn);
 
     // Useless parameters, function called to start MDMA in Interrupt Mode
-    status = HAL_MDMA_Start_IT(&hmdma, (uint32_t) &audio_buffer_out[0], (uint32_t) &audio_tmp[0],
+    status = HAL_MDMA_Start_IT(&hmdma, (uint32_t) &test_buffer1[0], (uint32_t) &test_buffer2[0],
             sizeof(uint32_t), 1);
     e.val += status << 10;
-    eq_m7_add_event(e);
+//    eq_m7_add_event(e);
+}
+
+static void init_mdma2(void)
+{
+//    memset(&test_buffer3[0], 0, sizeof(test_buffer3));
+//    memset(&test_buffer4[0], 0, sizeof(test_buffer4));
+    HAL_MDMA_Abort_IT(&hmdma);
+    HAL_MDMA_DeInit(&hmdma);
+    HAL_MDMA_Init(&hmdma);
+
+    HAL_MDMA_ConfigPostRequestMask(&hmdma, (uint32_t) &(DMA2->HIFCR), DMA_HIFCR_CTCIF4);
+    HAL_MDMA_LinkedList_AddNode(&hmdma, &ll_node1, 0);
+    HAL_MDMA_LinkedList_AddNode(&hmdma, &ll_node2, 0);
+    HAL_MDMA_LinkedList_AddNode(&hmdma, &ll_node3, 0);
+
+    HAL_NVIC_SetPriority(MDMA_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(MDMA_IRQn);
+
+    // Useless parameters, function called to start MDMA in Interrupt Mode
+    HAL_MDMA_Start_IT(&hmdma, (uint32_t) &test_buffer1[0], (uint32_t) &test_buffer2[0],
+            sizeof(uint32_t), 1);
+//    eq_m7_add_event(e);
 }
 
 static void deinit_mdma(void)
@@ -448,4 +526,3 @@ static void deinit_mdma(void)
     HAL_MDMA_DeInit(&hmdma);
 }
 
-#endif

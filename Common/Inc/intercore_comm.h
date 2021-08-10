@@ -6,7 +6,7 @@
 
 typedef enum HSEM_ID
 {
-    HSEM_BOOT = 0, HSEM_START_AUDIO, HSEM_I2C4, HSEM_N
+    HSEM_BOOT = 0, HSEM_START_AUDIO, HSEM_START_DSP_BLOCKING, HSEM_I2C4, HSEM_N
 } HSEM_ID;
 
 static_assert(HSEM_N < 32, "Too many HSEM_ID declared!");

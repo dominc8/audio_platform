@@ -379,6 +379,7 @@ static void sync_dsp_filters(uint32_t dsp_mask)
         dsp_right = &dsp_biquad_right;
     }
 }
+#if 0
 
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance)
 {
@@ -395,6 +396,7 @@ void BSP_AUDIO_IN_Error_CallBack(uint32_t Instance)
     UNUSED(Instance);
     Error_Handler();
 }
+#endif
 
 static void init_mdma(void)
 {
