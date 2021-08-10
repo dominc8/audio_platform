@@ -84,15 +84,8 @@ void HSEM2_IRQHandler(void)
     // sem_unlock_callback(statusreg);
 }
 
-static volatile uint32_t last;
-static volatile uint32_t curr;
-static volatile uint32_t diff;
-
 void MDMA_IRQHandler(void)
 {
-    last = curr;
-    curr = GET_CCNT();
-    diff = curr - last;
     HAL_MDMA_IRQHandler(p_hmdma);
 }
 
