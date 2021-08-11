@@ -13,7 +13,7 @@
 #include "arm_math.h"
 
 /* Private define ------------------------------------------------------------*/
-#define AUDIO_BLOCK_SIZE            ((uint32_t)8)
+#define AUDIO_BLOCK_SIZE            ((uint32_t)16)
 #define N_AUDIO_BLOCKS              ((uint32_t)16)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 #define FFT_N_SAMPLES               ((uint32_t)256)
@@ -25,19 +25,34 @@ ALIGN_32BYTES(static int32_t audio_buffer_out[AUDIO_BUFFER_SIZE]) __attribute__ 
 ALIGN_32BYTES(static float audio_tmp[2][FFT_N_SAMPLES]);
 ALIGN_32BYTES(static float audio_fft[FFT_N_SAMPLES]);
 ALIGN_32BYTES(static uint16_t last_fft_bins[2][SHARED_FFT_SIZE]);
-ALIGN_32BYTES(static int32_t audio_l[AUDIO_BLOCK_SIZE / 2]);
-ALIGN_32BYTES(static int32_t audio_r[AUDIO_BLOCK_SIZE / 2]);
+ALIGN_32BYTES(static int32_t audio_in_l[AUDIO_BLOCK_SIZE / 2]);
+ALIGN_32BYTES(static int32_t audio_out_l[AUDIO_BLOCK_SIZE / 2]);
+ALIGN_32BYTES(static int32_t audio_in_r[AUDIO_BLOCK_SIZE / 2]);
+ALIGN_32BYTES(static int32_t audio_out_r[AUDIO_BLOCK_SIZE / 2]);
+
+typedef struct
+{
+    float coeff[MAX_FIR_ORDER + 1];
+    float state[MAX_FIR_ORDER + 1 + AUDIO_BLOCK_SIZE]; // -1
+    arm_fir_instance_f32 fir_f32_inst;
+} arm_fir_f32_wrapper;
 
 static fir_f32_t fir_left_ch;
 static fir_f32_t fir_right_ch;
 static biquad_f32_t biquad_left_ch;
 static biquad_f32_t biquad_right_ch;
 
+static arm_fir_f32_wrapper arm_fir_left;
+static arm_fir_f32_wrapper arm_fir_right;
+
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
 static MDMA_HandleTypeDef hmdma;
 static MDMA_LinkNodeTypeDef ll_node __attribute__ ((section(".AXI_SRAM")));
+
+static MDMA_HandleTypeDef hmdma_out;
+static MDMA_LinkNodeTypeDef ll_node_out __attribute__ ((section(".AXI_SRAM")));
 
 static void refresh_mdma(void);
 
@@ -78,9 +93,42 @@ static int32_t dsp_fir_left(int32_t input)
     return fir_f32(&fir_left_ch, input);
 }
 
+static void dsp_fir_arm_left(int32_t *inout)
+{
+#if 1
+    arm_fir_f32_int(&arm_fir_left.fir_f32_inst, &audio_in_l[0], &audio_out_l[0], AUDIO_BLOCK_SIZE / 2);
+#else
+    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    {
+        arm_fir_left.input[i] = inout[i];
+    }
+    arm_fir_f32(&arm_fir_left.fir_f32_inst, &arm_fir_left.input[0], &arm_fir_left.output[0], AUDIO_BLOCK_SIZE / 2);
+    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    {
+        inout[i] = arm_fir_left.output[i];
+    }
+#endif
+}
+
 static int32_t dsp_fir_right(int32_t input)
 {
     return fir_f32(&fir_right_ch, input);
+}
+
+static void dsp_fir_arm_right(int32_t *inout)
+{
+#if 1
+    arm_fir_f32_int(&arm_fir_right.fir_f32_inst, &audio_in_r[0], &audio_out_r[0], AUDIO_BLOCK_SIZE / 2);
+#else
+    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    {
+        arm_fir_right.input[i] = inout[i];
+    }
+    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    {
+        inout[i] = arm_fir_right.output[i];
+    }
+#endif
 }
 
 static int32_t dsp_biquad_left(int32_t input)
@@ -93,8 +141,8 @@ static int32_t dsp_biquad_right(int32_t input)
     return biquad_f32(&biquad_right_ch, input);
 }
 
-static int32_t (*dsp_left)(int32_t input) = &dsp_fir_left;
-static int32_t (*dsp_right)(int32_t input) = &dsp_fir_right;
+static void (*dsp_left)(int32_t *inout) = &dsp_fir_arm_left;
+static void (*dsp_right)(int32_t *inout) = &dsp_fir_arm_right;
 
 static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
@@ -107,26 +155,31 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     int32_t buf_idx = buf_out_idx;
 
     uint32_t start = GET_CCNT();
-#if 1
+#if 0
     for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
     {
-        audio_buffer_out[buf_idx++] = audio_l[i];
-        audio_buffer_out[buf_idx++] = audio_r[i];
+        audio_buffer_out[buf_idx++] = audio_in_l[i];
+        audio_buffer_out[buf_idx++] = audio_in_r[i];
     }
 #else
-    int32_t out;
+    dsp_left(NULL);
+    dsp_right(NULL);
 
-    out = dsp_left(audio_in[0]);
-    audio_buffer_out[buf_idx] = out;
-    out = dsp_right(audio_in[1]);
-    audio_buffer_out[buf_idx + 1] = out;
+//    HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &audio_buffer_out[0],
+//            sizeof(audio_buffer_in) / 2, 1);
 
+    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    {
+        audio_buffer_out[buf_idx++] = audio_out_l[i];
+        audio_buffer_out[buf_idx++] = audio_out_r[i];
+    }
 #endif
-    uint32_t stop = GET_CCNT();
-    gather_and_log_dsp_time(DIFF_CCNT(start, stop));
 
     SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx - AUDIO_BLOCK_SIZE],
             sizeof(audio_buffer_in));
+
+    uint32_t stop = GET_CCNT();
+    gather_and_log_dsp_time(DIFF_CCNT(start, stop));
 
     buf_out_idx = buf_idx % AUDIO_BUFFER_SIZE;
     refresh_mdma();
@@ -150,6 +203,19 @@ void dsp_blocking(void)
     int32_t tmp_idx = 0;
     arm_rfft_fast_instance_f32 arm_rfft;
     arm_rfft_fast_init_f32(&arm_rfft, FFT_N_SAMPLES);
+
+    if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
+    {
+        fir_orders[0] = 5;
+    }
+    if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
+    {
+        fir_orders[1] = 5;
+    }
+    arm_fir_init_f32(&arm_fir_left.fir_f32_inst, fir_orders[0] + 1, &arm_fir_left.coeff[0],
+            &arm_fir_left.state[0], AUDIO_BLOCK_SIZE / 2);
+    arm_fir_init_f32(&arm_fir_right.fir_f32_inst, fir_orders[1] + 1, &arm_fir_right.coeff[0],
+            &arm_fir_right.state[0], AUDIO_BLOCK_SIZE / 2);
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -359,18 +425,35 @@ static void sync_dsp_filters(uint32_t dsp_mask)
 {
     if (dsp_mask & 0x01U)
     {
-        fir_left_ch.order = fir_orders[0];
-        memcpy((void*) &fir_left_ch.coeff[0], (void*) &fir_coeffs[0][0],
-                (fir_left_ch.order + 1) * sizeof(float));
-        dsp_left = &dsp_fir_left;
+//         fir_left_ch.order = fir_orders[0];
+//         memcpy((void*) &fir_left_ch.coeff[0], (void*) &fir_coeffs[0][0],
+//                 (fir_left_ch.order + 1) * sizeof(float));
+//         dsp_left = &dsp_fir_left;
+
+        int32_t n_coeff = fir_orders[0] + 1;
+        for (int32_t i = 0; i < n_coeff; ++i)
+        {
+            arm_fir_left.coeff[i] = fir_coeffs[0][n_coeff - 1 - i];
+        }
+        arm_fir_left.fir_f32_inst.numTaps = n_coeff;
+        dsp_left = &dsp_fir_arm_left;
     }
     if (dsp_mask & 0x02U)
     {
-        fir_right_ch.order = fir_orders[1];
-        memcpy((void*) &fir_right_ch.coeff[0], (void*) &fir_coeffs[1][0],
-                (fir_right_ch.order + 1) * sizeof(float));
-        dsp_right = &dsp_fir_right;
+//         fir_right_ch.order = fir_orders[1];
+//         memcpy((void*) &fir_right_ch.coeff[0], (void*) &fir_coeffs[1][0],
+//                 (fir_right_ch.order + 1) * sizeof(float));
+//         dsp_right = &dsp_fir_right;
+
+        int32_t n_coeff = fir_orders[1] + 1;
+        for (int32_t i = 0; i < n_coeff; ++i)
+        {
+            arm_fir_right.coeff[i] = fir_coeffs[1][n_coeff - 1 - i];
+        }
+        arm_fir_right.fir_f32_inst.numTaps = n_coeff;
+        dsp_right = &dsp_fir_arm_right;
     }
+    return;
     if (dsp_mask & 0x04U)
     {
         biquad_left_ch.n_stage = biquad_stages[0];
@@ -440,7 +523,7 @@ static void init_mdma(void)
     node_conf.BlockCount = 1;
     node_conf.BlockDataLength = sizeof(audio_buffer_in) / 2;
 
-    node_conf.DstAddress = (uint32_t) &audio_r[0];
+    node_conf.DstAddress = (uint32_t) &audio_in_r[0];
     node_conf.SrcAddress = (uint32_t) &audio_buffer_in[1];
 
     status = HAL_MDMA_LinkedList_CreateNode(&ll_node, &node_conf);
@@ -454,7 +537,7 @@ static void init_mdma(void)
     HAL_NVIC_EnableIRQ(MDMA_IRQn);
 
     // First part, copying left channels samples
-    status = HAL_MDMA_Start_IT(&hmdma, (uint32_t) &audio_buffer_in[0], (uint32_t) &audio_l[0],
+    status = HAL_MDMA_Start_IT(&hmdma, (uint32_t) &audio_buffer_in[0], (uint32_t) &audio_in_l[0],
             sizeof(audio_buffer_in) / 2, 1);
     e.val += status << 8;
     eq_m7_add_event(e);
@@ -468,7 +551,7 @@ static void refresh_mdma(void)
 
     hmdma.Instance->CLAR = (uint32_t) &ll_node;
     hmdma.Instance->CBNDTR = sizeof(audio_buffer_in) / 2;
-    hmdma.Instance->CDAR = (uint32_t) &audio_l[0];
+    hmdma.Instance->CDAR = (uint32_t) &audio_in_l[0];
     hmdma.Instance->CSAR = (uint32_t) &audio_buffer_in[0];
 
     __HAL_MDMA_ENABLE_IT(&hmdma, (MDMA_IT_TE | MDMA_IT_CTC));

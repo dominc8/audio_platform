@@ -77,7 +77,7 @@
    * ARM_MATH_CM0 or ARM_MATH_CM0PLUS depending on the target processor in the application.
    * For Armv8-M cores define preprocessor macro ARM_MATH_ARMV8MBL or ARM_MATH_ARMV8MML.
    * Set preprocessor macro __DSP_PRESENT if Armv8-M Mainline core supports DSP instructions.
-   * 
+   *
    *
    * Examples
    * --------
@@ -1164,6 +1164,19 @@ extern "C"
   q31_t * pState,
   uint32_t blockSize);
 
+
+  /**
+   * @brief Processing function for the floating-point FIR filter with int32_t input/output
+   * @param[in]  S          points to an instance of the floating-point FIR structure.
+   * @param[in]  pSrc       points to the block of input data.
+   * @param[out] pDst       points to the block of output data.
+   * @param[in]  blockSize  number of samples to process.
+   */
+  void arm_fir_f32_int(
+  const arm_fir_instance_f32 * S,
+  int32_t * pSrc,
+  int32_t * pDst,
+  uint32_t blockSize);
 
   /**
    * @brief Processing function for the floating-point FIR filter.
