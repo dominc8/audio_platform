@@ -56,7 +56,7 @@ static MDMA_LinkNodeTypeDef ll_node_out __attribute__ ((section(".AXI_SRAM")));
 
 static void refresh_mdma(void);
 static void init_mdma_out(int32_t);
-static inline void refresh_mdma_out(int32_t buf_idx);
+static inline void copy_audio_out(int32_t buf_idx);
 
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
@@ -157,30 +157,11 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     int32_t buf_idx = buf_out_idx;
 
     uint32_t start = GET_CCNT();
-#if 0
-    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    {
-        audio_buffer_out[buf_idx++] = audio_in_l[i];
-        audio_buffer_out[buf_idx++] = audio_in_r[i];
-    }
-#else
+
     dsp_left(NULL);
     dsp_right(NULL);
-
-//    HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &audio_buffer_out[0],
-//            sizeof(audio_buffer_in) / 2, 1);
-
-    refresh_mdma_out(buf_idx);
+    copy_audio_out(buf_idx);
     buf_idx += AUDIO_BLOCK_SIZE;
-    // for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    // {
-    //     audio_buffer_out[buf_idx++] = audio_out_l[i];
-    //     audio_buffer_out[buf_idx++] = audio_out_r[i];
-    // }
-#endif
-
-    // SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx - AUDIO_BLOCK_SIZE],
-    //         sizeof(audio_buffer_in));
 
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
@@ -253,6 +234,7 @@ void dsp_blocking(void)
             float *audio_right = &audio_tmp[1][tmp_idx];
             int32_t *audio_out = &audio_buffer_out[0];
             int32_t i;
+            SCB_InvalidateDCache_by_Addr(&audio_buffer_out[0], sizeof(audio_buffer_out));
 
             for (i = AUDIO_BUFFER_SIZE; i > 0; i -= 2)
             {
@@ -609,7 +591,7 @@ static void refresh_mdma(void)
     __HAL_MDMA_ENABLE(&hmdma);
 }
 
-static inline void refresh_mdma_out(int32_t buf_idx)
+static inline void copy_audio_out(int32_t buf_idx)
 {
     ll_node_out.CDAR = (uint32_t) &audio_buffer_out[buf_idx + 1];
     SCB->DCCMVAC = (uint32_t) &ll_node_out.CDAR; // Clean cache without memory barriers, it is write-only from SW POV
