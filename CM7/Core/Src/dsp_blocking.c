@@ -30,8 +30,6 @@ ALIGN_32BYTES(static int32_t audio_out_l[AUDIO_BLOCK_SIZE / 2]);
 ALIGN_32BYTES(static int32_t audio_in_r[AUDIO_BLOCK_SIZE / 2]);
 ALIGN_32BYTES(static int32_t audio_out_r[AUDIO_BLOCK_SIZE / 2]);
 
-ALIGN_32BYTES(static int32_t test_dst[AUDIO_BLOCK_SIZE]);
-
 typedef struct
 {
     float coeff[MAX_FIR_ORDER + 1];
@@ -58,6 +56,7 @@ static MDMA_LinkNodeTypeDef ll_node_out __attribute__ ((section(".AXI_SRAM")));
 
 static void refresh_mdma(void);
 static void init_mdma_out(int32_t);
+static inline void refresh_mdma_out(int32_t buf_idx);
 
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
@@ -171,7 +170,7 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 //    HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &audio_buffer_out[0],
 //            sizeof(audio_buffer_in) / 2, 1);
 
-    init_mdma_out(buf_idx);
+    refresh_mdma_out(buf_idx);
     buf_idx += AUDIO_BLOCK_SIZE;
     // for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
     // {
@@ -612,16 +611,20 @@ static void refresh_mdma(void)
 
 static inline void refresh_mdma_out(int32_t buf_idx)
 {
+    ll_node_out.CDAR = (uint32_t) &audio_buffer_out[buf_idx + 1];
+    SCB->DCCMVAC = (uint32_t) &ll_node_out.CDAR; // Clean cache without memory barriers, it is write-only from SW POV
+
+    __HAL_MDMA_DISABLE(&hmdma_out);
     __HAL_MDMA_CLEAR_FLAG(&hmdma_out,
             (MDMA_FLAG_TE | MDMA_FLAG_CTC | MDMA_FLAG_BRT | MDMA_FLAG_BT | MDMA_FLAG_BFTC));
 
     hmdma_out.Instance->CLAR = (uint32_t) &ll_node_out;
     hmdma_out.Instance->CBNDTR = sizeof(audio_buffer_in) / 2;
     hmdma_out.Instance->CDAR = (uint32_t) &audio_buffer_out[buf_idx];
-    hmdma_out.Instance->CSAR = (uint32_t) &audio_in_l[0];
-    ll_node_out.CDAR = (uint32_t) &audio_buffer_out[buf_idx + 1];
-    SCB_CleanDCache_by_Addr((uint32_t*) &ll_node_out, sizeof(ll_node_out));
+    hmdma_out.Instance->CSAR = (uint32_t) &audio_out_l[0];
 
+    __HAL_MDMA_ENABLE(&hmdma_out);
+    hmdma_out.Instance->CCR |=  MDMA_CCR_SWRQ;
 }
 
 
