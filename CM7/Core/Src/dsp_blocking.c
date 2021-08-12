@@ -13,8 +13,8 @@
 #include "arm_math.h"
 
 /* Private define ------------------------------------------------------------*/
-#define AUDIO_BLOCK_SIZE            ((uint32_t)16)
-#define N_AUDIO_BLOCKS              ((uint32_t)16)
+#define AUDIO_BLOCK_SIZE            ((uint32_t)32)
+#define N_AUDIO_BLOCKS              ((uint32_t)8)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 #define FFT_N_SAMPLES               ((uint32_t)256)
 #define FFT_GAMMA_SHIFT             (3)
