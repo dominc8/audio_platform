@@ -31,8 +31,6 @@ ALIGN_32BYTES(static int32_t audio_in_r[AUDIO_BLOCK_SIZE / 2]);
 ALIGN_32BYTES(static int32_t audio_out_r[AUDIO_BLOCK_SIZE / 2]);
 
 ALIGN_32BYTES(static int32_t test_dst[AUDIO_BLOCK_SIZE]);
-ALIGN_32BYTES(static int32_t test_src1[AUDIO_BLOCK_SIZE/2]);
-ALIGN_32BYTES(static int32_t test_src2[AUDIO_BLOCK_SIZE/2]);
 
 typedef struct
 {
@@ -553,18 +551,10 @@ static void init_mdma(void)
 }
 static void init_mdma_out(void)
 {
-    static int32_t x0 = 1;
     HAL_StatusTypeDef status;
     MDMA_LinkNodeConfTypeDef node_conf;
     event e =
     { .id = 10, .val = 0U };
-
-    for (int32_t i = 0; i < 8; ++i)
-    {
-        test_src1[i] = x0 * ( i + 1);
-        test_src2[i] = -x0 * ( i + 1);
-    }
-    ++x0;
 
     hmdma_out.Instance = MDMA_Channel3;
     hmdma_out.Init.BufferTransferLength = sizeof(test_dst);
@@ -593,7 +583,7 @@ static void init_mdma_out(void)
     node_conf.BlockDataLength = sizeof(test_dst) / 2;
 
     node_conf.DstAddress = (uint32_t) &test_dst[1];
-    node_conf.SrcAddress = (uint32_t) &test_src2[0];
+    node_conf.SrcAddress = (uint32_t) &audio_out_r[0];
 
     status = HAL_MDMA_LinkedList_CreateNode(&ll_node_out, &node_conf);
     e.val += status << 4;
@@ -603,7 +593,7 @@ static void init_mdma_out(void)
     SCB_CleanDCache_by_Addr((uint32_t*) &ll_node_out, sizeof(ll_node_out));
 
     // First part, copying left channels samples
-    status = HAL_MDMA_Start(&hmdma_out, (uint32_t) &test_src1[0], (uint32_t) &test_dst[0],
+    status = HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &test_dst[0],
             sizeof(test_dst) / 2, 1);
     e.val += status << 8;
     eq_m7_add_event(e);
