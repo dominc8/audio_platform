@@ -30,6 +30,10 @@ ALIGN_32BYTES(static int32_t audio_out_l[AUDIO_BLOCK_SIZE / 2]);
 ALIGN_32BYTES(static int32_t audio_in_r[AUDIO_BLOCK_SIZE / 2]);
 ALIGN_32BYTES(static int32_t audio_out_r[AUDIO_BLOCK_SIZE / 2]);
 
+ALIGN_32BYTES(static int32_t test_dst[AUDIO_BLOCK_SIZE]);
+ALIGN_32BYTES(static int32_t test_src1[AUDIO_BLOCK_SIZE/2]);
+ALIGN_32BYTES(static int32_t test_src2[AUDIO_BLOCK_SIZE/2]);
+
 typedef struct
 {
     float coeff[MAX_FIR_ORDER + 1];
@@ -188,7 +192,9 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
+static void init_mdma_out(void);
 static void deinit_mdma(void);
+static void deinit_mdma_out(void);
 static void setup_filters(void);
 static void sync_dsp_filters(uint32_t dsp_mask);
 static void update_fft_bins_channel(float *new_fft, int32_t channel);
@@ -224,6 +230,7 @@ void dsp_blocking(void)
 
     set_mdma_handler(&hmdma);
     init_mdma();
+    init_mdma_out();
 
     err_cnt = 0;
     race_cnt = 0;
@@ -303,6 +310,7 @@ void dsp_blocking(void)
         {
             dsp_update_mask &= ~dsp_mask;
             sync_dsp_filters(dsp_mask);
+            init_mdma_out();
         }
     }
     while (lock_hsem(HSEM_I2C4))
@@ -314,6 +322,7 @@ void dsp_blocking(void)
     unlock_hsem(HSEM_I2C4);
 
     deinit_mdma();
+    deinit_mdma_out();
 
 }
 
@@ -542,6 +551,64 @@ static void init_mdma(void)
     e.val += status << 8;
     eq_m7_add_event(e);
 }
+static void init_mdma_out(void)
+{
+    static int32_t x0 = 1;
+    HAL_StatusTypeDef status;
+    MDMA_LinkNodeConfTypeDef node_conf;
+    event e =
+    { .id = 10, .val = 0U };
+
+    for (int32_t i = 0; i < 8; ++i)
+    {
+        test_src1[i] = x0 * ( i + 1);
+        test_src2[i] = -x0 * ( i + 1);
+    }
+    ++x0;
+
+    hmdma_out.Instance = MDMA_Channel3;
+    hmdma_out.Init.BufferTransferLength = sizeof(test_dst);
+    hmdma_out.Init.DataAlignment = MDMA_DATAALIGN_RIGHT;
+    hmdma_out.Init.DestBlockAddressOffset = 0;
+    hmdma_out.Init.DestBurst = MDMA_DEST_BURST_SINGLE;
+    hmdma_out.Init.DestDataSize = MDMA_DEST_DATASIZE_WORD;
+    hmdma_out.Init.DestinationInc = MDMA_DEST_INC_DOUBLEWORD;
+    hmdma_out.Init.Endianness = MDMA_LITTLE_ENDIANNESS_PRESERVE;
+    hmdma_out.Init.Priority = MDMA_PRIORITY_VERY_HIGH;
+    hmdma_out.Init.Request = MDMA_REQUEST_SW;
+    hmdma_out.Init.SourceBlockAddressOffset = 0;
+    hmdma_out.Init.SourceBurst = MDMA_SOURCE_BURST_SINGLE;
+    hmdma_out.Init.SourceDataSize = MDMA_SRC_DATASIZE_WORD;
+    hmdma_out.Init.SourceInc = MDMA_SRC_INC_WORD;
+    hmdma_out.Init.TransferTriggerMode = MDMA_FULL_TRANSFER;
+    status = HAL_MDMA_Init(&hmdma_out);
+    e.val += status << 0;
+
+    HAL_MDMA_ConfigPostRequestMask(&hmdma_out, 0, 0);
+
+    memcpy(&node_conf.Init, &hmdma_out.Init, sizeof(hmdma_out.Init));
+    node_conf.PostRequestMaskAddress = 0;
+    node_conf.PostRequestMaskData = 0;
+    node_conf.BlockCount = 1;
+    node_conf.BlockDataLength = sizeof(test_dst) / 2;
+
+    node_conf.DstAddress = (uint32_t) &test_dst[1];
+    node_conf.SrcAddress = (uint32_t) &test_src2[0];
+
+    status = HAL_MDMA_LinkedList_CreateNode(&ll_node_out, &node_conf);
+    e.val += status << 4;
+    status = HAL_MDMA_LinkedList_AddNode(&hmdma_out, &ll_node_out, 0);
+    e.val += status << 6;
+
+    SCB_CleanDCache_by_Addr((uint32_t*) &ll_node_out, sizeof(ll_node_out));
+
+    // First part, copying left channels samples
+    status = HAL_MDMA_Start(&hmdma_out, (uint32_t) &test_src1[0], (uint32_t) &test_dst[0],
+            sizeof(test_dst) / 2, 1);
+    e.val += status << 8;
+    eq_m7_add_event(e);
+
+}
 
 static void refresh_mdma(void)
 {
@@ -564,4 +631,10 @@ static void deinit_mdma(void)
     HAL_MDMA_UnRegisterCallback(&hmdma, HAL_MDMA_XFER_CPLT_CB_ID);
     HAL_MDMA_DeInit(&hmdma);
 }
+
+static void deinit_mdma_out(void)
+{
+    HAL_MDMA_DeInit(&hmdma_out);
+}
+
 
