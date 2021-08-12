@@ -57,6 +57,7 @@ static MDMA_HandleTypeDef hmdma_out;
 static MDMA_LinkNodeTypeDef ll_node_out __attribute__ ((section(".AXI_SRAM")));
 
 static void refresh_mdma(void);
+static void init_mdma_out(int32_t);
 
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
@@ -170,15 +171,17 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 //    HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &audio_buffer_out[0],
 //            sizeof(audio_buffer_in) / 2, 1);
 
-    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    {
-        audio_buffer_out[buf_idx++] = audio_out_l[i];
-        audio_buffer_out[buf_idx++] = audio_out_r[i];
-    }
+    init_mdma_out(buf_idx);
+    buf_idx += AUDIO_BLOCK_SIZE;
+    // for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    // {
+    //     audio_buffer_out[buf_idx++] = audio_out_l[i];
+    //     audio_buffer_out[buf_idx++] = audio_out_r[i];
+    // }
 #endif
 
-    SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx - AUDIO_BLOCK_SIZE],
-            sizeof(audio_buffer_in));
+    // SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx - AUDIO_BLOCK_SIZE],
+    //         sizeof(audio_buffer_in));
 
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
@@ -190,7 +193,6 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
-static void init_mdma_out(void);
 static void deinit_mdma(void);
 static void deinit_mdma_out(void);
 static void setup_filters(void);
@@ -228,7 +230,7 @@ void dsp_blocking(void)
 
     set_mdma_handler(&hmdma);
     init_mdma();
-    init_mdma_out();
+    init_mdma_out(0);
 
     err_cnt = 0;
     race_cnt = 0;
@@ -308,7 +310,6 @@ void dsp_blocking(void)
         {
             dsp_update_mask &= ~dsp_mask;
             sync_dsp_filters(dsp_mask);
-            init_mdma_out();
         }
     }
     while (lock_hsem(HSEM_I2C4))
@@ -549,15 +550,14 @@ static void init_mdma(void)
     e.val += status << 8;
     eq_m7_add_event(e);
 }
-static void init_mdma_out(void)
+
+static void init_mdma_out(int32_t buf_idx)
 {
     HAL_StatusTypeDef status;
     MDMA_LinkNodeConfTypeDef node_conf;
-    event e =
-    { .id = 10, .val = 0U };
 
     hmdma_out.Instance = MDMA_Channel3;
-    hmdma_out.Init.BufferTransferLength = sizeof(test_dst);
+    hmdma_out.Init.BufferTransferLength = sizeof(audio_buffer_in);
     hmdma_out.Init.DataAlignment = MDMA_DATAALIGN_RIGHT;
     hmdma_out.Init.DestBlockAddressOffset = 0;
     hmdma_out.Init.DestBurst = MDMA_DEST_BURST_SINGLE;
@@ -572,7 +572,6 @@ static void init_mdma_out(void)
     hmdma_out.Init.SourceInc = MDMA_SRC_INC_WORD;
     hmdma_out.Init.TransferTriggerMode = MDMA_FULL_TRANSFER;
     status = HAL_MDMA_Init(&hmdma_out);
-    e.val += status << 0;
 
     HAL_MDMA_ConfigPostRequestMask(&hmdma_out, 0, 0);
 
@@ -580,23 +579,19 @@ static void init_mdma_out(void)
     node_conf.PostRequestMaskAddress = 0;
     node_conf.PostRequestMaskData = 0;
     node_conf.BlockCount = 1;
-    node_conf.BlockDataLength = sizeof(test_dst) / 2;
+    node_conf.BlockDataLength = sizeof(audio_buffer_in) / 2;
 
-    node_conf.DstAddress = (uint32_t) &test_dst[1];
+    node_conf.DstAddress = (uint32_t) &audio_buffer_out[buf_idx + 1];
     node_conf.SrcAddress = (uint32_t) &audio_out_r[0];
 
-    status = HAL_MDMA_LinkedList_CreateNode(&ll_node_out, &node_conf);
-    e.val += status << 4;
-    status = HAL_MDMA_LinkedList_AddNode(&hmdma_out, &ll_node_out, 0);
-    e.val += status << 6;
+    HAL_MDMA_LinkedList_CreateNode(&ll_node_out, &node_conf);
+    HAL_MDMA_LinkedList_AddNode(&hmdma_out, &ll_node_out, 0);
 
     SCB_CleanDCache_by_Addr((uint32_t*) &ll_node_out, sizeof(ll_node_out));
 
     // First part, copying left channels samples
-    status = HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &test_dst[0],
-            sizeof(test_dst) / 2, 1);
-    e.val += status << 8;
-    eq_m7_add_event(e);
+    HAL_MDMA_Start(&hmdma_out, (uint32_t) &audio_out_l[0], (uint32_t) &audio_buffer_out[buf_idx],
+            sizeof(audio_buffer_in) / 2, 1);
 
 }
 
@@ -614,6 +609,21 @@ static void refresh_mdma(void)
     __HAL_MDMA_ENABLE_IT(&hmdma, (MDMA_IT_TE | MDMA_IT_CTC));
     __HAL_MDMA_ENABLE(&hmdma);
 }
+
+static inline void refresh_mdma_out(int32_t buf_idx)
+{
+    __HAL_MDMA_CLEAR_FLAG(&hmdma_out,
+            (MDMA_FLAG_TE | MDMA_FLAG_CTC | MDMA_FLAG_BRT | MDMA_FLAG_BT | MDMA_FLAG_BFTC));
+
+    hmdma_out.Instance->CLAR = (uint32_t) &ll_node_out;
+    hmdma_out.Instance->CBNDTR = sizeof(audio_buffer_in) / 2;
+    hmdma_out.Instance->CDAR = (uint32_t) &audio_buffer_out[buf_idx];
+    hmdma_out.Instance->CSAR = (uint32_t) &audio_in_l[0];
+    ll_node_out.CDAR = (uint32_t) &audio_buffer_out[buf_idx + 1];
+    SCB_CleanDCache_by_Addr((uint32_t*) &ll_node_out, sizeof(ll_node_out));
+
+}
+
 
 static void deinit_mdma(void)
 {
