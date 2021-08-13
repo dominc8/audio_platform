@@ -1,4 +1,5 @@
 /* Includes ------------------------------------------------------------------*/
+#include "dsp_blocking.h"
 #include <error_handler.h>
 #include "stm32h747i_discovery_audio.h"
 #include "stm32h7xx_it.h"
@@ -37,8 +38,6 @@ typedef struct
     arm_fir_instance_f32 fir_f32_inst;
 } arm_fir_f32_wrapper;
 
-static fir_f32_t fir_left_ch;
-static fir_f32_t fir_right_ch;
 static biquad_f32_t biquad_left_ch;
 static biquad_f32_t biquad_right_ch;
 
@@ -50,13 +49,15 @@ static volatile int32_t err_cnt;
 static volatile int32_t race_cnt;
 static MDMA_HandleTypeDef hmdma;
 static MDMA_LinkNodeTypeDef ll_node __attribute__ ((section(".AXI_SRAM")));
+static void refresh_mdma(void);
 
+#ifdef DSP_MDMA_OUT
 static MDMA_HandleTypeDef hmdma_out;
 static MDMA_LinkNodeTypeDef ll_node_out __attribute__ ((section(".AXI_SRAM")));
-
-static void refresh_mdma(void);
 static void init_mdma_out(int32_t);
 static inline void copy_audio_out(int32_t buf_idx);
+#endif
+
 
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
@@ -90,47 +91,14 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
     }
 }
 
-static int32_t dsp_fir_left(int32_t input)
-{
-    return fir_f32(&fir_left_ch, input);
-}
-
 static void dsp_fir_arm_left(int32_t *inout)
 {
-#if 1
     arm_fir_f32_int(&arm_fir_left.fir_f32_inst, &audio_in_l[0], &audio_out_l[0], AUDIO_BLOCK_SIZE / 2);
-#else
-    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    {
-        arm_fir_left.input[i] = inout[i];
-    }
-    arm_fir_f32(&arm_fir_left.fir_f32_inst, &arm_fir_left.input[0], &arm_fir_left.output[0], AUDIO_BLOCK_SIZE / 2);
-    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    {
-        inout[i] = arm_fir_left.output[i];
-    }
-#endif
-}
-
-static int32_t dsp_fir_right(int32_t input)
-{
-    return fir_f32(&fir_right_ch, input);
 }
 
 static void dsp_fir_arm_right(int32_t *inout)
 {
-#if 1
     arm_fir_f32_int(&arm_fir_right.fir_f32_inst, &audio_in_r[0], &audio_out_r[0], AUDIO_BLOCK_SIZE / 2);
-#else
-    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    {
-        arm_fir_right.input[i] = inout[i];
-    }
-    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
-    {
-        inout[i] = arm_fir_right.output[i];
-    }
-#endif
 }
 
 static int32_t dsp_biquad_left(int32_t input)
@@ -160,8 +128,16 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 
     dsp_left(NULL);
     dsp_right(NULL);
+#ifdef DSP_MDMA_OUT
     copy_audio_out(buf_idx);
     buf_idx += AUDIO_BLOCK_SIZE;
+#else
+    for (int32_t i = 0; i < AUDIO_BLOCK_SIZE / 2; ++i)
+    {
+        audio_buffer_out[buf_idx++] = audio_out_l[i];
+        audio_buffer_out[buf_idx++] = audio_out_r[i];
+    }
+#endif
 
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
@@ -174,7 +150,9 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
 static void deinit_mdma(void);
+#ifdef DSP_MDMA_OUT
 static void deinit_mdma_out(void);
+#endif
 static void setup_filters(void);
 static void sync_dsp_filters(uint32_t dsp_mask);
 static void update_fft_bins_channel(float *new_fft, int32_t channel);
@@ -210,7 +188,9 @@ void dsp_blocking(void)
 
     set_mdma_handler(&hmdma);
     init_mdma();
+#ifdef DSP_MDMA_OUT
     init_mdma_out(0);
+#endif
 
     err_cnt = 0;
     race_cnt = 0;
@@ -234,7 +214,8 @@ void dsp_blocking(void)
             float *audio_right = &audio_tmp[1][tmp_idx];
             int32_t *audio_out = &audio_buffer_out[0];
             int32_t i;
-            SCB_InvalidateDCache_by_Addr(&audio_buffer_out[0], sizeof(audio_buffer_out));
+            uint32_t n_bytes = sizeof(audio_buffer_out[0]) * (AUDIO_BUFFER_SIZE > (2*FFT_N_SAMPLES) ? (2*FFT_N_SAMPLES) : AUDIO_BUFFER_SIZE);
+            SCB_InvalidateDCache_by_Addr(&audio_buffer_out[0], n_bytes);
 
             for (i = AUDIO_BUFFER_SIZE; i > 0; i -= 2)
             {
@@ -302,7 +283,9 @@ void dsp_blocking(void)
     unlock_hsem(HSEM_I2C4);
 
     deinit_mdma();
+#ifdef DSP_MDMA_OUT
     deinit_mdma_out();
+#endif
 
 }
 
@@ -414,11 +397,6 @@ static void sync_dsp_filters(uint32_t dsp_mask)
 {
     if (dsp_mask & 0x01U)
     {
-//         fir_left_ch.order = fir_orders[0];
-//         memcpy((void*) &fir_left_ch.coeff[0], (void*) &fir_coeffs[0][0],
-//                 (fir_left_ch.order + 1) * sizeof(float));
-//         dsp_left = &dsp_fir_left;
-
         int32_t n_coeff = fir_orders[0] + 1;
         for (int32_t i = 0; i < n_coeff; ++i)
         {
@@ -429,11 +407,6 @@ static void sync_dsp_filters(uint32_t dsp_mask)
     }
     if (dsp_mask & 0x02U)
     {
-//         fir_right_ch.order = fir_orders[1];
-//         memcpy((void*) &fir_right_ch.coeff[0], (void*) &fir_coeffs[1][0],
-//                 (fir_right_ch.order + 1) * sizeof(float));
-//         dsp_right = &dsp_fir_right;
-
         int32_t n_coeff = fir_orders[1] + 1;
         for (int32_t i = 0; i < n_coeff; ++i)
         {
@@ -532,9 +505,31 @@ static void init_mdma(void)
     eq_m7_add_event(e);
 }
 
+static void refresh_mdma(void)
+{
+    __HAL_MDMA_DISABLE(&hmdma);
+    __HAL_MDMA_CLEAR_FLAG(&hmdma,
+            (MDMA_FLAG_TE | MDMA_FLAG_CTC | MDMA_FLAG_BRT | MDMA_FLAG_BT | MDMA_FLAG_BFTC));
+
+    hmdma.Instance->CLAR = (uint32_t) &ll_node;
+    hmdma.Instance->CBNDTR = sizeof(audio_buffer_in) / 2;
+    hmdma.Instance->CDAR = (uint32_t) &audio_in_l[0];
+    hmdma.Instance->CSAR = (uint32_t) &audio_buffer_in[0];
+
+    __HAL_MDMA_ENABLE_IT(&hmdma, (MDMA_IT_TE | MDMA_IT_CTC));
+    __HAL_MDMA_ENABLE(&hmdma);
+}
+
+static void deinit_mdma(void)
+{
+    HAL_MDMA_Abort_IT(&hmdma);
+    HAL_MDMA_UnRegisterCallback(&hmdma, HAL_MDMA_XFER_CPLT_CB_ID);
+    HAL_MDMA_DeInit(&hmdma);
+}
+
+#ifdef DSP_MDMA_OUT
 static void init_mdma_out(int32_t buf_idx)
 {
-    HAL_StatusTypeDef status;
     MDMA_LinkNodeConfTypeDef node_conf;
 
     hmdma_out.Instance = MDMA_Channel3;
@@ -552,7 +547,7 @@ static void init_mdma_out(int32_t buf_idx)
     hmdma_out.Init.SourceDataSize = MDMA_SRC_DATASIZE_WORD;
     hmdma_out.Init.SourceInc = MDMA_SRC_INC_WORD;
     hmdma_out.Init.TransferTriggerMode = MDMA_FULL_TRANSFER;
-    status = HAL_MDMA_Init(&hmdma_out);
+    HAL_MDMA_Init(&hmdma_out);
 
     HAL_MDMA_ConfigPostRequestMask(&hmdma_out, 0, 0);
 
@@ -576,21 +571,6 @@ static void init_mdma_out(int32_t buf_idx)
 
 }
 
-static void refresh_mdma(void)
-{
-    __HAL_MDMA_DISABLE(&hmdma);
-    __HAL_MDMA_CLEAR_FLAG(&hmdma,
-            (MDMA_FLAG_TE | MDMA_FLAG_CTC | MDMA_FLAG_BRT | MDMA_FLAG_BT | MDMA_FLAG_BFTC));
-
-    hmdma.Instance->CLAR = (uint32_t) &ll_node;
-    hmdma.Instance->CBNDTR = sizeof(audio_buffer_in) / 2;
-    hmdma.Instance->CDAR = (uint32_t) &audio_in_l[0];
-    hmdma.Instance->CSAR = (uint32_t) &audio_buffer_in[0];
-
-    __HAL_MDMA_ENABLE_IT(&hmdma, (MDMA_IT_TE | MDMA_IT_CTC));
-    __HAL_MDMA_ENABLE(&hmdma);
-}
-
 static inline void copy_audio_out(int32_t buf_idx)
 {
     ll_node_out.CDAR = (uint32_t) &audio_buffer_out[buf_idx + 1];
@@ -609,17 +589,9 @@ static inline void copy_audio_out(int32_t buf_idx)
     hmdma_out.Instance->CCR |=  MDMA_CCR_SWRQ;
 }
 
-
-static void deinit_mdma(void)
-{
-    HAL_MDMA_Abort_IT(&hmdma);
-    HAL_MDMA_UnRegisterCallback(&hmdma, HAL_MDMA_XFER_CPLT_CB_ID);
-    HAL_MDMA_DeInit(&hmdma);
-}
-
 static void deinit_mdma_out(void)
 {
     HAL_MDMA_DeInit(&hmdma_out);
 }
-
+#endif
 
