@@ -3628,6 +3628,20 @@ void arm_rfft_fast_f32(
 
 
   /**
+   * @brief Processing function for the floating-point transposed direct form II Biquad cascade filter with int32_t src and dst.
+   * @param[in]  S          points to an instance of the filter data structure.
+   * @param[in]  pSrc       points to the block of input data.
+   * @param[out] pDst       points to the block of output data
+   * @param[in]  blockSize  number of samples to process.
+   */
+  void arm_biquad_cascade_df2T_f32_int(
+  const arm_biquad_cascade_df2T_instance_f32 * S,
+  int32_t * pSrc,
+  int32_t * pDst,
+  uint32_t blockSize);
+
+
+  /**
    * @brief Processing function for the floating-point transposed direct form II Biquad cascade filter.
    * @param[in]  S          points to an instance of the filter data structure.
    * @param[in]  pSrc       points to the block of input data.
