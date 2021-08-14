@@ -61,18 +61,18 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
 
     GUI_Clear(GUI_COLOR_BLACK);
 
-    GUI_FillRect(0, 38, x_size, 2, GUI_COLOR_RED);
+    GUI_FillRect(0, 46, x_size, 2, GUI_COLOR_RED);
     GUI_SetTextColor(GUI_COLOR_WHITE);
     GUI_SetBackColor(GUI_COLOR_BLACK);
     GUI_SetFont(&Font24);
-    GUI_DisplayStringAt(0, 10, (uint8_t*) "Audio DSP Platform", CENTER_MODE);
-    GUI_DrawBitmap(x_size / 2 - 15, y_size - 80, (uint8_t*) aghlogo);
+    GUI_DisplayStringAt(0, 12, (uint8_t*) "Audio DSP Platform", CENTER_MODE);
+    GUI_DrawBitmap(x_size - 30, 0, (uint8_t*) aghlogo);
 
     ui_button_low_lat.x0 = 2;
     ui_button_low_lat.x1 = x_size / 4;
-    ui_button_low_lat.y0 = 42;
-    ui_button_low_lat.y1 = 82;
-    ui_button_low_lat.color = GUI_COLOR_DARKBLUE;
+    ui_button_low_lat.y0 = 50;
+    ui_button_low_lat.y1 = y_size / 3;
+    ui_button_low_lat.color = 0xFF19784E;
     ui_button_low_lat.font = &Font24;
     ui_button_low_lat.text = "Low latency";
     set_x0_text_centered(&ui_button_low_lat);
@@ -81,9 +81,9 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
 
     ui_button_dsp_block.x0 = 3 * x_size / 4;
     ui_button_dsp_block.x1 = x_size - 2;
-    ui_button_dsp_block.y0 = 42;
-    ui_button_dsp_block.y1 = 82;
-    ui_button_dsp_block.color = GUI_COLOR_DARKBLUE;
+    ui_button_dsp_block.y0 = 50;
+    ui_button_dsp_block.y1 = y_size / 3;
+    ui_button_dsp_block.color = 0xFF19784E;
     ui_button_dsp_block.font = &Font24;
     ui_button_dsp_block.text = "DSP blocks";
     set_x0_text_centered(&ui_button_dsp_block);
