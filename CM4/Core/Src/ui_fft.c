@@ -28,7 +28,6 @@ static ui_button_t ui_button_biquad;
 static void display_fft(void);
 static void gather_and_log_fft_time(uint32_t fft_time);
 static void init_fft_bin(void);
-static void toggle_audio_on_m7(void);
 
 void init_ui_fft(ui_state_t *ui_state)
 {
@@ -50,7 +49,6 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     {
         init_ui_fft(self);
         next_state = UI_STATE_START_SCREEN;
-        toggle_audio_on_m7();
     }
     else if (is_ui_button_touched(&ui_button_fir, touch_state) == 1)
     {
@@ -122,7 +120,6 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     BSP_LED_On(LED_BLUE);
 
     new_data_flag = 0;
-    toggle_audio_on_m7();
     init_fft_bin();
 
     self->f_handle_ui = &handle_ui;
@@ -289,18 +286,6 @@ static void init_fft_bin(void)
                 fft_bin[i++] = 0xFF000000;
             }
         }
-    }
-}
-
-static void toggle_audio_on_m7(void)
-{
-    if (0 == lock_unlock_hsem(HSEM_START_DSP_BLOCKING))
-    {
-        BSP_LED_On(LED_GREEN);
-    }
-    else
-    {
-        BSP_LED_On(LED_ORANGE);
     }
 }
 

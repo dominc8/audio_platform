@@ -63,31 +63,29 @@ int main(void)
         Error_Handler();
     }
 
-    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
-    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_DSP_BLOCKING));
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_LOW_LATENCY));
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DSP_BLOCKING));
     HAL_NVIC_SetPriority(HSEM1_IRQn, 5, 0);
     HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
     HAL_NVIC_EnableIRQ(HSEM1_IRQn);
-    start_audio = 0;
+    start_low_latency = 0;
     start_dsp_blocking = 0;
 
-    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
-    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_DSP_BLOCKING));
+    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_LOW_LATENCY));
+    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_DSP_BLOCKING));
     BSP_LED_Init(LED_RED);
     trace_init();
     ccnt_init();
     eq_m7_init();
-    int32_t i = 0;
 
     while (1)
     {
-        while (start_audio != 1 && start_dsp_blocking != 1)
+        while (start_low_latency != 1 && start_dsp_blocking != 1)
         {
         }
         event e =
-        { .id = EVENT_DBG, .val = (uint32_t) i };
-        i += eq_m7_add_event(e) + 10;
-        if (1 == start_audio)
+        { .id = EVENT_DBG, .val = (uint32_t) ((start_dsp_blocking << 1) + start_low_latency) };
+        if (1 == start_low_latency)
         {
             analog_inout();
         }

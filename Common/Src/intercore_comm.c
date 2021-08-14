@@ -42,13 +42,16 @@ void lock_unlock_callback(uint32_t sem_mask)
 
 #ifdef CORE_CM7
 
+#include "analog_inout.h"
+#include "dsp_blocking.h"
+
 void lock_unlock_callback(uint32_t sem_mask)
 {
-    if (IS_HSEMID_IN_MASK(HSEM_START_AUDIO, sem_mask))
+    if (IS_HSEMID_IN_MASK(HSEM_LOW_LATENCY, sem_mask))
     {
-        start_audio = start_audio == 1 ? 0 : 1;
+        start_low_latency = start_low_latency == 1 ? 0 : 1;
     }
-    if (IS_HSEMID_IN_MASK(HSEM_START_DSP_BLOCKING, sem_mask))
+    if (IS_HSEMID_IN_MASK(HSEM_DSP_BLOCKING, sem_mask))
     {
         start_dsp_blocking = start_dsp_blocking == 1 ? 0 : 1;
     }

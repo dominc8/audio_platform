@@ -13,6 +13,8 @@
 #include "biquad.h"
 #include "arm_math.h"
 
+volatile uint8_t start_dsp_blocking;
+
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)32)
 #define N_AUDIO_BLOCKS              ((uint32_t)8)

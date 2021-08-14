@@ -6,14 +6,6 @@
 #include "ui_task.h"
 #include "event_queue.h"
 
-#if 0
-#include "stm32h7xx_hal.h"
-#include "stm32h747i_discovery_lcd.h"
-#include "stm32h747i_discovery_ts.h"
-#include "stm32h747i_discovery_conf.h"
-#include "basic_gui.h"
-#endif
-
 int main(void)
 {
     /* HW semaphore Clock enable */
@@ -34,7 +26,8 @@ int main(void)
 
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
     HAL_Init();
-    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_START_AUDIO));
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_LOW_LATENCY));
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DSP_BLOCKING));
 
     ccnt_init();
     scheduler_init();
