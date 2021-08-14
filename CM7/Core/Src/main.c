@@ -1,4 +1,4 @@
-#include "analog_inout.h"
+#include "low_latency.h"
 #include "dsp_blocking.h"
 #include "error_handler.h"
 #include "shared_data.h"
@@ -85,9 +85,10 @@ int main(void)
         }
         event e =
         { .id = EVENT_DBG, .val = (uint32_t) ((start_dsp_blocking << 1) + start_low_latency) };
+        eq_m7_add_event(e);
         if (1 == start_low_latency)
         {
-            analog_inout();
+            low_latency();
         }
         else if (1 == start_dsp_blocking)
         {

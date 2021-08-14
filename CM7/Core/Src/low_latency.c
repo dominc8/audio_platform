@@ -139,7 +139,7 @@ static void apply_gamma_fft_bins_channel(int32_t channel);
 static inline float fft_power(float re, float im);
 
 /*----------------------------------------------------------------------------*/
-void analog_inout(void)
+void low_latency(void)
 {
     const uint32_t audio_freq = 48000;
     const uint32_t audio_resolution = 32;

@@ -42,7 +42,7 @@ void lock_unlock_callback(uint32_t sem_mask)
 
 #ifdef CORE_CM7
 
-#include "analog_inout.h"
+#include "low_latency.h"
 #include "dsp_blocking.h"
 
 void lock_unlock_callback(uint32_t sem_mask)
