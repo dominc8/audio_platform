@@ -66,7 +66,6 @@ static void init_mdma_out(int32_t);
 static inline void copy_audio_out(int32_t buf_idx);
 #endif
 
-
 static void gather_and_log_fft_time(uint32_t fft_time)
 {
     static uint32_t acc_fft_time = 0;
@@ -101,22 +100,26 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
 
 static void dsp_fir_arm_left(void)
 {
-    arm_fir_f32_int(&arm_fir_left.fir_f32_inst, &audio_in_l[0], &audio_out_l[0], AUDIO_BLOCK_SIZE / 2);
+    arm_fir_f32_int(&arm_fir_left.fir_f32_inst, &audio_in_l[0], &audio_out_l[0],
+            AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_fir_arm_right(void)
 {
-    arm_fir_f32_int(&arm_fir_right.fir_f32_inst, &audio_in_r[0], &audio_out_r[0], AUDIO_BLOCK_SIZE / 2);
+    arm_fir_f32_int(&arm_fir_right.fir_f32_inst, &audio_in_r[0], &audio_out_r[0],
+            AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_biquad_arm_left(void)
 {
-    arm_biquad_cascade_df2T_f32_int(&arm_biquad_left.biquad_f32_inst, &audio_in_l[0], &audio_out_l[0], AUDIO_BLOCK_SIZE / 2);
+    arm_biquad_cascade_df2T_f32_int(&arm_biquad_left.biquad_f32_inst, &audio_in_l[0],
+            &audio_out_l[0], AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_biquad_arm_right(void)
 {
-    arm_biquad_cascade_df2T_f32_int(&arm_biquad_right.biquad_f32_inst, &audio_in_r[0], &audio_out_r[0], AUDIO_BLOCK_SIZE / 2);
+    arm_biquad_cascade_df2T_f32_int(&arm_biquad_right.biquad_f32_inst, &audio_in_r[0],
+            &audio_out_r[0], AUDIO_BLOCK_SIZE / 2);
 }
 
 static void (*dsp_left)(void) = &dsp_biquad_arm_left;
@@ -201,8 +204,10 @@ void dsp_blocking(void)
             &arm_fir_left.state[0], AUDIO_BLOCK_SIZE / 2);
     arm_fir_init_f32(&arm_fir_right.fir_f32_inst, fir_orders[1] + 1, &arm_fir_right.coeff[0],
             &arm_fir_right.state[0], AUDIO_BLOCK_SIZE / 2);
-    arm_biquad_cascade_df2T_init_f32(&arm_biquad_left.biquad_f32_inst, biquad_stages[0], &arm_biquad_left.coeff[0], &arm_biquad_left.state[0]);
-    arm_biquad_cascade_df2T_init_f32(&arm_biquad_right.biquad_f32_inst, biquad_stages[1], &arm_biquad_right.coeff[0], &arm_biquad_right.state[0]);
+    arm_biquad_cascade_df2T_init_f32(&arm_biquad_left.biquad_f32_inst, biquad_stages[0],
+            &arm_biquad_left.coeff[0], &arm_biquad_left.state[0]);
+    arm_biquad_cascade_df2T_init_f32(&arm_biquad_right.biquad_f32_inst, biquad_stages[1],
+            &arm_biquad_right.coeff[0], &arm_biquad_right.state[0]);
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -238,7 +243,9 @@ void dsp_blocking(void)
             int32_t *audio_out = &audio_buffer_out[0];
             int32_t i;
 #ifdef DSP_MDMA_OUT
-            uint32_t n_bytes = sizeof(audio_buffer_out[0]) * (AUDIO_BUFFER_SIZE > (2*FFT_N_SAMPLES) ? (2*FFT_N_SAMPLES) : AUDIO_BUFFER_SIZE);
+            uint32_t n_bytes = sizeof(audio_buffer_out[0])
+                    * (AUDIO_BUFFER_SIZE > (2 * FFT_N_SAMPLES) ?
+                            (2 * FFT_N_SAMPLES) : AUDIO_BUFFER_SIZE);
             SCB_InvalidateDCache_by_Addr((uint32_t*) &audio_buffer_out[0], n_bytes);
 #endif
 
@@ -614,7 +621,7 @@ static inline void copy_audio_out(int32_t buf_idx)
     hmdma_out.Instance->CSAR = (uint32_t) &audio_out_l[0];
 
     __HAL_MDMA_ENABLE(&hmdma_out);
-    hmdma_out.Instance->CCR |=  MDMA_CCR_SWRQ;
+    hmdma_out.Instance->CCR |= MDMA_CCR_SWRQ;
 }
 
 static void deinit_mdma_out(void)
