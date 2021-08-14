@@ -1,0 +1,31 @@
+AUDIO_BUFFER_SIZE == 256
+
+
+
+AUDIO_BLOCK_SIZE == 16
+
+nonmdma: 5303, 2330-2337
+
+mdma: 5557, 3127-3136
+
+
+AUDIO_BLOCK_SIZE == 32
+
+nonmdma: 9294, 1979-1986 
+
+mdma: 9235, 2657-2664
+
+
+AUDIO_BLOCK_SIZE == 64
+
+nonmdma: 17018, 1842-1849
+
+mdma: 16455, 2459-2466
+
+
+AUDIO_BLOCK_SIZE == 128
+fft pointless because audio_buffer_size == 2*fft_n_samples
+
+nonmdma: 32357, 3662-3670
+
+mdma: 30872 ,4880-4887

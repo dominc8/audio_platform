@@ -2,6 +2,9 @@
 #include "stm32h7xx_hal.h"
 #include "stm32h747i_discovery_audio.h"
 #include "intercore_comm.h"
+#include "perf_meas.h"
+
+static MDMA_HandleTypeDef *p_hmdma;
 
 void NMI_Handler(void)
 {
@@ -80,3 +83,14 @@ void HSEM2_IRQHandler(void)
 {
     // sem_unlock_callback(statusreg);
 }
+
+void MDMA_IRQHandler(void)
+{
+    HAL_MDMA_IRQHandler(p_hmdma);
+}
+
+void set_mdma_handler(void *hmdma)
+{
+    p_hmdma = hmdma;
+}
+

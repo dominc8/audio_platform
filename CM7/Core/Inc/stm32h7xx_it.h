@@ -17,5 +17,7 @@ void MDMA_IRQHandler(void);
 void HSEM1_IRQHandler(void);
 void HSEM2_IRQHandler(void);
 
+void set_mdma_handler(void *hmdma);
+
 #endif /* STM32H7XX_IT_H */
 

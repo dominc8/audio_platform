@@ -1,12 +1,22 @@
 #include "ui_states.h"
 #include "basic_gui.h"
 #include "stm32h747i_discovery_lcd.h"
+#include "intercore_comm.h"
 #include "agh_logo.h"
+#include "ui_utils.h"
 
 static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
 static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
+static UI_STATE handle_ui_init_from_fft(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
+        int32_t button_state, JOYPin_TypeDef joy_pin);
+static void toggle_audio_on_m7(HSEM_ID dsp_type);
+
+static ui_button_t ui_button_low_lat;
+static ui_button_t ui_button_dsp_block;
+
+static HSEM_ID last_dsp_type = HSEM_LOW_LATENCY;
 
 void init_ui_start_screen(ui_state_t *ui_state)
 {
@@ -17,12 +27,22 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
         int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     UI_STATE next_state = UI_STATE_START_SCREEN;
-    (void) touch_state;
+    (void) button_state;
     (void) joy_pin;
-    if (button_state == 1)
+
+    if (is_ui_button_touched(&ui_button_low_lat, touch_state) == 1)
     {
-        init_ui_start_screen(self);
+        self->f_handle_ui = &handle_ui_init_from_fft;
         next_state = UI_STATE_AUDIO_VISUALIZATION;
+        toggle_audio_on_m7(HSEM_LOW_LATENCY);
+        last_dsp_type = HSEM_LOW_LATENCY;
+    }
+    else if (is_ui_button_touched(&ui_button_dsp_block, touch_state) == 1)
+    {
+        self->f_handle_ui = &handle_ui_init_from_fft;
+        next_state = UI_STATE_AUDIO_VISUALIZATION;
+        toggle_audio_on_m7(HSEM_DSP_BLOCKING);
+        last_dsp_type = HSEM_DSP_BLOCKING;
     }
     return next_state;
 }
@@ -39,23 +59,57 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
 
-    GUI_SetFont(&GUI_DEFAULT_FONT);
+    GUI_Clear(GUI_COLOR_BLACK);
 
-    GUI_SetBackColor(GUI_COLOR_WHITE);
-    GUI_Clear(GUI_COLOR_WHITE);
-
-    GUI_SetTextColor(GUI_COLOR_DARKBLUE);
-
-    GUI_DisplayStringAt(0, 10, (uint8_t*) "Audio DSP Platform", CENTER_MODE);
-
-    GUI_DrawBitmap(x_size / 2 - 15, y_size - 80, (uint8_t*) aghlogo);
-
-    GUI_SetFont(&Font16);
-    BSP_LCD_FillRect(0, 0, y_size / 2 + 15, x_size, 60, GUI_COLOR_BLUE);
+    GUI_FillRect(0, 46, x_size, 2, GUI_COLOR_RED);
     GUI_SetTextColor(GUI_COLOR_WHITE);
-    GUI_SetBackColor(GUI_COLOR_BLUE);
-    GUI_DisplayStringAt(0, y_size / 2 + 30, (uint8_t*) "Press button to start:", CENTER_MODE);
+    GUI_SetBackColor(GUI_COLOR_BLACK);
+    GUI_SetFont(&Font24);
+    GUI_DisplayStringAt(0, 12, (uint8_t*) "Audio DSP Platform", CENTER_MODE);
+    GUI_DrawBitmap(x_size - 30, 0, (uint8_t*) aghlogo);
+
+    ui_button_low_lat.x0 = 2;
+    ui_button_low_lat.x1 = x_size / 4;
+    ui_button_low_lat.y0 = 50;
+    ui_button_low_lat.y1 = y_size / 3;
+    ui_button_low_lat.color = 0xFF19784E;
+    ui_button_low_lat.font = &Font24;
+    ui_button_low_lat.text = "Low latency";
+    set_x0_text_centered(&ui_button_low_lat);
+    set_y0_text_centered(&ui_button_low_lat);
+    draw_ui_button(&ui_button_low_lat);
+
+    ui_button_dsp_block.x0 = 3 * x_size / 4;
+    ui_button_dsp_block.x1 = x_size - 2;
+    ui_button_dsp_block.y0 = 50;
+    ui_button_dsp_block.y1 = y_size / 3;
+    ui_button_dsp_block.color = 0xFF19784E;
+    ui_button_dsp_block.font = &Font24;
+    ui_button_dsp_block.text = "DSP blocks";
+    set_x0_text_centered(&ui_button_dsp_block);
+    set_y0_text_centered(&ui_button_dsp_block);
+    draw_ui_button(&ui_button_dsp_block);
 
     self->f_handle_ui = &handle_ui;
     return UI_STATE_START_SCREEN;
+}
+
+static UI_STATE handle_ui_init_from_fft(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
+        int32_t button_state, JOYPin_TypeDef joy_pin)
+{
+    UI_STATE ret_val = handle_ui_init(self, touch_state, button_state, joy_pin);
+    toggle_audio_on_m7(last_dsp_type);
+    return ret_val;
+}
+
+static void toggle_audio_on_m7(HSEM_ID dsp_type)
+{
+    if (0 == lock_unlock_hsem(dsp_type))
+    {
+        BSP_LED_On(LED_GREEN);
+    }
+    else
+    {
+        BSP_LED_On(LED_ORANGE);
+    }
 }
