@@ -5,6 +5,13 @@
 #include "fir.h"
 #include "biquad.h"
 
+typedef struct
+{
+    uint16_t n_taps;
+    uint16_t block_size;
+    uint32_t cycles;
+} fir_meas;
+
 /* Exported macro ------------------------------------------------------------*/
 #define SHARED(data)  data __attribute__ ((section(".RAM3_SHARED")))
 #define SHARED_A32(data)  data __attribute__ ((section(".RAM3_SHARED"))) __attribute__ ((aligned (32)))
@@ -23,6 +30,7 @@ extern volatile int32_t fir_orders[2];
 extern volatile float biquad_coeffs[2][N_COEFF_IN_STAGE * MAX_BIQUAD_STAGES];
 extern volatile int32_t biquad_stages[2];
 extern volatile uint32_t dsp_update_mask;
+extern volatile fir_meas fir_measurements[30];
 
 #endif /* SHARED_DATA_H */
 
