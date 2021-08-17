@@ -44,7 +44,7 @@ int32_t logger_task(void *arg)
 static const char* event_to_str(EVENT_ID id)
 {
     static const char *event_names[EVENT_N] =
-    { "FFT", "DSP", "MDMA_CFG" };
+    { "FFT", "DSP", "MDMA_CFG", "BM_EMPTY", "BM_ADD" };
 
     if ((id >= 0) && (id < EVENT_N))
     {

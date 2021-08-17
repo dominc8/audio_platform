@@ -24,7 +24,7 @@ static uint32_t benchmark_empty(void)
 static uint32_t benchmark_add(void)
 {
     uint32_t start, stop;
-    uint32_t acc = 0;
+    volatile uint32_t acc = 0;
     int32_t n = 1 << 15;
 
     while (n-- > 0)

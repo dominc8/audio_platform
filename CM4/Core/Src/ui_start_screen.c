@@ -15,6 +15,7 @@ static void toggle_audio_on_m7(HSEM_ID dsp_type);
 
 static ui_button_t ui_button_low_lat;
 static ui_button_t ui_button_dsp_block;
+static ui_button_t ui_button_benchmark;
 
 static HSEM_ID last_dsp_type = HSEM_LOW_LATENCY;
 
@@ -43,6 +44,12 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
         next_state = UI_STATE_AUDIO_VISUALIZATION;
         toggle_audio_on_m7(HSEM_DSP_BLOCKING);
         last_dsp_type = HSEM_DSP_BLOCKING;
+    }
+    else if (is_ui_button_touched(&ui_button_benchmark, touch_state) == 1)
+    {
+        self->f_handle_ui = &handle_ui_init;
+        lock_unlock_hsem(HSEM_BENCHMARK);
+        next_state = UI_STATE_BENCHMARK;
     }
     return next_state;
 }
@@ -89,6 +96,17 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     set_x0_text_centered(&ui_button_dsp_block);
     set_y0_text_centered(&ui_button_dsp_block);
     draw_ui_button(&ui_button_dsp_block);
+
+    ui_button_benchmark.x0 = 3 * x_size / 8;
+    ui_button_benchmark.x1 = 5 * x_size / 8;
+    ui_button_benchmark.y0 = 50;
+    ui_button_benchmark.y1 = y_size / 3;
+    ui_button_benchmark.color = 0xFF19784E;
+    ui_button_benchmark.font = &Font24;
+    ui_button_benchmark.text = "Benchmark";
+    set_x0_text_centered(&ui_button_benchmark);
+    set_y0_text_centered(&ui_button_benchmark);
+    draw_ui_button(&ui_button_benchmark);
 
     self->f_handle_ui = &handle_ui;
     return UI_STATE_START_SCREEN;

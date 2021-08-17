@@ -66,6 +66,7 @@ int main(void)
 
     __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_LOW_LATENCY));
     __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_DSP_BLOCKING));
+    __HAL_HSEM_CLEAR_FLAG(__HAL_HSEM_SEMID_TO_MASK(HSEM_BENCHMARK));
     HAL_NVIC_SetPriority(HSEM1_IRQn, 5, 0);
     HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
     HAL_NVIC_EnableIRQ(HSEM1_IRQn);
@@ -73,6 +74,7 @@ int main(void)
 
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_LOW_LATENCY));
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_DSP_BLOCKING));
+    HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_BENCHMARK));
     BSP_LED_Init(LED_RED);
     trace_init();
     ccnt_init();
@@ -92,6 +94,7 @@ int main(void)
                 break;
             case M7_BENCHMARK:
                 benchmark();
+                m7_state = M7_IDLE;
                 break;
             default:
                 m7_state = M7_IDLE;
