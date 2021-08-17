@@ -1,5 +1,6 @@
 #include "low_latency.h"
 #include "dsp_blocking.h"
+#include "benchmark.h"
 #include "error_handler.h"
 #include "shared_data.h"
 #include "intercore_comm.h"
@@ -68,8 +69,7 @@ int main(void)
     HAL_NVIC_SetPriority(HSEM1_IRQn, 5, 0);
     HAL_NVIC_ClearPendingIRQ(HSEM1_IRQn);
     HAL_NVIC_EnableIRQ(HSEM1_IRQn);
-    start_low_latency = 0;
-    start_dsp_blocking = 0;
+    m7_state = M7_IDLE;
 
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_LOW_LATENCY));
     HAL_HSEM_ActivateNotification(__HAL_HSEM_SEMID_TO_MASK(HSEM_DSP_BLOCKING));
@@ -80,19 +80,21 @@ int main(void)
 
     while (1)
     {
-        while (start_low_latency != 1 && start_dsp_blocking != 1)
+        switch (m7_state)
         {
-        }
-        event e =
-        { .id = EVENT_DBG, .val = (uint32_t) ((start_dsp_blocking << 1) + start_low_latency) };
-        eq_m7_add_event(e);
-        if (1 == start_low_latency)
-        {
-            low_latency();
-        }
-        else if (1 == start_dsp_blocking)
-        {
-            dsp_blocking();
+            case M7_IDLE:
+                break;
+            case M7_LOW_LATENCY:
+                low_latency();
+                break;
+            case M7_DSP_BLOCKING:
+                dsp_blocking();
+                break;
+            case M7_BENCHMARK:
+                benchmark();
+                break;
+            default:
+                m7_state = M7_IDLE;
         }
     }
 

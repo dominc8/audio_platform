@@ -12,8 +12,6 @@
 #include "biquad.h"
 #include "arm_math.h"
 
-volatile uint8_t start_low_latency;
-
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
 #define N_AUDIO_BLOCKS              ((uint32_t)64)
@@ -167,7 +165,7 @@ void low_latency(void)
     err_cnt += BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out));
     unlock_hsem(HSEM_I2C4);
 
-    while (start_low_latency == 1)
+    while (M7_LOW_LATENCY == m7_state)
     {
         if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
         {
