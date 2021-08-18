@@ -4,7 +4,7 @@
 #include "arm_math.h"
 #include "shared_data.h"
 
-#define N_BENCHMARKS        3
+#define N_BENCHMARKS        6
 #define TAPS_LEN            5
 #define BLOCK_SIZE_LEN      6
 
@@ -20,6 +20,14 @@ static float state_f32[100 + 256 - 1] __attribute__ ((aligned (32)));
 static const int32_t taps_arr[TAPS_LEN] = { 5, 10, 20, 50, 100 };
 static const int32_t block_size_arr[BLOCK_SIZE_LEN] = { 8, 16, 32, 64, 128, 256 };
 
+static int32_t cached_in_i32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_out_i32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_coeff_q31[100] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_state_q31[100 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static float cached_in_f32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static float cached_out_f32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static float cached_coeff_f32[100] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static float cached_state_f32[100 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
 
 static uint32_t benchmark_fir_f32(void)
 {
@@ -123,11 +131,116 @@ static uint32_t benchmark_fir_q31(void)
     return 0;
 }
 
+static uint32_t benchmark_fir_f32_cache(void)
+{
+    arm_fir_instance_f32 fir_inst;
+    int32_t fir_meas_idx = 0;
+
+    for (int32_t tap_idx = 0; tap_idx < TAPS_LEN; ++tap_idx)
+    {
+        int32_t n_taps = taps_arr[tap_idx];
+        for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
+        {
+            int32_t block_size = block_size_arr[b_size_idx];
+            arm_fir_init_f32(&fir_inst, n_taps, &cached_coeff_f32[0], &cached_state_f32[0], block_size);
+
+            uint32_t start, stop;
+            uint32_t acc = 0;
+            int32_t n = 1 << 15;
+
+            while (n-- > 0)
+            {
+                start = GET_CCNT();
+                arm_fir_f32(&fir_inst, &cached_in_f32[0], &cached_out_f32[0], block_size);
+                stop = GET_CCNT();
+                acc += DIFF_CCNT(start, stop);
+            }
+            acc = acc >> 15;
+            fir_measurements_f32[fir_meas_idx].n_taps = n_taps;
+            fir_measurements_f32[fir_meas_idx].block_size = block_size;
+            fir_measurements_f32[fir_meas_idx].cycles = acc;
+            ++fir_meas_idx;
+        }
+    }
+    return 0;
+}
+
+static uint32_t benchmark_fir_i32_cache(void)
+{
+    arm_fir_instance_f32 fir_inst;
+    int32_t fir_meas_idx = 0;
+
+    for (int32_t tap_idx = 0; tap_idx < TAPS_LEN; ++tap_idx)
+    {
+        int32_t n_taps = taps_arr[tap_idx];
+        for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
+        {
+            int32_t block_size = block_size_arr[b_size_idx];
+            arm_fir_init_f32(&fir_inst, n_taps, &cached_coeff_f32[0], &cached_state_f32[0], block_size);
+
+            uint32_t start, stop;
+            uint32_t acc = 0;
+            int32_t n = 1 << 15;
+
+            while (n-- > 0)
+            {
+                start = GET_CCNT();
+                arm_fir_f32_int(&fir_inst, &cached_in_i32[0], &cached_out_i32[0], block_size);
+                stop = GET_CCNT();
+                acc += DIFF_CCNT(start, stop);
+            }
+            acc = acc >> 15;
+            fir_measurements_i32[fir_meas_idx].n_taps = n_taps;
+            fir_measurements_i32[fir_meas_idx].block_size = block_size;
+            fir_measurements_i32[fir_meas_idx].cycles = acc;
+            ++fir_meas_idx;
+        }
+    }
+    return 0;
+}
+
+static uint32_t benchmark_fir_q31_cache(void)
+{
+    arm_fir_instance_q31 fir_inst;
+    int32_t fir_meas_idx = 0;
+
+    for (int32_t tap_idx = 0; tap_idx < TAPS_LEN; ++tap_idx)
+    {
+        int32_t n_taps = taps_arr[tap_idx];
+        for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
+        {
+            int32_t block_size = block_size_arr[b_size_idx];
+            arm_fir_init_q31(&fir_inst, n_taps, &cached_coeff_q31[0], &cached_state_q31[0], block_size);
+
+            uint32_t start, stop;
+            uint32_t acc = 0;
+            int32_t n = 1 << 15;
+
+            while (n-- > 0)
+            {
+                start = GET_CCNT();
+                arm_fir_fast_q31(&fir_inst, &cached_in_i32[0], &cached_out_i32[0], block_size);
+                stop = GET_CCNT();
+                acc += DIFF_CCNT(start, stop);
+            }
+            acc = acc >> 15;
+            fir_measurements_q31[fir_meas_idx].n_taps = n_taps;
+            fir_measurements_q31[fir_meas_idx].block_size = block_size;
+            fir_measurements_q31[fir_meas_idx].cycles = acc;
+            ++fir_meas_idx;
+        }
+    }
+    return 0;
+}
+
 static uint32_t (*benchmarks[N_BENCHMARKS])(void) =
 {
     &benchmark_fir_f32,
     &benchmark_fir_i32,
     &benchmark_fir_q31,
+    &benchmark_fir_f32_cache,
+    &benchmark_fir_i32_cache,
+    &benchmark_fir_q31_cache,
 };
 
 static EVENT_ID bm_events[N_BENCHMARKS] =
@@ -135,6 +248,9 @@ static EVENT_ID bm_events[N_BENCHMARKS] =
     EVENT_BM_FIR_F32,
     EVENT_BM_FIR_I32,
     EVENT_BM_FIR_Q31,
+    EVENT_BM_FIR_F32_CACHE,
+    EVENT_BM_FIR_I32_CACHE,
+    EVENT_BM_FIR_Q31_CACHE,
 };
 
 

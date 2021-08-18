@@ -6,9 +6,7 @@
 #include <stddef.h>
 
 static const char* event_to_str(EVENT_ID id);
-static void print_bm_fir_f32(void);
-static void print_bm_fir_i32(void);
-static void print_bm_fir_q31(void);
+static void print_fir_meas(volatile fir_meas* meas, int32_t n);
 
 int32_t logger_task_init(void)
 {
@@ -32,13 +30,28 @@ int32_t logger_task(void *arg)
             switch (e.id)
             {
                 case EVENT_BM_FIR_F32:
-                    print_bm_fir_f32();
+                    logg(LOG_INF, "M7 FIR F32: ");
+                    print_fir_meas(&fir_measurements_f32[0], 30);
                     break;
                 case EVENT_BM_FIR_I32:
-                    print_bm_fir_i32();
+                    logg(LOG_INF, "M7 FIR I32: ");
+                    print_fir_meas(&fir_measurements_i32[0], 30);
                     break;
                 case EVENT_BM_FIR_Q31:
-                    print_bm_fir_q31();
+                    logg(LOG_INF, "M7 FIR Q31: ");
+                    print_fir_meas(&fir_measurements_q31[0], 30);
+                    break;
+                case EVENT_BM_FIR_F32_CACHE:
+                    logg(LOG_INF, "M7 FIR F32 CACHE: ");
+                    print_fir_meas(&fir_measurements_f32[0], 30);
+                    break;
+                case EVENT_BM_FIR_I32_CACHE:
+                    logg(LOG_INF, "M7 FIR I32 CACHE: ");
+                    print_fir_meas(&fir_measurements_i32[0], 30);
+                    break;
+                case EVENT_BM_FIR_Q31_CACHE:
+                    logg(LOG_INF, "M7 FIR Q31 CACHE: ");
+                    print_fir_meas(&fir_measurements_q31[0], 30);
                     break;
                 default:
                     logg(LOG_INF, "M7: (%d, %u)", e.id, e.val);
@@ -74,33 +87,10 @@ static const char* event_to_str(EVENT_ID id)
     }
 }
 
-static void print_bm_fir_f32(void)
+static void print_fir_meas(volatile fir_meas* meas, int32_t n)
 {
-    logg(LOG_INF, "M7 FIR F32: ");
-    for (int32_t i = 0; i < 30; ++i)
+    for (int32_t i = 0; i < n; ++i)
     {
-        volatile fir_meas *meas = &fir_measurements_f32[i];
-        logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas->n_taps, meas->block_size, meas->cycles);
+        logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size, meas[i].cycles);
     }
 }
-
-static void print_bm_fir_i32(void)
-{
-    logg(LOG_INF, "M7 FIR I32: ");
-    for (int32_t i = 0; i < 30; ++i)
-    {
-        volatile fir_meas *meas = &fir_measurements_i32[i];
-        logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas->n_taps, meas->block_size, meas->cycles);
-    }
-}
-
-static void print_bm_fir_q31(void)
-{
-    logg(LOG_INF, "M7 FIR Q31: ");
-    for (int32_t i = 0; i < 30; ++i)
-    {
-        volatile fir_meas *meas = &fir_measurements_q31[i];
-        logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas->n_taps, meas->block_size, meas->cycles);
-    }
-}
-
