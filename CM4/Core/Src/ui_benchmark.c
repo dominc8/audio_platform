@@ -23,6 +23,7 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
 
     if (1 == button_state)
     {
+        /* TODO: check if benchmarks have ended and m7 is in idle */
         self->f_handle_ui = &handle_ui_init;
         next_state = UI_STATE_START_SCREEN;
     }
