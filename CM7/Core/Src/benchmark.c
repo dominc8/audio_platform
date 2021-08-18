@@ -4,6 +4,8 @@
 #include "arm_math.h"
 #include "shared_data.h"
 
+#define INCLUDE_CACHE_OP
+
 #define N_BENCHMARKS        6
 #define TAPS_LEN            5
 #define BLOCK_SIZE_LEN      6
@@ -151,7 +153,13 @@ static uint32_t benchmark_fir_f32_cache(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
+#ifdef INCLUDE_CACHE_OP
+                SCB_InvalidateDCache_by_Addr(&cached_in_f32[0], sizeof(cached_in_f32));
+#endif
                 arm_fir_f32(&fir_inst, &cached_in_f32[0], &cached_out_f32[0], block_size);
+#ifdef INCLUDE_CACHE_OP
+                SCB_CleanDCache_by_Addr(&cached_out_f32[0], sizeof(cached_out_f32));
+#endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -185,7 +193,13 @@ static uint32_t benchmark_fir_i32_cache(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
+#ifdef INCLUDE_CACHE_OP
+                SCB_InvalidateDCache_by_Addr(&cached_in_i32[0], sizeof(cached_in_i32));
+#endif
                 arm_fir_f32_int(&fir_inst, &cached_in_i32[0], &cached_out_i32[0], block_size);
+#ifdef INCLUDE_CACHE_OP
+                SCB_CleanDCache_by_Addr(&cached_out_i32[0], sizeof(cached_out_i32));
+#endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -219,7 +233,13 @@ static uint32_t benchmark_fir_q31_cache(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
+#ifdef INCLUDE_CACHE_OP
+                SCB_InvalidateDCache_by_Addr(&cached_in_i32[0], sizeof(cached_in_i32));
+#endif
                 arm_fir_fast_q31(&fir_inst, &cached_in_i32[0], &cached_out_i32[0], block_size);
+#ifdef INCLUDE_CACHE_OP
+                SCB_CleanDCache_by_Addr(&cached_out_i32[0], sizeof(cached_out_i32));
+#endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
