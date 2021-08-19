@@ -33,6 +33,7 @@ extern volatile uint32_t dsp_update_mask;
 extern volatile fir_meas fir_measurements_f32[30];
 extern volatile fir_meas fir_measurements_i32[30];
 extern volatile fir_meas fir_measurements_q31[30];
+extern volatile fir_meas fir_measurements_custom[5];
 
 #endif /* SHARED_DATA_H */
 

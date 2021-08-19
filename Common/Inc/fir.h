@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MAX_FIR_ORDER       31
+#define MAX_FIR_ORDER       127
 #define FIR_COEFF_MAX       1.F
 #define FIR_COEFF_MIN       -1.F
 

@@ -11,3 +11,4 @@ SHARED(volatile uint32_t dsp_update_mask);
 SHARED(volatile fir_meas fir_measurements_f32[30]);
 SHARED(volatile fir_meas fir_measurements_i32[30]);
 SHARED(volatile fir_meas fir_measurements_q31[30]);
+SHARED(volatile fir_meas fir_measurements_custom[5]);

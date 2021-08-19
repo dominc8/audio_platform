@@ -29,6 +29,10 @@ int32_t logger_task(void *arg)
         {
             switch (e.id)
             {
+                case EVENT_BM_FIR_CUSTOM:
+                    logg(LOG_INF, "M7 FIR CUSTOM: ");
+                    print_fir_meas(&fir_measurements_custom[0], 5);
+                    break;
                 case EVENT_BM_FIR_F32:
                     logg(LOG_INF, "M7 FIR F32: ");
                     print_fir_meas(&fir_measurements_f32[0], 30);
@@ -41,6 +45,10 @@ int32_t logger_task(void *arg)
                     logg(LOG_INF, "M7 FIR Q31: ");
                     print_fir_meas(&fir_measurements_q31[0], 30);
                     break;
+                case EVENT_BM_FIR_CUSTOM_CACHE:
+                    logg(LOG_INF, "M7 FIR CUSTOM CACHE: ");
+                    print_fir_meas(&fir_measurements_custom[0], 5);
+                    break;
                 case EVENT_BM_FIR_F32_CACHE:
                     logg(LOG_INF, "M7 FIR F32 CACHE: ");
                     print_fir_meas(&fir_measurements_f32[0], 30);
@@ -52,6 +60,10 @@ int32_t logger_task(void *arg)
                 case EVENT_BM_FIR_Q31_CACHE:
                     logg(LOG_INF, "M7 FIR Q31 CACHE: ");
                     print_fir_meas(&fir_measurements_q31[0], 30);
+                    break;
+                case EVENT_BM_FIR_CUSTOM_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 FIR CUSTOM CACHE DATA ONLY: ");
+                    print_fir_meas(&fir_measurements_custom[0], 5);
                     break;
                 default:
                     logg(LOG_INF, "M7: (%d, %u)", e.id, e.val);
