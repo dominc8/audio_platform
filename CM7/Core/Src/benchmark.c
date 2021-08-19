@@ -11,26 +11,18 @@
 #define TAPS_LEN            5
 #define BLOCK_SIZE_LEN      6
 
-static int32_t dtcm_in_i32[256] __attribute__ ((aligned (32)));
-static int32_t dtcm_out_i32[256] __attribute__ ((aligned (32)));
-static int32_t coeff_q31[100] __attribute__ ((aligned (32)));
-static int32_t state_q31[100 + 256 - 1] __attribute__ ((aligned (32)));
-static float dtcm_in_f32[256] __attribute__ ((aligned (32)));
-static float dtcm_out_f32[256] __attribute__ ((aligned (32)));
-static float coeff_f32[100] __attribute__ ((aligned (32)));
-static float state_f32[100 + 256 - 1] __attribute__ ((aligned (32)));
-
 static const int32_t taps_arr[TAPS_LEN] = { 5, 10, 20, 50, 100 };
 static const int32_t block_size_arr[BLOCK_SIZE_LEN] = { 8, 16, 32, 64, 128, 256 };
 
-static int32_t cached_in_i32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static int32_t cached_out_i32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static int32_t cached_coeff_q31[100] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static int32_t cached_state_q31[100 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static float cached_in_f32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static float cached_out_f32[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static float cached_coeff_f32[100] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static float cached_state_f32[100 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t dtcm_in[256] __attribute__ ((aligned (32)));
+static int32_t dtcm_out[256] __attribute__ ((aligned (32)));
+static int32_t dtcm_coeff[100] __attribute__ ((aligned (32)));
+static int32_t dtcm_state[100 + 256 - 1] __attribute__ ((aligned (32)));
+
+static int32_t cached_in[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_out[256] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_coeff[100] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_state[100 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
 
 static fir_f32_t dtcm_fir_inst;
 static fir_f32_t cached_fir_inst __attribute__ ((section(".AXI_SRAM")));
@@ -49,7 +41,7 @@ static uint32_t benchmark_fir_custom(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            dtcm_out_i32[0] = fir_f32(&dtcm_fir_inst, dtcm_in_i32[0]);
+            dtcm_out[0] = fir_f32(&dtcm_fir_inst, dtcm_in[0]);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -73,7 +65,7 @@ static uint32_t benchmark_fir_f32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, &coeff_f32[0], &state_f32[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*)&dtcm_coeff[0], (float*)&dtcm_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -82,7 +74,7 @@ static uint32_t benchmark_fir_f32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_fir_f32(&fir_inst, &dtcm_in_f32[0], &dtcm_out_f32[0], block_size);
+                arm_fir_f32(&fir_inst, (float*)&dtcm_in[0], (float*)&dtcm_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -107,7 +99,7 @@ static uint32_t benchmark_fir_i32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, &coeff_f32[0], &state_f32[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*)&dtcm_coeff[0], (float*)&dtcm_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -116,7 +108,7 @@ static uint32_t benchmark_fir_i32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_fir_f32_int(&fir_inst, &dtcm_in_i32[0], &dtcm_out_i32[0], block_size);
+                arm_fir_f32_int(&fir_inst, &dtcm_in[0], &dtcm_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -141,7 +133,7 @@ static uint32_t benchmark_fir_q31(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_q31(&fir_inst, n_taps, &coeff_q31[0], &state_q31[0], block_size);
+            arm_fir_init_q31(&fir_inst, n_taps, &dtcm_coeff[0], &dtcm_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -150,7 +142,7 @@ static uint32_t benchmark_fir_q31(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_fir_fast_q31(&fir_inst, &dtcm_in_i32[0], &dtcm_out_i32[0], block_size);
+                arm_fir_fast_q31(&fir_inst, &dtcm_in[0], &dtcm_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -179,11 +171,11 @@ static uint32_t benchmark_fir_custom_cache(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr(&cached_in_i32[0], sizeof(cached_in_i32[0]));
+            SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
 #endif
-            cached_out_i32[0] = fir_f32(&cached_fir_inst, cached_in_i32[0]);
+            cached_out[0] = fir_f32(&cached_fir_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr(&cached_out_i32[0], sizeof(cached_out_i32[0]));
+            SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -208,7 +200,7 @@ static uint32_t benchmark_fir_f32_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, &cached_coeff_f32[0], &cached_state_f32[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*)&cached_coeff[0], (float*)&cached_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -218,11 +210,11 @@ static uint32_t benchmark_fir_f32_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr(&cached_in_f32[0], sizeof(cached_in_f32));
+                SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in));
 #endif
-                arm_fir_f32(&fir_inst, &cached_in_f32[0], &cached_out_f32[0], block_size);
+                arm_fir_f32(&fir_inst, (float*)&cached_in[0], (float*)&cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr(&cached_out_f32[0], sizeof(cached_out_f32));
+                SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out));
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -248,7 +240,7 @@ static uint32_t benchmark_fir_i32_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, &cached_coeff_f32[0], &cached_state_f32[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*)&cached_coeff[0], (float*)&cached_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -258,11 +250,11 @@ static uint32_t benchmark_fir_i32_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr(&cached_in_i32[0], sizeof(cached_in_i32));
+                SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in));
 #endif
-                arm_fir_f32_int(&fir_inst, &cached_in_i32[0], &cached_out_i32[0], block_size);
+                arm_fir_f32_int(&fir_inst, &cached_in[0], &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr(&cached_out_i32[0], sizeof(cached_out_i32));
+                SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out));
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -288,7 +280,7 @@ static uint32_t benchmark_fir_q31_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_q31(&fir_inst, n_taps, &cached_coeff_q31[0], &cached_state_q31[0], block_size);
+            arm_fir_init_q31(&fir_inst, n_taps, &cached_coeff[0], &cached_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -298,11 +290,11 @@ static uint32_t benchmark_fir_q31_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr(&cached_in_i32[0], sizeof(cached_in_i32));
+                SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in));
 #endif
-                arm_fir_fast_q31(&fir_inst, &cached_in_i32[0], &cached_out_i32[0], block_size);
+                arm_fir_fast_q31(&fir_inst, &cached_in[0], &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr(&cached_out_i32[0], sizeof(cached_out_i32));
+                SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out));
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -332,11 +324,11 @@ static uint32_t benchmark_fir_custom_cache_data_only(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr(&cached_in_i32[0], sizeof(cached_in_i32[0]));
+            SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
 #endif
-            cached_out_i32[0] = fir_f32(&dtcm_fir_inst, cached_in_i32[0]);
+            cached_out[0] = fir_f32(&dtcm_fir_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr(&cached_out_i32[0], sizeof(cached_out_i32[0]));
+            SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
