@@ -169,6 +169,7 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
   .RAM3_SHARED : { *(.RAM3_SHARED) } >SRAM3
+  .RAM_EXEC : { *(.RAM_EXEC) } >RAM
 }
 
 

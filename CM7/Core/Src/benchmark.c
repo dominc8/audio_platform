@@ -7,7 +7,7 @@
 
 #define INCLUDE_CACHE_OP
 
-#define N_BENCHMARKS        9
+#define N_BENCHMARKS        5
 #define TAPS_LEN            5
 #define BLOCK_SIZE_LEN      6
 
@@ -348,12 +348,12 @@ static uint32_t (*benchmarks[N_BENCHMARKS])(void) =
 {
     &benchmark_fir_custom,
     &benchmark_fir_f32,
-    &benchmark_fir_i32,
-    &benchmark_fir_q31,
+//    &benchmark_fir_i32,
+//    &benchmark_fir_q31,
     &benchmark_fir_custom_cache,
     &benchmark_fir_f32_cache,
-    &benchmark_fir_i32_cache,
-    &benchmark_fir_q31_cache,
+//    &benchmark_fir_i32_cache,
+//    &benchmark_fir_q31_cache,
     &benchmark_fir_custom_cache_data_only,
 };
 
@@ -361,12 +361,12 @@ static EVENT_ID bm_events[N_BENCHMARKS] =
 {
     EVENT_BM_FIR_CUSTOM,
     EVENT_BM_FIR_F32,
-    EVENT_BM_FIR_I32,
-    EVENT_BM_FIR_Q31,
+//    EVENT_BM_FIR_I32,
+//    EVENT_BM_FIR_Q31,
     EVENT_BM_FIR_CUSTOM_CACHE,
     EVENT_BM_FIR_F32_CACHE,
-    EVENT_BM_FIR_I32_CACHE,
-    EVENT_BM_FIR_Q31_CACHE,
+//    EVENT_BM_FIR_I32_CACHE,
+//    EVENT_BM_FIR_Q31_CACHE,
     EVENT_BM_FIR_CUSTOM_CACHE_DATA_ONLY,
 };
 
