@@ -373,7 +373,8 @@ static EVENT_ID bm_events[N_BENCHMARKS] =
 
 void benchmark(void)
 {
-    for (int32_t bm = 0; bm < N_BENCHMARKS; ++bm)
+    n_m7_bm_left = N_BENCHMARKS;
+    for (int32_t bm = 0; bm < N_BENCHMARKS; ++bm, --n_m7_bm_left)
     {
         uint32_t result = benchmarks[bm]();
         event e = { .id = bm_events[bm], .val = result };

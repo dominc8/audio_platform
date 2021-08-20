@@ -30,6 +30,7 @@ extern volatile int32_t fir_orders[2];
 extern volatile float biquad_coeffs[2][N_COEFF_IN_STAGE * MAX_BIQUAD_STAGES];
 extern volatile int32_t biquad_stages[2];
 extern volatile uint32_t dsp_update_mask;
+extern volatile int32_t n_m7_bm_left;
 extern volatile fir_meas fir_measurements_f32[30];
 extern volatile fir_meas fir_measurements_i32[30];
 extern volatile fir_meas fir_measurements_q31[30];
