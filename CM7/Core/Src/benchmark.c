@@ -729,8 +729,8 @@ void benchmark(void)
     }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
     {
-        uint32_t result = biquad_benchmarks[bm]();
-        event e = { .id = bm_biquad_events[bm], .val = result };
-        eq_m7_add_event(e);
+//        uint32_t result = biquad_benchmarks[bm]();
+//        event e = { .id = bm_biquad_events[bm], .val = result };
+//        eq_m7_add_event(e);
     }
 }
