@@ -131,3 +131,4 @@ static void toggle_audio_on_m7(HSEM_ID dsp_type)
         BSP_LED_On(LED_ORANGE);
     }
 }
+

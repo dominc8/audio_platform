@@ -18,3 +18,4 @@ uint32_t ccnt_to_us(uint32_t ccnt)
 {
     return ccnt / (SystemCoreClock / 1000000);
 }
+

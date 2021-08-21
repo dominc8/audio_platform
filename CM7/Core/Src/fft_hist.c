@@ -302,3 +302,4 @@ static inline void mul_comp(float *out, float *a)
     out[0] = tmp * a[0] - out[1] * a[1];
     out[1] = tmp * a[1] + out[1] * a[0];
 }
+

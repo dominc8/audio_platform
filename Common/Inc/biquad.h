@@ -20,9 +20,8 @@ int32_t biquad_f32(biquad_f32_t *f, int32_t in);// __attribute__((section(".RAM_
 #endif
 
 #ifdef CORE_CM7
-int32_t biquad_f32(biquad_f32_t *f, int32_t in) __attribute__((section(".ITCM_RAM")));
+int32_t biquad_f32(biquad_f32_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
 #endif
-
 
 #endif /* BIQUAD_H */
 

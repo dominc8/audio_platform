@@ -99,13 +99,13 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
 static void dsp_fir_arm_left(void)
 {
     arm_fir_f32_int(&arm_fir_left.fir_f32_inst, &audio_in_l[0], &audio_out_l[0],
-            AUDIO_BLOCK_SIZE / 2);
+    AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_fir_arm_right(void)
 {
     arm_fir_f32_int(&arm_fir_right.fir_f32_inst, &audio_in_r[0], &audio_out_r[0],
-            AUDIO_BLOCK_SIZE / 2);
+    AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_biquad_arm_left(void)

@@ -25,3 +25,4 @@ void unlock_hsem(HSEM_ID hsem_id);
 void lock_unlock_callback(uint32_t sem_mask);
 
 #endif /* INTERCORE_COMM_H */
+

@@ -17,10 +17,14 @@
 #define BLOCK_SIZE_LEN      6
 #define FFT_SIZE_LEN        5
 
-static const int32_t taps_arr[TAPS_LEN] = { 5, 10, 20, 50, 100 };
-static const int32_t stages_arr[STAGES_LEN] = { 1, 4, 8, 12, 16 };
-static const int32_t block_size_arr[BLOCK_SIZE_LEN] = { 8, 16, 32, 64, 128, 256 };
-static const int32_t fft_size_arr[FFT_SIZE_LEN] = { 64, 128, 256, 512, 1024 };
+static const int32_t taps_arr[TAPS_LEN] =
+{ 5, 10, 20, 50, 100 };
+static const int32_t stages_arr[STAGES_LEN] =
+{ 1, 4, 8, 12, 16 };
+static const int32_t block_size_arr[BLOCK_SIZE_LEN] =
+{ 8, 16, 32, 64, 128, 256 };
+static const int32_t fft_size_arr[FFT_SIZE_LEN] =
+{ 64, 128, 256, 512, 1024 };
 
 static int32_t dtcm_in[2048] __attribute__ ((aligned (32)));
 static int32_t dtcm_out[2048] __attribute__ ((aligned (32)));
@@ -75,7 +79,8 @@ static uint32_t benchmark_fir_f32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*)&dtcm_coeff[0], (float*)&dtcm_state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &dtcm_coeff[0], (float*) &dtcm_state[0],
+                    block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -84,7 +89,7 @@ static uint32_t benchmark_fir_f32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_fir_f32(&fir_inst, (float*)&dtcm_in[0], (float*)&dtcm_out[0], block_size);
+                arm_fir_f32(&fir_inst, (float*) &dtcm_in[0], (float*) &dtcm_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -109,7 +114,8 @@ static uint32_t benchmark_fir_i32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*)&dtcm_coeff[0], (float*)&dtcm_state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &dtcm_coeff[0], (float*) &dtcm_state[0],
+                    block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -210,7 +216,8 @@ static uint32_t benchmark_fir_f32_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*)&cached_coeff[0], (float*)&cached_state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &cached_coeff[0],
+                    (float*) &cached_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -222,7 +229,7 @@ static uint32_t benchmark_fir_f32_cache(void)
 #ifdef INCLUDE_CACHE_OP
                 SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]) * block_size);
 #endif
-                arm_fir_f32(&fir_inst, (float*)&cached_in[0], (float*)&cached_out[0], block_size);
+                arm_fir_f32(&fir_inst, (float*) &cached_in[0], (float*) &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
                 SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]) * block_size);
 #endif
@@ -250,7 +257,8 @@ static uint32_t benchmark_fir_i32_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*)&cached_coeff[0], (float*)&cached_state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &cached_coeff[0],
+                    (float*) &cached_state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -366,7 +374,8 @@ static uint32_t benchmark_biquad_custom(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            dtcm_out[0] = biquad_f32(&dtcm_biquad_inst, dtcm_in[0]);;
+            dtcm_out[0] = biquad_f32(&dtcm_biquad_inst, dtcm_in[0]);
+            ;
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -390,7 +399,8 @@ static uint32_t benchmark_biquad_f32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*)&dtcm_coeff[0], (float*)&dtcm_state[0]);
+            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*) &dtcm_coeff[0],
+                    (float*) &dtcm_state[0]);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -399,7 +409,8 @@ static uint32_t benchmark_biquad_f32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_biquad_cascade_df2T_f32(&biquad_inst, (float*)&dtcm_in[0], (float*)&dtcm_out[0], block_size);
+                arm_biquad_cascade_df2T_f32(&biquad_inst, (float*) &dtcm_in[0],
+                        (float*) &dtcm_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -424,7 +435,8 @@ static uint32_t benchmark_biquad_i32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*)&dtcm_coeff[0], (float*)&dtcm_state[0]);
+            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*) &dtcm_coeff[0],
+                    (float*) &dtcm_state[0]);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -433,7 +445,8 @@ static uint32_t benchmark_biquad_i32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_biquad_cascade_df2T_f32_int(&biquad_inst, &dtcm_in[0], &dtcm_out[0], block_size);
+                arm_biquad_cascade_df2T_f32_int(&biquad_inst, &dtcm_in[0], &dtcm_out[0],
+                        block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -458,7 +471,8 @@ static uint32_t benchmark_biquad_q31(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df1_init_q31(&biquad_inst, n_stages, &dtcm_coeff[0], &dtcm_state[0], 1);
+            arm_biquad_cascade_df1_init_q31(&biquad_inst, n_stages, &dtcm_coeff[0], &dtcm_state[0],
+                    1);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -467,7 +481,8 @@ static uint32_t benchmark_biquad_q31(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_biquad_cascade_df1_fast_q31(&biquad_inst, &dtcm_in[0], &dtcm_out[0], block_size);
+                arm_biquad_cascade_df1_fast_q31(&biquad_inst, &dtcm_in[0], &dtcm_out[0],
+                        block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -525,7 +540,8 @@ static uint32_t benchmark_biquad_f32_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*)&cached_coeff[0], (float*)&cached_state[0]);
+            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*) &cached_coeff[0],
+                    (float*) &cached_state[0]);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -537,7 +553,8 @@ static uint32_t benchmark_biquad_f32_cache(void)
 #ifdef INCLUDE_CACHE_OP
                 SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]) * block_size);
 #endif
-                arm_biquad_cascade_df2T_f32(&biquad_inst, (float*)&cached_in[0], (float*)&cached_out[0], block_size);
+                arm_biquad_cascade_df2T_f32(&biquad_inst, (float*) &cached_in[0],
+                        (float*) &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
                 SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]) * block_size);
 #endif
@@ -565,7 +582,8 @@ static uint32_t benchmark_biquad_i32_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*)&cached_coeff[0], (float*)&cached_state[0]);
+            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*) &cached_coeff[0],
+                    (float*) &cached_state[0]);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -577,7 +595,8 @@ static uint32_t benchmark_biquad_i32_cache(void)
 #ifdef INCLUDE_CACHE_OP
                 SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]) * block_size);
 #endif
-                arm_biquad_cascade_df2T_f32_int(&biquad_inst, &cached_in[0], &cached_out[0], block_size);
+                arm_biquad_cascade_df2T_f32_int(&biquad_inst, &cached_in[0], &cached_out[0],
+                        block_size);
 #ifdef INCLUDE_CACHE_OP
                 SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]) * block_size);
 #endif
@@ -605,7 +624,8 @@ static uint32_t benchmark_biquad_q31_cache(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df1_init_q31(&biquad_inst, n_stages, &cached_coeff[0], &cached_state[0], 1);
+            arm_biquad_cascade_df1_init_q31(&biquad_inst, n_stages, &cached_coeff[0],
+                    &cached_state[0], 1);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -617,7 +637,8 @@ static uint32_t benchmark_biquad_q31_cache(void)
 #ifdef INCLUDE_CACHE_OP
                 SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]) * block_size);
 #endif
-                arm_biquad_cascade_df1_fast_q31(&biquad_inst, &cached_in[0], &cached_out[0], block_size);
+                arm_biquad_cascade_df1_fast_q31(&biquad_inst, &cached_in[0], &cached_out[0],
+                        block_size);
 #ifdef INCLUDE_CACHE_OP
                 SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]) * block_size);
 #endif
@@ -633,7 +654,6 @@ static uint32_t benchmark_biquad_q31_cache(void)
     }
     return 0;
 }
-
 
 static uint32_t benchmark_biquad_custom_cache_data_only(void)
 {
@@ -683,7 +703,7 @@ static uint32_t benchmark_rfft_f32(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            arm_rfft_fast_f32(&arm_rfft, (float*)&dtcm_in[0], (float*)&dtcm_out[0], 0);
+            arm_rfft_fast_f32(&arm_rfft, (float*) &dtcm_in[0], (float*) &dtcm_out[0], 0);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -755,7 +775,7 @@ static uint32_t benchmark_cfft_f32(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            arm_cfft_f32(arm_cfft, (float*)&dtcm_in[0], 0, 0);
+            arm_cfft_f32(arm_cfft, (float*) &dtcm_in[0], 0, 0);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -827,7 +847,7 @@ static uint32_t benchmark_rfft_f32_cache(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            arm_rfft_fast_f32(&arm_rfft, (float*)&cached_in[0], (float*)&cached_out[0], 0);
+            arm_rfft_fast_f32(&arm_rfft, (float*) &cached_in[0], (float*) &cached_out[0], 0);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -899,7 +919,7 @@ static uint32_t benchmark_cfft_f32_cache(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            arm_cfft_f32(arm_cfft, (float*)&cached_in[0], 0, 0);
+            arm_cfft_f32(arm_cfft, (float*) &cached_in[0], 0, 0);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -913,7 +933,7 @@ static uint32_t benchmark_cfft_f32_cache(void)
 
 static uint32_t benchmark_cfft_q31_cache(void)
 {
-   const  arm_cfft_instance_q31 *arm_cfft;
+    const arm_cfft_instance_q31 *arm_cfft;
 
     for (int32_t i = 0; i < FFT_SIZE_LEN; ++i)
     {
@@ -956,7 +976,6 @@ static uint32_t benchmark_cfft_q31_cache(void)
     return 0;
 }
 
-
 static uint32_t (*fir_benchmarks[N_FIR_BM])(void) =
 {
     &benchmark_fir_custom,
@@ -996,63 +1015,43 @@ static uint32_t (*fft_benchmarks[N_FFT_BM])(void) =
 };
 
 static EVENT_ID bm_fir_events[N_FIR_BM] =
-{
-    EVENT_BM_FIR_CUSTOM,
-    EVENT_BM_FIR_F32,
-    EVENT_BM_FIR_I32,
-    EVENT_BM_FIR_Q31,
-    EVENT_BM_FIR_CUSTOM_CACHE,
-    EVENT_BM_FIR_F32_CACHE,
-    EVENT_BM_FIR_I32_CACHE,
-    EVENT_BM_FIR_Q31_CACHE,
-    EVENT_BM_FIR_CUSTOM_CACHE_DATA_ONLY,
-};
+{ EVENT_BM_FIR_CUSTOM, EVENT_BM_FIR_F32, EVENT_BM_FIR_I32, EVENT_BM_FIR_Q31,
+        EVENT_BM_FIR_CUSTOM_CACHE, EVENT_BM_FIR_F32_CACHE, EVENT_BM_FIR_I32_CACHE,
+        EVENT_BM_FIR_Q31_CACHE, EVENT_BM_FIR_CUSTOM_CACHE_DATA_ONLY, };
 
 static EVENT_ID bm_biquad_events[N_BIQUAD_BM] =
-{
-    EVENT_BM_BIQUAD_CUSTOM,
-    EVENT_BM_BIQUAD_F32,
-    EVENT_BM_BIQUAD_I32,
-    EVENT_BM_BIQUAD_Q31,
-    EVENT_BM_BIQUAD_CUSTOM_CACHE,
-    EVENT_BM_BIQUAD_F32_CACHE,
-    EVENT_BM_BIQUAD_I32_CACHE,
-    EVENT_BM_BIQUAD_Q31_CACHE,
-    EVENT_BM_BIQUAD_CUSTOM_CACHE_DATA_ONLY,
-};
+{ EVENT_BM_BIQUAD_CUSTOM, EVENT_BM_BIQUAD_F32, EVENT_BM_BIQUAD_I32, EVENT_BM_BIQUAD_Q31,
+        EVENT_BM_BIQUAD_CUSTOM_CACHE, EVENT_BM_BIQUAD_F32_CACHE, EVENT_BM_BIQUAD_I32_CACHE,
+        EVENT_BM_BIQUAD_Q31_CACHE, EVENT_BM_BIQUAD_CUSTOM_CACHE_DATA_ONLY, };
 
 static EVENT_ID bm_fft_events[N_FFT_BM] =
-{
-    EVENT_BM_RFFT_F32,
-    EVENT_BM_RFFT_Q31,
-    EVENT_BM_CFFT_F32,
-    EVENT_BM_CFFT_Q31,
-    EVENT_BM_RFFT_F32_CACHE,
-    EVENT_BM_RFFT_Q31_CACHE,
-    EVENT_BM_CFFT_F32_CACHE,
-    EVENT_BM_CFFT_Q31_CACHE,
-};
-
+{ EVENT_BM_RFFT_F32, EVENT_BM_RFFT_Q31, EVENT_BM_CFFT_F32, EVENT_BM_CFFT_Q31,
+        EVENT_BM_RFFT_F32_CACHE, EVENT_BM_RFFT_Q31_CACHE, EVENT_BM_CFFT_F32_CACHE,
+        EVENT_BM_CFFT_Q31_CACHE, };
 
 void benchmark(void)
 {
     n_m7_bm_left = N_FIR_BM + N_BIQUAD_BM + N_FFT_BM;
     for (int32_t bm = 0; bm < N_FIR_BM; ++bm, --n_m7_bm_left)
     {
-//         uint32_t result = fir_benchmarks[bm]();
-//         event e = { .id = bm_fir_events[bm], .val = result };
-//         eq_m7_add_event(e);
+        uint32_t result = fir_benchmarks[bm]();
+        event e =
+        { .id = bm_fir_events[bm], .val = result };
+        eq_m7_add_event(e);
     }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
     {
-//         uint32_t result = biquad_benchmarks[bm]();
-//         event e = { .id = bm_biquad_events[bm], .val = result };
-//         eq_m7_add_event(e);
+        uint32_t result = biquad_benchmarks[bm]();
+        event e =
+        { .id = bm_biquad_events[bm], .val = result };
+        eq_m7_add_event(e);
     }
     for (int32_t bm = 0; bm < N_FFT_BM; ++bm, --n_m7_bm_left)
     {
         uint32_t result = fft_benchmarks[bm]();
-        event e = { .id = bm_fft_events[bm], .val = result };
+        event e =
+        { .id = bm_fft_events[bm], .val = result };
         eq_m7_add_event(e);
     }
 }
+

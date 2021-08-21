@@ -75,3 +75,4 @@ void EXTI9_5_IRQHandler(void)
     BSP_JOY_IRQHandler(JOY1, JOY_RIGHT);
     BSP_JOY_IRQHandler(JOY1, JOY_UP);
 }
+

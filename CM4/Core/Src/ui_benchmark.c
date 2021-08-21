@@ -9,8 +9,8 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
         int32_t button_state, JOYPin_TypeDef joy_pin);
 static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
         int32_t button_state, JOYPin_TypeDef joy_pin);
-static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
-        int32_t button_state, JOYPin_TypeDef joy_pin);
+static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self,
+        const TS_MultiTouch_State_t *touch_state, int32_t button_state, JOYPin_TypeDef joy_pin);
 static void display_n_left_m7_benchmarks(int32_t n_bm_left);
 
 void init_ui_benchmark(ui_state_t *ui_state)
@@ -24,7 +24,7 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     UI_STATE next_state = UI_STATE_BENCHMARK;
     (void) touch_state;
     (void) joy_pin;
-    
+
     display_n_left_m7_benchmarks(n_m7_bm_left);
 
     if (n_m7_bm_left == 0)
@@ -62,8 +62,8 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     return UI_STATE_BENCHMARK;
 }
 
-static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self, const TS_MultiTouch_State_t *touch_state,
-        int32_t button_state, JOYPin_TypeDef joy_pin)
+static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self,
+        const TS_MultiTouch_State_t *touch_state, int32_t button_state, JOYPin_TypeDef joy_pin)
 {
     UI_STATE next_state = UI_STATE_BENCHMARK;
     uint32_t x_size;
@@ -71,7 +71,7 @@ static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self, const TS_MultiTouch
     (void) touch_state;
     (void) button_state;
     (void) joy_pin;
-    
+
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
     GUI_FillRect(0, 50, x_size, y_size - 50, GUI_COLOR_BLACK);

@@ -6,9 +6,9 @@
 #include <stddef.h>
 
 static const char* event_to_str(EVENT_ID id);
-static void print_fir_meas(volatile bm_meas* meas, int32_t n);
-static void print_biquad_meas(volatile bm_meas* meas, int32_t n);
-static void print_fft_meas(volatile bm_meas* meas, int32_t n);
+static void print_fir_meas(volatile bm_meas *meas, int32_t n);
+static void print_biquad_meas(volatile bm_meas *meas, int32_t n);
+static void print_fft_meas(volatile bm_meas *meas, int32_t n);
 
 int32_t logger_task_init(void)
 {
@@ -169,24 +169,25 @@ static const char* event_to_str(EVENT_ID id)
     }
 }
 
-static void print_fir_meas(volatile bm_meas* meas, int32_t n)
+static void print_fir_meas(volatile bm_meas *meas, int32_t n)
 {
     for (int32_t i = 0; i < n; ++i)
     {
-        logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size, meas[i].cycles);
+        logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size,
+                meas[i].cycles);
     }
 }
 
-static void print_biquad_meas(volatile bm_meas* meas, int32_t n)
+static void print_biquad_meas(volatile bm_meas *meas, int32_t n)
 {
     for (int32_t i = 0; i < n; ++i)
     {
-        logg(LOG_INF, "n_stages=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size, meas[i].cycles);
+        logg(LOG_INF, "n_stages=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size,
+                meas[i].cycles);
     }
 }
 
-
-static void print_fft_meas(volatile bm_meas* meas, int32_t n)
+static void print_fft_meas(volatile bm_meas *meas, int32_t n)
 {
     for (int32_t i = 0; i < n; ++i)
     {

@@ -21,3 +21,4 @@ SHARED(volatile bm_meas rfft_measurements_f32[5]);
 SHARED(volatile bm_meas rfft_measurements_q31[5]);
 SHARED(volatile bm_meas cfft_measurements_f32[5]);
 SHARED(volatile bm_meas cfft_measurements_q31[5]);
+

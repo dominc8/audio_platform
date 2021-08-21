@@ -14,10 +14,14 @@
 #define BLOCK_SIZE_LEN      6
 #define FFT_SIZE_LEN        5
 
-static const int32_t taps_arr[TAPS_LEN] = { 5, 10, 20, 50, 100 };
-static const int32_t stages_arr[STAGES_LEN] = { 1, 4, 8, 12, 16 };
-static const int32_t block_size_arr[BLOCK_SIZE_LEN] = { 8, 16, 32, 64, 128, 256 };
-static const int32_t fft_size_arr[FFT_SIZE_LEN] = { 64, 128, 256, 512, 1024 };
+static const int32_t taps_arr[TAPS_LEN] =
+{ 5, 10, 20, 50, 100 };
+static const int32_t stages_arr[STAGES_LEN] =
+{ 1, 4, 8, 12, 16 };
+static const int32_t block_size_arr[BLOCK_SIZE_LEN] =
+{ 8, 16, 32, 64, 128, 256 };
+static const int32_t fft_size_arr[FFT_SIZE_LEN] =
+{ 64, 128, 256, 512, 1024 };
 
 static int32_t data_in[2048] __attribute__ ((aligned (32)));
 static int32_t data_out[2048] __attribute__ ((aligned (32)));
@@ -64,7 +68,7 @@ static void benchmark_fir_f32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*)&coeff[0], (float*)&state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &coeff[0], (float*) &state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -73,7 +77,7 @@ static void benchmark_fir_f32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_fir_f32(&fir_inst, (float*)&data_in[0], (float*)&data_out[0], block_size);
+                arm_fir_f32(&fir_inst, (float*) &data_in[0], (float*) &data_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -95,7 +99,7 @@ static void benchmark_fir_i32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*)&coeff[0], (float*)&state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &coeff[0], (float*) &state[0], block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -160,7 +164,7 @@ static void benchmark_biquad_custom(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            data_out[0] = biquad_f32(&biquad_inst, data_in[0]);;
+            data_out[0] = biquad_f32(&biquad_inst, data_in[0]);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -182,7 +186,8 @@ static void benchmark_biquad_f32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*)&coeff[0], (float*)&state[0]);
+            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*) &coeff[0],
+                    (float*) &state[0]);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -191,7 +196,8 @@ static void benchmark_biquad_f32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_biquad_cascade_df2T_f32(&biquad_inst, (float*)&data_in[0], (float*)&data_out[0], block_size);
+                arm_biquad_cascade_df2T_f32(&biquad_inst, (float*) &data_in[0],
+                        (float*) &data_out[0], block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -213,7 +219,8 @@ static void benchmark_biquad_i32(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*)&coeff[0], (float*)&state[0]);
+            arm_biquad_cascade_df2T_init_f32(&biquad_inst, n_stages, (float*) &coeff[0],
+                    (float*) &state[0]);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -222,7 +229,8 @@ static void benchmark_biquad_i32(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_biquad_cascade_df2T_f32_int(&biquad_inst, &data_in[0], &data_out[0], block_size);
+                arm_biquad_cascade_df2T_f32_int(&biquad_inst, &data_in[0], &data_out[0],
+                        block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -253,7 +261,8 @@ static void benchmark_biquad_q31(void)
             while (n-- > 0)
             {
                 start = GET_CCNT();
-                arm_biquad_cascade_df1_fast_q31(&biquad_inst, &data_in[0], &data_out[0], block_size);
+                arm_biquad_cascade_df1_fast_q31(&biquad_inst, &data_in[0], &data_out[0],
+                        block_size);
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
             }
@@ -280,7 +289,7 @@ static void benchmark_rfft_f32(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            arm_rfft_fast_f32(&arm_rfft, (float*)&data_in[0], (float*)&data_out[0], 0);
+            arm_rfft_fast_f32(&arm_rfft, (float*) &data_in[0], (float*) &data_out[0], 0);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -352,7 +361,7 @@ static void benchmark_cfft_f32(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            arm_cfft_f32(arm_cfft, (float*)&data_in[0], 0, 0);
+            arm_cfft_f32(arm_cfft, (float*) &data_in[0], 0, 0);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -407,7 +416,6 @@ static void benchmark_cfft_q31(void)
     }
 }
 
-
 static void (*fir_benchmarks[N_FIR_BM])(void) =
 {
     &benchmark_fir_custom,
@@ -437,11 +445,11 @@ void benchmark(void)
     logg(LOG_INF, "Running M4 benchmarks ...");
     for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
     {
-//        fir_benchmarks[bm]();
+        fir_benchmarks[bm]();
     }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm)
     {
-//        biquad_benchmarks[bm]();
+        biquad_benchmarks[bm]();
     }
     for (int32_t bm = 0; bm < N_FFT_BM; ++bm)
     {

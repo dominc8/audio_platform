@@ -28,3 +28,4 @@ void init_ui_biquad_adj(ui_state_t *ui_state);
 void init_ui_benchmark(ui_state_t *ui_state);
 
 #endif /* UI_STATES_H */
+
