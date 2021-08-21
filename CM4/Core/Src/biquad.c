@@ -6,9 +6,9 @@ int32_t biquad_f32(biquad_f32_t *f, int32_t in)
     float in_interm = (float) in;
     float *coeff_ptr = &f->coeff[0];
     float *state_ptr = &f->state[0];
-    int32_t n = f->n_stage;
+    uint32_t n = f->n_stage;
 
-    for (int32_t i = 0; i < n; ++i)
+    for (; n != 0; --n)
     {
         out = *coeff_ptr * in_interm + *state_ptr;
         ++coeff_ptr;
