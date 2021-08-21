@@ -39,6 +39,10 @@ extern volatile bm_meas biquad_measurements_f32[30];
 extern volatile bm_meas biquad_measurements_i32[30];
 extern volatile bm_meas biquad_measurements_q31[30];
 extern volatile bm_meas biquad_measurements_custom[5];
+extern volatile bm_meas rfft_measurements_f32[5];
+extern volatile bm_meas rfft_measurements_q31[5];
+extern volatile bm_meas cfft_measurements_f32[5];
+extern volatile bm_meas cfft_measurements_q31[5];
 
 #endif /* SHARED_DATA_H */
 

@@ -8,6 +8,7 @@
 static const char* event_to_str(EVENT_ID id);
 static void print_fir_meas(volatile bm_meas* meas, int32_t n);
 static void print_biquad_meas(volatile bm_meas* meas, int32_t n);
+static void print_fft_meas(volatile bm_meas* meas, int32_t n);
 
 int32_t logger_task_init(void)
 {
@@ -102,6 +103,38 @@ int32_t logger_task(void *arg)
                     logg(LOG_INF, "M7 BIQUAD CUSTOM CACHE DATA ONLY:");
                     print_biquad_meas(&biquad_measurements_custom[0], 5);
                     break;
+                case EVENT_BM_RFFT_F32:
+                    logg(LOG_INF, "M7 RFFT F32:");
+                    print_fft_meas(&rfft_measurements_f32[0], 5);
+                    break;
+                case EVENT_BM_RFFT_Q31:
+                    logg(LOG_INF, "M7 RFFT Q31:");
+                    print_fft_meas(&rfft_measurements_q31[0], 5);
+                    break;
+                case EVENT_BM_CFFT_F32:
+                    logg(LOG_INF, "M7 CFFT F32:");
+                    print_fft_meas(&cfft_measurements_f32[0], 5);
+                    break;
+                case EVENT_BM_CFFT_Q31:
+                    logg(LOG_INF, "M7 CFFT Q31:");
+                    print_fft_meas(&cfft_measurements_q31[0], 5);
+                    break;
+                case EVENT_BM_RFFT_F32_CACHE:
+                    logg(LOG_INF, "M7 RFFT F32 CACHE:");
+                    print_fft_meas(&rfft_measurements_f32[0], 5);
+                    break;
+                case EVENT_BM_RFFT_Q31_CACHE:
+                    logg(LOG_INF, "M7 RFFT Q31 CACHE:");
+                    print_fft_meas(&rfft_measurements_q31[0], 5);
+                    break;
+                case EVENT_BM_CFFT_F32_CACHE:
+                    logg(LOG_INF, "M7 CFFT F32 CACHE:");
+                    print_fft_meas(&cfft_measurements_f32[0], 5);
+                    break;
+                case EVENT_BM_CFFT_Q31_CACHE:
+                    logg(LOG_INF, "M7 CFFT Q31 CACHE:");
+                    print_fft_meas(&cfft_measurements_q31[0], 5);
+                    break;
                 default:
                     logg(LOG_INF, "M7: (%d, %u)", e.id, e.val);
                     break;
@@ -151,3 +184,13 @@ static void print_biquad_meas(volatile bm_meas* meas, int32_t n)
         logg(LOG_INF, "n_stages=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size, meas[i].cycles);
     }
 }
+
+
+static void print_fft_meas(volatile bm_meas* meas, int32_t n)
+{
+    for (int32_t i = 0; i < n; ++i)
+    {
+        logg(LOG_INF, "fft_size=%u, cycles=%u", meas[i].block_size, meas[i].cycles);
+    }
+}
+
