@@ -25,14 +25,17 @@ static UI_STATE handle_ui(ui_state_t *self, const TS_MultiTouch_State_t *touch_s
     (void) touch_state;
     (void) joy_pin;
 
-    display_n_left_m7_benchmarks(n_m7_bm_left);
-
-    if (n_m7_bm_left == 0)
+    if (n_m7_bm_left > 0)
+    {
+        display_n_left_m7_benchmarks(n_m7_bm_left);
+    }
+    else if (n_m7_bm_left == 0)
     {
         self->f_handle_ui = &handle_ui_run_m4_benchmark;
     }
-    else if (n_m7_bm_left < 0)
+    else
     {
+        display_n_left_m7_benchmarks(0);
         if (1 == button_state)
         {
             self->f_handle_ui = &handle_ui_init;
