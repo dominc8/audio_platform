@@ -10,7 +10,7 @@ typedef struct
     uint16_t n_taps;
     uint16_t block_size;
     uint32_t cycles;
-} fir_meas;
+} bm_meas;
 
 /* Exported macro ------------------------------------------------------------*/
 #define SHARED(data)  data __attribute__ ((section(".RAM3_SHARED")))
@@ -31,10 +31,14 @@ extern volatile float biquad_coeffs[2][N_COEFF_IN_STAGE * MAX_BIQUAD_STAGES];
 extern volatile int32_t biquad_stages[2];
 extern volatile uint32_t dsp_update_mask;
 extern volatile int32_t n_m7_bm_left;
-extern volatile fir_meas fir_measurements_f32[30];
-extern volatile fir_meas fir_measurements_i32[30];
-extern volatile fir_meas fir_measurements_q31[30];
-extern volatile fir_meas fir_measurements_custom[5];
+extern volatile bm_meas fir_measurements_f32[30];
+extern volatile bm_meas fir_measurements_i32[30];
+extern volatile bm_meas fir_measurements_q31[30];
+extern volatile bm_meas fir_measurements_custom[5];
+extern volatile bm_meas biquad_measurements_f32[30];
+extern volatile bm_meas biquad_measurements_i32[30];
+extern volatile bm_meas biquad_measurements_q31[30];
+extern volatile bm_meas biquad_measurements_custom[5];
 
 #endif /* SHARED_DATA_H */
 

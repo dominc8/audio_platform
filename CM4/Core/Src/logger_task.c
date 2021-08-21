@@ -6,7 +6,8 @@
 #include <stddef.h>
 
 static const char* event_to_str(EVENT_ID id);
-static void print_fir_meas(volatile fir_meas* meas, int32_t n);
+static void print_fir_meas(volatile bm_meas* meas, int32_t n);
+static void print_biquad_meas(volatile bm_meas* meas, int32_t n);
 
 int32_t logger_task_init(void)
 {
@@ -65,6 +66,42 @@ int32_t logger_task(void *arg)
                     logg(LOG_INF, "M7 FIR CUSTOM CACHE DATA ONLY:");
                     print_fir_meas(&fir_measurements_custom[0], 5);
                     break;
+                case EVENT_BM_BIQUAD_CUSTOM:
+                    logg(LOG_INF, "M7 BIQUAD CUSTOM:");
+                    print_biquad_meas(&biquad_measurements_custom[0], 5);
+                    break;
+                case EVENT_BM_BIQUAD_F32:
+                    logg(LOG_INF, "M7 BIQUAD F32:");
+                    print_biquad_meas(&biquad_measurements_f32[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_I32:
+                    logg(LOG_INF, "M7 BIQUAD I32:");
+                    print_biquad_meas(&biquad_measurements_i32[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_Q31:
+                    logg(LOG_INF, "M7 BIQUAD Q31:");
+                    print_biquad_meas(&biquad_measurements_q31[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_CUSTOM_CACHE:
+                    logg(LOG_INF, "M7 BIQUAD CUSTOM CACHE:");
+                    print_biquad_meas(&biquad_measurements_custom[0], 5);
+                    break;
+                case EVENT_BM_BIQUAD_F32_CACHE:
+                    logg(LOG_INF, "M7 BIQUAD F32 CACHE:");
+                    print_biquad_meas(&biquad_measurements_f32[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_I32_CACHE:
+                    logg(LOG_INF, "M7 BIQUAD I32 CACHE:");
+                    print_biquad_meas(&biquad_measurements_i32[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_Q31_CACHE:
+                    logg(LOG_INF, "M7 BIQUAD Q31 CACHE:");
+                    print_biquad_meas(&biquad_measurements_q31[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_CUSTOM_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 BIQUAD CUSTOM CACHE DATA ONLY:");
+                    print_biquad_meas(&biquad_measurements_custom[0], 5);
+                    break;
                 default:
                     logg(LOG_INF, "M7: (%d, %u)", e.id, e.val);
                     break;
@@ -99,10 +136,18 @@ static const char* event_to_str(EVENT_ID id)
     }
 }
 
-static void print_fir_meas(volatile fir_meas* meas, int32_t n)
+static void print_fir_meas(volatile bm_meas* meas, int32_t n)
 {
     for (int32_t i = 0; i < n; ++i)
     {
         logg(LOG_INF, "n_taps=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size, meas[i].cycles);
+    }
+}
+
+static void print_biquad_meas(volatile bm_meas* meas, int32_t n)
+{
+    for (int32_t i = 0; i < n; ++i)
+    {
+        logg(LOG_INF, "n_stages=%u, block_size=%u, cycles=%u", meas[i].n_taps, meas[i].block_size, meas[i].cycles);
     }
 }
