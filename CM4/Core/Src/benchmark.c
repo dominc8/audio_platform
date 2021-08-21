@@ -1,22 +1,26 @@
 #include "benchmark.h"
 #include "perf_meas.h"
 #include "arm_math.h"
+#include "arm_const_structs.h"
 #include "logger.h"
 #include "fir.h"
 #include "biquad.h"
 
 #define N_FIR_BM            4
 #define N_BIQUAD_BM         4
+#define N_FFT_BM            4
 #define TAPS_LEN            5
 #define STAGES_LEN          5
 #define BLOCK_SIZE_LEN      6
+#define FFT_SIZE_LEN        5
 
 static const int32_t taps_arr[TAPS_LEN] = { 5, 10, 20, 50, 100 };
 static const int32_t stages_arr[STAGES_LEN] = { 1, 4, 8, 12, 16 };
 static const int32_t block_size_arr[BLOCK_SIZE_LEN] = { 8, 16, 32, 64, 128, 256 };
+static const int32_t fft_size_arr[FFT_SIZE_LEN] = { 64, 128, 256, 512, 1024 };
 
-static int32_t data_in[256] __attribute__ ((aligned (32)));
-static int32_t data_out[256] __attribute__ ((aligned (32)));
+static int32_t data_in[2048] __attribute__ ((aligned (32)));
+static int32_t data_out[2048] __attribute__ ((aligned (32)));
 static int32_t coeff[100] __attribute__ ((aligned (32)));
 static int32_t state[100 + 256 - 1] __attribute__ ((aligned (32)));
 
@@ -259,6 +263,149 @@ static void benchmark_biquad_q31(void)
     }
 }
 
+static void benchmark_rfft_f32(void)
+{
+    arm_rfft_fast_instance_f32 arm_rfft;
+
+    logg(LOG_INF, "M4 RFFT F32:");
+
+    for (int32_t i = 0; i < FFT_SIZE_LEN; ++i)
+    {
+        int32_t fft_size = fft_size_arr[i];
+        arm_rfft_fast_init_f32(&arm_rfft, fft_size);
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 12;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+            arm_rfft_fast_f32(&arm_rfft, (float*)&data_in[0], (float*)&data_out[0], 0);
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 12;
+
+        logg(LOG_INF, "fft_size=%u, cycles=%u", fft_size, acc);
+    }
+}
+
+static void benchmark_rfft_q31(void)
+{
+    arm_rfft_instance_q31 arm_rfft;
+
+    logg(LOG_INF, "M4 RFFT Q31:");
+
+    for (int32_t i = 0; i < FFT_SIZE_LEN; ++i)
+    {
+        int32_t fft_size = fft_size_arr[i];
+        arm_rfft_init_q31(&arm_rfft, fft_size, 0, 0);
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 12;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+            arm_rfft_q31(&arm_rfft, &data_in[0], &data_out[0]);
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 12;
+
+        logg(LOG_INF, "fft_size=%u, cycles=%u", fft_size, acc);
+    }
+}
+
+static void benchmark_cfft_f32(void)
+{
+    const arm_cfft_instance_f32 *arm_cfft;
+
+    logg(LOG_INF, "M4 CFFT F32:");
+
+    for (int32_t i = 0; i < FFT_SIZE_LEN; ++i)
+    {
+        int32_t fft_size = fft_size_arr[i];
+        switch (fft_size)
+        {
+            case 64:
+                arm_cfft = &arm_cfft_sR_f32_len64;
+                break;
+            case 128:
+                arm_cfft = &arm_cfft_sR_f32_len128;
+                break;
+            case 256:
+                arm_cfft = &arm_cfft_sR_f32_len256;
+                break;
+            case 512:
+                arm_cfft = &arm_cfft_sR_f32_len512;
+                break;
+            case 1024:
+                arm_cfft = &arm_cfft_sR_f32_len1024;
+                break;
+        }
+
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 12;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+            arm_cfft_f32(arm_cfft, (float*)&data_in[0], 0, 0);
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 12;
+
+        logg(LOG_INF, "fft_size=%u, cycles=%u", fft_size, acc);
+    }
+}
+
+static void benchmark_cfft_q31(void)
+{
+    const arm_cfft_instance_q31 *arm_cfft;
+
+    logg(LOG_INF, "M4 CFFT Q31:");
+
+    for (int32_t i = 0; i < FFT_SIZE_LEN; ++i)
+    {
+        int32_t fft_size = fft_size_arr[i];
+        switch (fft_size)
+        {
+            case 64:
+                arm_cfft = &arm_cfft_sR_q31_len64;
+                break;
+            case 128:
+                arm_cfft = &arm_cfft_sR_q31_len128;
+                break;
+            case 256:
+                arm_cfft = &arm_cfft_sR_q31_len256;
+                break;
+            case 512:
+                arm_cfft = &arm_cfft_sR_q31_len512;
+                break;
+            case 1024:
+                arm_cfft = &arm_cfft_sR_q31_len1024;
+                break;
+        }
+
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 12;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+            arm_cfft_q31(arm_cfft, &data_in[0], 0, 0);
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 12;
+
+        logg(LOG_INF, "fft_size=%u, cycles=%u", fft_size, acc);
+    }
+}
 
 
 static void (*fir_benchmarks[N_FIR_BM])(void) =
@@ -277,16 +424,28 @@ static void (*biquad_benchmarks[N_BIQUAD_BM])(void) =
     &benchmark_biquad_q31,
 };
 
+static void (*fft_benchmarks[N_FFT_BM])(void) =
+{
+    &benchmark_rfft_f32,
+    &benchmark_rfft_q31,
+    &benchmark_cfft_f32,
+    &benchmark_cfft_q31,
+};
+
 void benchmark(void)
 {
     logg(LOG_INF, "Running M4 benchmarks ...");
     for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
     {
-        fir_benchmarks[bm]();
+//        fir_benchmarks[bm]();
     }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm)
     {
-        biquad_benchmarks[bm]();
+//        biquad_benchmarks[bm]();
+    }
+    for (int32_t bm = 0; bm < N_FFT_BM; ++bm)
+    {
+        fft_benchmarks[bm]();
     }
 }
 
