@@ -29,8 +29,8 @@ int32_t biquad_q31(biquad_q31_t *f, int32_t in);// __attribute__((section(".RAM_
 int32_t biquad_f32(biquad_f32_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
 int32_t biquad_q31(biquad_q31_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
 #else
-int32_t biquad_f32(biquad_f32_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
-int32_t biquad_q31(biquad_q31_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
+int32_t biquad_f32(biquad_f32_t *f, int32_t in);
+int32_t biquad_q31(biquad_q31_t *f, int32_t in);
 #endif
 
 #endif /* BIQUAD_H */
