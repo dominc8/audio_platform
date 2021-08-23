@@ -830,7 +830,7 @@ static uint32_t benchmark_biquad_q31_custom_cache(void)
 #ifdef INCLUDE_CACHE_OP
             SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
 #endif
-            cached_out[0] = biquad_f32(&cached_biquad_q31_inst, cached_in[0]);
+            cached_out[0] = biquad_q31(&cached_biquad_q31_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
             SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
 #endif
@@ -863,7 +863,7 @@ static uint32_t benchmark_biquad_q31_custom_cache_data_only(void)
 #ifdef INCLUDE_CACHE_OP
             SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
 #endif
-            cached_out[0] = biquad_f32(&dtcm_biquad_q31_inst, cached_in[0]);
+            cached_out[0] = biquad_q31(&dtcm_biquad_q31_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
             SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
 #endif

@@ -1,4 +1,5 @@
 #include "biquad.h"
+#include "dsp_utils.h"
 
 int32_t biquad_f32(biquad_f32_t *f, int32_t in)
 {
