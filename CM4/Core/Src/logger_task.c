@@ -79,6 +79,18 @@ int32_t logger_task(void *arg)
                     logg(LOG_INF, "M7 FIR Q31 CUSTOM CACHE DATA ONLY:");
                     print_fir_meas(&fir_measurements_custom[0], 5);
                     break;
+                case EVENT_BM_FIR_F32_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 FIR F32 CACHE DATA ONLY:");
+                    print_fir_meas(&fir_measurements_f32[0], 30);
+                    break;
+                case EVENT_BM_FIR_I32_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 FIR I32 CACHE DATA ONLY:");
+                    print_fir_meas(&fir_measurements_i32[0], 30);
+                    break;
+                case EVENT_BM_FIR_Q31_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 FIR Q31 CACHE DATA ONLY:");
+                    print_fir_meas(&fir_measurements_q31[0], 30);
+                    break;
                 case EVENT_BM_BIQUAD_F32_CUSTOM:
                     logg(LOG_INF, "M7 BIQUAD F32 CUSTOM:");
                     print_biquad_meas(&biquad_measurements_custom[0], 5);
@@ -126,6 +138,18 @@ int32_t logger_task(void *arg)
                 case EVENT_BM_BIQUAD_Q31_CUSTOM_CACHE_DATA_ONLY:
                     logg(LOG_INF, "M7 BIQUAD Q31 CUSTOM CACHE DATA ONLY:");
                     print_biquad_meas(&biquad_measurements_custom[0], 5);
+                    break;
+                case EVENT_BM_BIQUAD_F32_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 BIQUAD F32 CACHE DATA ONLY:");
+                    print_biquad_meas(&biquad_measurements_f32[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_I32_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 BIQUAD I32 CACHE DATA ONLY:");
+                    print_biquad_meas(&biquad_measurements_i32[0], 30);
+                    break;
+                case EVENT_BM_BIQUAD_Q31_CACHE_DATA_ONLY:
+                    logg(LOG_INF, "M7 BIQUAD Q31 CACHE DATA ONLY:");
+                    print_biquad_meas(&biquad_measurements_q31[0], 30);
                     break;
                 case EVENT_BM_RFFT_F32:
                     logg(LOG_INF, "M7 RFFT F32:");
