@@ -27,7 +27,6 @@ int32_t fir_f32(fir_f32_t *f, int32_t in)
     return out;
 }
 
-
 int32_t fir_q31(fir_q31_t *f, int32_t in)
 {
     int32_t out = 0;
@@ -49,7 +48,7 @@ int32_t fir_q31(fir_q31_t *f, int32_t in)
     *sample_ptr = in;
     out = smmlar(a, in, out);
 
-    return out;
+    return out << 1;
 
 }
 

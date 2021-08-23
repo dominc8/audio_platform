@@ -21,6 +21,18 @@ typedef struct fir_q31_t
     int32_t order;
 } fir_q31_t;
 
+#if defined(CORE_CM4)
+int32_t fir_f32(fir_f32_t *f, int32_t in);// __attribute__((section(".RAM_EXEC")));
+int32_t fir_q31(fir_q31_t *f, int32_t in);// __attribute__((section(".RAM_EXEC")));
+#elif defined(CORE_CM7)
+int32_t fir_f32(fir_f32_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
+int32_t fir_q31(fir_q31_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
+#else
+int32_t fir_f32(fir_f32_t *f, int32_t in);
+int32_t fir_q31(fir_q31_t *f, int32_t in);
+#endif
+
+#if defined(CORE_CM4) || defined(CORE_CM7)
 static inline int32_t smmlar(int32_t in1, int32_t in2, int32_t acc)
 {
     int32_t out;
@@ -30,16 +42,13 @@ static inline int32_t smmlar(int32_t in1, int32_t in2, int32_t acc)
       );
     return out;
 }
-
-#ifdef CORE_CM4
-int32_t fir_f32(fir_f32_t *f, int32_t in);// __attribute__((section(".RAM_EXEC")));
-int32_t fir_q31(fir_q31_t *f, int32_t in);// __attribute__((section(".RAM_EXEC")));
+#else
+static inline int32_t smmlar(int32_t in1, int32_t in2, int32_t acc)
+{
+    return (int32_t) (((((int64_t) acc) << 32) + ((int64_t) in1 * in2) + 0x80000000LL ) >> 32);
+}
 #endif
 
-#ifdef CORE_CM7
-int32_t fir_f32(fir_f32_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
-int32_t fir_q31(fir_q31_t *f, int32_t in);// __attribute__((section(".ITCM_RAM")));
-#endif
 
 #endif /* FIR_H */
 

@@ -36,7 +36,7 @@ int32_t fir_q31(fir_q31_t *f, int32_t in)
     int32_t a;
     int32_t s;
 
-    for (; n != 0; n--, ++coeff_ptr, ++sample_ptr)
+    for (; n != 0; --n, ++coeff_ptr, ++sample_ptr)
     {
         a = *coeff_ptr;
         s = *(sample_ptr + 1);
@@ -48,7 +48,7 @@ int32_t fir_q31(fir_q31_t *f, int32_t in)
     *sample_ptr = in;
     out = smmlar(a, in, out);
 
-    return out;
+    return out << 1;
 
 }
 
