@@ -1,4 +1,5 @@
 #include "fir.h"
+#include "dsp_utils.h"
 
 int32_t fir_f32(fir_f32_t *f, int32_t in)
 {
@@ -15,11 +16,7 @@ int32_t fir_f32(fir_f32_t *f, int32_t in)
         s = *(sample_ptr + 1);
         out += a * s;
         *sample_ptr = s;
-        //out += *coeff_ptr * *(sample_ptr + 1);
-        // *sample_ptr = *(sample_ptr + 1);
     }
-//    *sample_ptr = (float) in;
-//    out += *coeff_ptr * in;
     a = *coeff_ptr;
     *sample_ptr = in;
     out += a * in;

@@ -114,11 +114,6 @@ void fir_q31_test_arm(void)
     {
         ASSERT_EQUAL_WITH_TOL(y_ref[i], y[i], tol);
     }
-
-    printf("\ny: ");
-    print_i32array(&y[0], N);
-    printf("\ny_ref: ");
-    print_i32array(&y_ref[0], N);
 }
 
 

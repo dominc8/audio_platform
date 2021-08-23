@@ -32,23 +32,5 @@ int32_t fir_f32(fir_f32_t *f, int32_t in);
 int32_t fir_q31(fir_q31_t *f, int32_t in);
 #endif
 
-#if defined(CORE_CM4) || defined(CORE_CM7)
-static inline int32_t smmlar(int32_t in1, int32_t in2, int32_t acc)
-{
-    int32_t out;
-    __asm ("SMMLAR %[r_dest], %[r_in1], %[r_in2], %[r_acc]"
-        : [r_dest] "=r" (out)
-        : [r_in1] "r" (in1), [r_in2] "r" (in2), [r_acc] "r" (acc)
-      );
-    return out;
-}
-#else
-static inline int32_t smmlar(int32_t in1, int32_t in2, int32_t acc)
-{
-    return (int32_t) (((((int64_t) acc) << 32) + ((int64_t) in1 * in2) + 0x80000000LL ) >> 32);
-}
-#endif
-
-
 #endif /* FIR_H */
 
