@@ -7,7 +7,7 @@
 #include "biquad.h"
 
 #define N_FIR_BM            5
-#define N_BIQUAD_BM         4
+#define N_BIQUAD_BM         5
 #define N_FFT_BM            4
 #define TAPS_LEN            5
 #define STAGES_LEN          5
@@ -30,7 +30,8 @@ static int32_t state[100 + 256 - 1] __attribute__ ((aligned (32)));
 
 static fir_f32_t fir_f32_inst;
 static fir_q31_t fir_q31_inst;
-static biquad_f32_t biquad_inst;
+static biquad_f32_t biquad_f32_inst;
+static biquad_q31_t biquad_q31_inst;
 
 static void benchmark_fir_f32_custom(void)
 {
@@ -175,13 +176,13 @@ static void benchmark_fir_q31(void)
     }
 }
 
-static void benchmark_biquad_custom(void)
+static void benchmark_biquad_f32_custom(void)
 {
-    logg(LOG_INF, "M4 BIQUAD CUSTOM:");
+    logg(LOG_INF, "M4 BIQUAD F32 CUSTOM:");
     for (int32_t i = 0; i < STAGES_LEN; ++i)
     {
         int32_t n_stages = stages_arr[i];
-        biquad_inst.n_stage = n_stages;
+        biquad_f32_inst.n_stage = n_stages;
 
         uint32_t start, stop;
         uint32_t acc = 0;
@@ -190,7 +191,32 @@ static void benchmark_biquad_custom(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            data_out[0] = biquad_f32(&biquad_inst, data_in[0]);
+            data_out[0] = biquad_f32(&biquad_f32_inst, data_in[0]);
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 17;
+
+        logg(LOG_INF, "n_stages=%u, block_size=%u, cycles=%u", n_stages, 1, acc);
+    }
+}
+
+static void benchmark_biquad_q31_custom(void)
+{
+    logg(LOG_INF, "M4 BIQUAD Q31 CUSTOM:");
+    for (int32_t i = 0; i < STAGES_LEN; ++i)
+    {
+        int32_t n_stages = stages_arr[i];
+        biquad_q31_inst.n_stage = n_stages;
+
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 17;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+            data_out[0] = biquad_q31(&biquad_q31_inst, data_in[0]);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -453,7 +479,8 @@ static void (*fir_benchmarks[N_FIR_BM])(void) =
 
 static void (*biquad_benchmarks[N_BIQUAD_BM])(void) =
 {
-    &benchmark_biquad_custom,
+    &benchmark_biquad_f32_custom,
+    &benchmark_biquad_q31_custom,
     &benchmark_biquad_f32,
     &benchmark_biquad_i32,
     &benchmark_biquad_q31,
@@ -472,8 +499,6 @@ void benchmark(void)
     logg(LOG_INF, "Running M4 benchmarks ...");
     for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
     {
-        if (bm >= 2)
-            return;
         fir_benchmarks[bm]();
     }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm)

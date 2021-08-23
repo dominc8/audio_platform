@@ -10,7 +10,7 @@
 #define INCLUDE_CACHE_OP
 
 #define N_FIR_BM            12
-#define N_BIQUAD_BM         9
+#define N_BIQUAD_BM         12
 #define N_FFT_BM            8
 #define TAPS_LEN            5
 #define STAGES_LEN          5
@@ -40,8 +40,10 @@ static fir_q31_t dtcm_fir_q31_inst;
 static fir_q31_t cached_fir_q31_inst __attribute__ ((section(".AXI_SRAM")));
 static fir_f32_t dtcm_fir_f32_inst;
 static fir_f32_t cached_fir_f32_inst __attribute__ ((section(".AXI_SRAM")));
-static biquad_f32_t dtcm_biquad_inst;
-static biquad_f32_t cached_biquad_inst __attribute__ ((section(".AXI_SRAM")));
+static biquad_f32_t dtcm_biquad_f32_inst;
+static biquad_f32_t cached_biquad_f32_inst __attribute__ ((section(".AXI_SRAM")));
+static biquad_q31_t dtcm_biquad_q31_inst;
+static biquad_q31_t cached_biquad_q31_inst __attribute__ ((section(".AXI_SRAM")));
 
 static uint32_t benchmark_fir_f32_custom(void)
 {
@@ -457,12 +459,12 @@ static uint32_t benchmark_fir_q31_custom_cache_data_only(void)
 
 
 
-static uint32_t benchmark_biquad_custom(void)
+static uint32_t benchmark_biquad_f32_custom(void)
 {
     for (int32_t i = 0; i < STAGES_LEN; ++i)
     {
         int32_t n_stages = stages_arr[i];
-        dtcm_biquad_inst.n_stage = n_stages;
+        dtcm_biquad_f32_inst.n_stage = n_stages;
 
         uint32_t start, stop;
         uint32_t acc = 0;
@@ -471,8 +473,7 @@ static uint32_t benchmark_biquad_custom(void)
         while (n-- > 0)
         {
             start = GET_CCNT();
-            dtcm_out[0] = biquad_f32(&dtcm_biquad_inst, dtcm_in[0]);
-            ;
+            dtcm_out[0] = biquad_f32(&dtcm_biquad_f32_inst, dtcm_in[0]);
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
         }
@@ -593,12 +594,12 @@ static uint32_t benchmark_biquad_q31(void)
     return 0;
 }
 
-static uint32_t benchmark_biquad_custom_cache(void)
+static uint32_t benchmark_biquad_f32_custom_cache(void)
 {
     for (int32_t i = 0; i < STAGES_LEN; ++i)
     {
         int32_t n_stages = stages_arr[i];
-        cached_biquad_inst.n_stage = n_stages;
+        cached_biquad_f32_inst.n_stage = n_stages;
 
         uint32_t start, stop;
         uint32_t acc = 0;
@@ -610,7 +611,7 @@ static uint32_t benchmark_biquad_custom_cache(void)
 #ifdef INCLUDE_CACHE_OP
             SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
 #endif
-            cached_out[0] = biquad_f32(&cached_biquad_inst, cached_in[0]);
+            cached_out[0] = biquad_f32(&cached_biquad_f32_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
             SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
 #endif
@@ -752,12 +753,12 @@ static uint32_t benchmark_biquad_q31_cache(void)
     return 0;
 }
 
-static uint32_t benchmark_biquad_custom_cache_data_only(void)
+static uint32_t benchmark_biquad_f32_custom_cache_data_only(void)
 {
     for (int32_t i = 0; i < STAGES_LEN; ++i)
     {
         int32_t n_stages = stages_arr[i];
-        dtcm_biquad_inst.n_stage = n_stages;
+        dtcm_biquad_f32_inst.n_stage = n_stages;
 
         uint32_t start, stop;
         uint32_t acc = 0;
@@ -769,7 +770,7 @@ static uint32_t benchmark_biquad_custom_cache_data_only(void)
 #ifdef INCLUDE_CACHE_OP
             SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
 #endif
-            cached_out[0] = biquad_f32(&dtcm_biquad_inst, cached_in[0]);
+            cached_out[0] = biquad_f32(&dtcm_biquad_f32_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
             SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
 #endif
@@ -784,6 +785,101 @@ static uint32_t benchmark_biquad_custom_cache_data_only(void)
     }
     return 0;
 }
+
+static uint32_t benchmark_biquad_q31_custom(void)
+{
+    for (int32_t i = 0; i < STAGES_LEN; ++i)
+    {
+        int32_t n_stages = stages_arr[i];
+        dtcm_biquad_q31_inst.n_stage = n_stages;
+
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 17;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+            dtcm_out[0] = biquad_q31(&dtcm_biquad_q31_inst, dtcm_in[0]);
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 17;
+
+        biquad_measurements_custom[i].n_taps = n_stages;
+        biquad_measurements_custom[i].block_size = 1;
+        biquad_measurements_custom[i].cycles = acc;
+    }
+    return 0;
+}
+
+static uint32_t benchmark_biquad_q31_custom_cache(void)
+{
+    for (int32_t i = 0; i < STAGES_LEN; ++i)
+    {
+        int32_t n_stages = stages_arr[i];
+        cached_biquad_q31_inst.n_stage = n_stages;
+
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 17;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+#ifdef INCLUDE_CACHE_OP
+            SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
+#endif
+            cached_out[0] = biquad_f32(&cached_biquad_q31_inst, cached_in[0]);
+#ifdef INCLUDE_CACHE_OP
+            SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
+#endif
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 17;
+
+        biquad_measurements_custom[i].n_taps = n_stages;
+        biquad_measurements_custom[i].block_size = 1;
+        biquad_measurements_custom[i].cycles = acc;
+    }
+    return 0;
+}
+
+static uint32_t benchmark_biquad_q31_custom_cache_data_only(void)
+{
+    for (int32_t i = 0; i < STAGES_LEN; ++i)
+    {
+        int32_t n_stages = stages_arr[i];
+        dtcm_biquad_q31_inst.n_stage = n_stages;
+
+        uint32_t start, stop;
+        uint32_t acc = 0;
+        int32_t n = 1 << 17;
+
+        while (n-- > 0)
+        {
+            start = GET_CCNT();
+#ifdef INCLUDE_CACHE_OP
+            SCB_InvalidateDCache_by_Addr(&cached_in[0], sizeof(cached_in[0]));
+#endif
+            cached_out[0] = biquad_f32(&dtcm_biquad_q31_inst, cached_in[0]);
+#ifdef INCLUDE_CACHE_OP
+            SCB_CleanDCache_by_Addr(&cached_out[0], sizeof(cached_out[0]));
+#endif
+            stop = GET_CCNT();
+            acc += DIFF_CCNT(start, stop);
+        }
+        acc = acc >> 17;
+
+        biquad_measurements_custom[i].n_taps = n_stages;
+        biquad_measurements_custom[i].block_size = 1;
+        biquad_measurements_custom[i].cycles = acc;
+    }
+    return 0;
+}
+
+
 
 static uint32_t benchmark_rfft_f32(void)
 {
@@ -1091,15 +1187,18 @@ static uint32_t (*fir_benchmarks[N_FIR_BM])(void) =
 
 static uint32_t (*biquad_benchmarks[N_BIQUAD_BM])(void) =
 {
-    &benchmark_biquad_custom,
+    &benchmark_biquad_f32_custom,
     &benchmark_biquad_f32,
+    &benchmark_biquad_q31_custom,
     &benchmark_biquad_i32,
+    &benchmark_biquad_f32_custom_cache,
     &benchmark_biquad_q31,
-    &benchmark_biquad_custom_cache,
+    &benchmark_biquad_q31_custom_cache,
     &benchmark_biquad_f32_cache,
+    &benchmark_biquad_f32_custom_cache_data_only,
     &benchmark_biquad_i32_cache,
+    &benchmark_biquad_q31_custom_cache_data_only,
     &benchmark_biquad_q31_cache,
-    &benchmark_biquad_custom_cache_data_only,
 };
 
 static uint32_t (*fft_benchmarks[N_FFT_BM])(void) =
@@ -1131,41 +1230,56 @@ static EVENT_ID bm_fir_events[N_FIR_BM] =
 };
 
 static EVENT_ID bm_biquad_events[N_BIQUAD_BM] =
-{ EVENT_BM_BIQUAD_CUSTOM, EVENT_BM_BIQUAD_F32, EVENT_BM_BIQUAD_I32, EVENT_BM_BIQUAD_Q31,
-        EVENT_BM_BIQUAD_CUSTOM_CACHE, EVENT_BM_BIQUAD_F32_CACHE, EVENT_BM_BIQUAD_I32_CACHE,
-        EVENT_BM_BIQUAD_Q31_CACHE, EVENT_BM_BIQUAD_CUSTOM_CACHE_DATA_ONLY, };
+{
+    EVENT_BM_BIQUAD_F32_CUSTOM,
+    EVENT_BM_BIQUAD_F32,
+    EVENT_BM_BIQUAD_Q31_CUSTOM,
+    EVENT_BM_BIQUAD_I32,
+    EVENT_BM_BIQUAD_F32_CUSTOM_CACHE,
+    EVENT_BM_BIQUAD_Q31,
+    EVENT_BM_BIQUAD_Q31_CUSTOM_CACHE,
+    EVENT_BM_BIQUAD_F32_CACHE,
+    EVENT_BM_BIQUAD_F32_CUSTOM_CACHE_DATA_ONLY,
+    EVENT_BM_BIQUAD_I32_CACHE,
+    EVENT_BM_BIQUAD_Q31_CUSTOM_CACHE_DATA_ONLY,
+    EVENT_BM_BIQUAD_Q31_CACHE,
+};
 
 static EVENT_ID bm_fft_events[N_FFT_BM] =
-{ EVENT_BM_RFFT_F32, EVENT_BM_RFFT_Q31, EVENT_BM_CFFT_F32, EVENT_BM_CFFT_Q31,
-        EVENT_BM_RFFT_F32_CACHE, EVENT_BM_RFFT_Q31_CACHE, EVENT_BM_CFFT_F32_CACHE,
-        EVENT_BM_CFFT_Q31_CACHE, };
+{
+    EVENT_BM_RFFT_F32,
+    EVENT_BM_RFFT_Q31,
+    EVENT_BM_CFFT_F32,
+    EVENT_BM_CFFT_Q31,
+    EVENT_BM_RFFT_F32_CACHE,
+    EVENT_BM_RFFT_Q31_CACHE,
+    EVENT_BM_CFFT_F32_CACHE,
+    EVENT_BM_CFFT_Q31_CACHE,
+};
 
 void benchmark(void)
 {
     n_m7_bm_left = N_FIR_BM + N_BIQUAD_BM + N_FFT_BM;
     for (int32_t bm = 0; bm < N_FIR_BM; ++bm, --n_m7_bm_left)
     {
-        if (bm == 2 || bm == 3 || bm == 6 || bm == 7 || bm == 10)
-        {
-            uint32_t result = fir_benchmarks[bm]();
-            event e =
-            { .id = bm_fir_events[bm], .val = result };
-            eq_m7_add_event(e);
-        }
+        uint32_t result = fir_benchmarks[bm]();
+        event e =
+        { .id = bm_fir_events[bm], .val = result };
+        eq_m7_add_event(e);
     }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
     {
-//         uint32_t result = biquad_benchmarks[bm]();
-//         event e =
-//         { .id = bm_biquad_events[bm], .val = result };
-//         eq_m7_add_event(e);
+        uint32_t result = biquad_benchmarks[bm]();
+        event e =
+        { .id = bm_biquad_events[bm], .val = result };
+        eq_m7_add_event(e);
     }
     for (int32_t bm = 0; bm < N_FFT_BM; ++bm, --n_m7_bm_left)
     {
-//         uint32_t result = fft_benchmarks[bm]();
-//         event e =
-//         { .id = bm_fft_events[bm], .val = result };
-//         eq_m7_add_event(e);
+        uint32_t result = fft_benchmarks[bm]();
+        event e =
+        { .id = bm_fft_events[bm], .val = result };
+        eq_m7_add_event(e);
     }
 }
 
