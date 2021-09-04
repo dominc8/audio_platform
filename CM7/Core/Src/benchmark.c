@@ -191,11 +191,11 @@ static uint32_t benchmark_fir_f32_custom_cache(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = fir_f32(&cached_fir_f32_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -231,11 +231,13 @@ static uint32_t benchmark_fir_f32_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_fir_f32(&fir_inst, (float*) &cached_in[0], (float*) &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -272,11 +274,13 @@ static uint32_t benchmark_fir_i32_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_fir_f32_int(&fir_inst, &cached_in[0], &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -312,11 +316,13 @@ static uint32_t benchmark_fir_q31_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_fir_fast_q31(&fir_inst, &cached_in[0], &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -346,11 +352,11 @@ static uint32_t benchmark_fir_f32_custom_cache_data_only(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = fir_f32(&dtcm_fir_f32_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -375,8 +381,8 @@ static uint32_t benchmark_fir_f32_cache_data_only(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*) &dtcm_coeff[0],
-                    (float*) &dtcm_state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &dtcm_coeff[0], (float*) &dtcm_state[0],
+                    block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -386,11 +392,13 @@ static uint32_t benchmark_fir_f32_cache_data_only(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_fir_f32(&fir_inst, (float*) &cached_in[0], (float*) &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -416,8 +424,8 @@ static uint32_t benchmark_fir_i32_cache_data_only(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_fir_init_f32(&fir_inst, n_taps, (float*) &dtcm_coeff[0],
-                    (float*) &dtcm_state[0], block_size);
+            arm_fir_init_f32(&fir_inst, n_taps, (float*) &dtcm_coeff[0], (float*) &dtcm_state[0],
+                    block_size);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -427,11 +435,13 @@ static uint32_t benchmark_fir_i32_cache_data_only(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_fir_f32_int(&fir_inst, &cached_in[0], &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -467,11 +477,13 @@ static uint32_t benchmark_fir_q31_cache_data_only(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_fir_fast_q31(&fir_inst, &cached_in[0], &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -485,7 +497,6 @@ static uint32_t benchmark_fir_q31_cache_data_only(void)
     }
     return 0;
 }
-
 
 static uint32_t benchmark_fir_q31_custom(void)
 {
@@ -529,11 +540,11 @@ static uint32_t benchmark_fir_q31_custom_cache(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = fir_q31(&cached_fir_q31_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -562,11 +573,11 @@ static uint32_t benchmark_fir_q31_custom_cache_data_only(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = fir_q31(&dtcm_fir_q31_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -579,8 +590,6 @@ static uint32_t benchmark_fir_q31_custom_cache_data_only(void)
     }
     return 0;
 }
-
-
 
 static uint32_t benchmark_biquad_f32_custom(void)
 {
@@ -732,11 +741,11 @@ static uint32_t benchmark_biquad_f32_custom_cache(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = biquad_f32(&cached_biquad_f32_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -772,12 +781,14 @@ static uint32_t benchmark_biquad_f32_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_biquad_cascade_df2T_f32(&biquad_inst, (float*) &cached_in[0],
                         (float*) &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -814,12 +825,14 @@ static uint32_t benchmark_biquad_i32_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_biquad_cascade_df2T_f32_int(&biquad_inst, &cached_in[0], &cached_out[0],
                         block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -856,12 +869,14 @@ static uint32_t benchmark_biquad_q31_cache(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_biquad_cascade_df1_fast_q31(&biquad_inst, &cached_in[0], &cached_out[0],
                         block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -891,11 +906,11 @@ static uint32_t benchmark_biquad_f32_custom_cache_data_only(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = biquad_f32(&dtcm_biquad_f32_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -931,12 +946,14 @@ static uint32_t benchmark_biquad_f32_cache_data_only(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_biquad_cascade_df2T_f32(&biquad_inst, (float*) &cached_in[0],
                         (float*) &cached_out[0], block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -973,12 +990,14 @@ static uint32_t benchmark_biquad_i32_cache_data_only(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_biquad_cascade_df2T_f32_int(&biquad_inst, &cached_in[0], &cached_out[0],
                         block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -1004,8 +1023,8 @@ static uint32_t benchmark_biquad_q31_cache_data_only(void)
         for (int32_t b_size_idx = 0; b_size_idx < BLOCK_SIZE_LEN; ++b_size_idx)
         {
             int32_t block_size = block_size_arr[b_size_idx];
-            arm_biquad_cascade_df1_init_q31(&biquad_inst, n_stages, &dtcm_coeff[0],
-                    &dtcm_state[0], 1);
+            arm_biquad_cascade_df1_init_q31(&biquad_inst, n_stages, &dtcm_coeff[0], &dtcm_state[0],
+                    1);
 
             uint32_t start, stop;
             uint32_t acc = 0;
@@ -1015,12 +1034,14 @@ static uint32_t benchmark_biquad_q31_cache_data_only(void)
             {
                 start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-                SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]) * block_size);
+                SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0],
+                        sizeof(cached_in[0]) * block_size);
 #endif
                 arm_biquad_cascade_df1_fast_q31(&biquad_inst, &cached_in[0], &cached_out[0],
                         block_size);
 #ifdef INCLUDE_CACHE_OP
-                SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]) * block_size);
+                SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0],
+                        sizeof(cached_out[0]) * block_size);
 #endif
                 stop = GET_CCNT();
                 acc += DIFF_CCNT(start, stop);
@@ -1077,11 +1098,11 @@ static uint32_t benchmark_biquad_q31_custom_cache(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = biquad_q31(&cached_biquad_q31_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -1110,11 +1131,11 @@ static uint32_t benchmark_biquad_q31_custom_cache_data_only(void)
         {
             start = GET_CCNT();
 #ifdef INCLUDE_CACHE_OP
-            SCB_InvalidateDCache_by_Addr((uint32_t *)&cached_in[0], sizeof(cached_in[0]));
+            SCB_InvalidateDCache_by_Addr((uint32_t*) &cached_in[0], sizeof(cached_in[0]));
 #endif
             cached_out[0] = biquad_q31(&dtcm_biquad_q31_inst, cached_in[0]);
 #ifdef INCLUDE_CACHE_OP
-            SCB_CleanDCache_by_Addr((uint32_t *)&cached_out[0], sizeof(cached_out[0]));
+            SCB_CleanDCache_by_Addr((uint32_t*) &cached_out[0], sizeof(cached_out[0]));
 #endif
             stop = GET_CCNT();
             acc += DIFF_CCNT(start, stop);
@@ -1127,8 +1148,6 @@ static uint32_t benchmark_biquad_q31_custom_cache_data_only(void)
     }
     return 0;
 }
-
-
 
 static uint32_t benchmark_rfft_f32(void)
 {
@@ -1194,6 +1213,7 @@ static uint32_t benchmark_cfft_f32(void)
         switch (fft_size)
         {
             case 64:
+            default:
                 arm_cfft = &arm_cfft_sR_f32_len64;
                 break;
             case 128:
@@ -1239,6 +1259,7 @@ static uint32_t benchmark_cfft_q31(void)
         switch (fft_size)
         {
             case 64:
+            default:
                 arm_cfft = &arm_cfft_sR_q31_len64;
                 break;
             case 128:
@@ -1338,6 +1359,7 @@ static uint32_t benchmark_cfft_f32_cache(void)
         switch (fft_size)
         {
             case 64:
+            default:
                 arm_cfft = &arm_cfft_sR_f32_len64;
                 break;
             case 128:
@@ -1383,6 +1405,7 @@ static uint32_t benchmark_cfft_q31_cache(void)
         switch (fft_size)
         {
             case 64:
+            default:
                 arm_cfft = &arm_cfft_sR_q31_len64;
                 break;
             case 128:
@@ -1468,6 +1491,7 @@ static uint32_t (*fft_benchmarks[N_FFT_BM])(void) =
     &benchmark_cfft_q31_cache,
 };
 
+// @formatter:off
 static EVENT_ID bm_fir_events[N_FIR_BM] =
 {
     EVENT_BM_FIR_F32_CUSTOM,
@@ -1517,7 +1541,7 @@ static EVENT_ID bm_fft_events[N_FFT_BM] =
     EVENT_BM_CFFT_F32_CACHE,
     EVENT_BM_CFFT_Q31_CACHE,
 };
-
+// @formatter:on
 void benchmark(void)
 {
     n_m7_bm_left = N_FIR_BM + N_BIQUAD_BM + N_FFT_BM;

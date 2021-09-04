@@ -116,7 +116,6 @@ void fir_q31_test_arm(void)
     }
 }
 
-
 #define TESTS           \
     CUNIT_CI_TEST(fir_f32_test), \
     CUNIT_CI_TEST(fir_f32_test_arm), \

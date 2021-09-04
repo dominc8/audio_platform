@@ -19,7 +19,8 @@ void biquad_f32_test(void)
 
     load_array(x, sizeof(*x), N, "x.dat");
     load_array(y_ref, sizeof(*y_ref), N, "y.dat");
-    n_coeff = load_array(&f.coeff[0], sizeof(*(f.coeff)), MAX_BIQUAD_STAGES * N_COEFF_IN_STAGE, "coeff.dat");
+    n_coeff = load_array(&f.coeff[0], sizeof(*(f.coeff)), MAX_BIQUAD_STAGES * N_COEFF_IN_STAGE,
+            "coeff.dat");
 
     f.n_stage = n_coeff / N_COEFF_IN_STAGE;
 
@@ -49,7 +50,8 @@ void biquad_f32_test_arm(void)
     load_array(x, sizeof(*x), N, "x.dat");
 
     memset(&f.state[0], 0, sizeof(f.state));
-    n_coeff = load_array(&f.coeff[0], sizeof(*(f.coeff)), MAX_BIQUAD_STAGES * N_COEFF_IN_STAGE, "coeff.dat");
+    n_coeff = load_array(&f.coeff[0], sizeof(*(f.coeff)), MAX_BIQUAD_STAGES * N_COEFF_IN_STAGE,
+            "coeff.dat");
     f.n_stage = n_coeff / N_COEFF_IN_STAGE;
 
     memcpy(&arm_coeff[0], &f.coeff[0], sizeof(arm_coeff));
@@ -86,7 +88,8 @@ void biquad_q31_test_arm(void)
     load_array(x, sizeof(*x), N, "x.dat");
 
     memset(&f.state[0], 0, sizeof(f.state));
-    n_coeff = load_array(&temp_coeff[0], sizeof(*(temp_coeff)), MAX_BIQUAD_STAGES * N_COEFF_IN_STAGE, "coeff.dat");
+    n_coeff = load_array(&temp_coeff[0], sizeof(*(temp_coeff)),
+            MAX_BIQUAD_STAGES * N_COEFF_IN_STAGE, "coeff.dat");
 #if 1
     f.n_stage = n_coeff / N_COEFF_IN_STAGE;
 
@@ -125,7 +128,6 @@ void biquad_q31_test_arm(void)
     }
 
 }
-
 
 #define TESTS           \
     CUNIT_CI_TEST(biquad_f32_test), \

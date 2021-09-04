@@ -390,6 +390,7 @@ static void benchmark_cfft_f32(void)
         switch (fft_size)
         {
             case 64:
+            default:
                 arm_cfft = &arm_cfft_sR_f32_len64;
                 break;
             case 128:
@@ -435,6 +436,7 @@ static void benchmark_cfft_q31(void)
         switch (fft_size)
         {
             case 64:
+            default:
                 arm_cfft = &arm_cfft_sR_q31_len64;
                 break;
             case 128:

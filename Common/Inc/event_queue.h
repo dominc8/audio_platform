@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdint.h>
 
+// @formatter:off
 typedef enum EVENT_ID
 {
     EVENT_M7_FFT = 0,
@@ -51,7 +52,7 @@ typedef enum EVENT_ID
     EVENT_N,
     EVENT_DBG = 0xFFFFFFFF
 } EVENT_ID;
-
+// @formatter:on
 static_assert(sizeof(EVENT_ID) == 4, "EVENT_ID should be 4 bytes big as it is used for casting array of structs on uint8_t data buffer");
 
 typedef struct event

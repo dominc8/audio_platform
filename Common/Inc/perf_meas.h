@@ -3,7 +3,7 @@
 
 #include "stm32h7xx.h"
 
-#define GET_CCNT()                  DWT->CYCCNT
+#define GET_CCNT()                  (DWT->CYCCNT)
 #define DIFF_CCNT(start, stop)      (stop - start)
 
 void ccnt_init();
