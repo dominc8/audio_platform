@@ -1,0 +1,18 @@
+INF: M7 FIR CUSTOM: 
+INF: n_taps=5, block_size=1, cycles=68
+INF: n_taps=10, block_size=1, cycles=113
+INF: n_taps=20, block_size=1, cycles=203
+INF: n_taps=50, block_size=1, cycles=473
+INF: n_taps=100, block_size=1, cycles=923
+INF: M7 FIR CUSTOM CACHE: 
+INF: n_taps=5, block_size=1, cycles=154
+INF: n_taps=10, block_size=1, cycles=194
+INF: n_taps=20, block_size=1, cycles=274
+INF: n_taps=50, block_size=1, cycles=514
+INF: n_taps=100, block_size=1, cycles=914
+INF: M7 FIR CUSTOM CACHE DATA ONLY: 
+INF: n_taps=5, block_size=1, cycles=154
+INF: n_taps=10, block_size=1, cycles=194
+INF: n_taps=20, block_size=1, cycles=274
+INF: n_taps=50, block_size=1, cycles=514
+INF: n_taps=100, block_size=1, cycles=914

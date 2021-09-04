@@ -20,3 +20,4 @@ void Error_Handler(void)
         BSP_LED_Toggle(error_led);
     }
 }
+

@@ -12,8 +12,7 @@
 #include "fir.h"
 #include "biquad.h"
 #include "arm_math.h"
-
-volatile uint8_t start_dsp_blocking;
+#include "trace.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)32)
@@ -88,7 +87,7 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
     static int32_t cnt = 0;
     acc_dsp_time += dsp_time;
     ++cnt;
-    if (1 << 17 == cnt)
+    if (1 << 15 == cnt)
     {
         event e =
         { .id = EVENT_M7_DSP, .val = acc_dsp_time >> 15 };
@@ -101,13 +100,13 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
 static void dsp_fir_arm_left(void)
 {
     arm_fir_f32_int(&arm_fir_left.fir_f32_inst, &audio_in_l[0], &audio_out_l[0],
-            AUDIO_BLOCK_SIZE / 2);
+    AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_fir_arm_right(void)
 {
     arm_fir_f32_int(&arm_fir_right.fir_f32_inst, &audio_in_r[0], &audio_out_r[0],
-            AUDIO_BLOCK_SIZE / 2);
+    AUDIO_BLOCK_SIZE / 2);
 }
 
 static void dsp_biquad_arm_left(void)
@@ -128,13 +127,9 @@ static void (*dsp_right)(void) = &dsp_biquad_arm_right;
 static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
     (void) _hmdma;
-    if ((uint32_t) buf_out_idx >= AUDIO_BUFFER_SIZE)
-    {
-        buf_out_idx = 0;
-        err_cnt = 0;
-    }
-    int32_t buf_idx = buf_out_idx;
+    TRACE_START0;
 
+    int32_t buf_idx = buf_out_idx;
     uint32_t start = GET_CCNT();
 
     dsp_left();
@@ -160,6 +155,7 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     buf_out_idx = buf_idx % AUDIO_BUFFER_SIZE;
     refresh_mdma();
 
+    TRACE_STOP0;
 }
 
 /* Private function prototypes -----------------------------------------------*/
@@ -170,6 +166,7 @@ static void deinit_mdma_out(void);
 #endif
 static void setup_filters(void);
 static void sync_dsp_filters(uint32_t dsp_mask);
+static void force_filters_sizes(void);
 static void update_fft_bins_channel(float *new_fft, int32_t channel);
 static void apply_gamma_fft_bins_channel(int32_t channel);
 static inline float fft_power(float re, float im);
@@ -183,22 +180,7 @@ void dsp_blocking(void)
     arm_rfft_fast_instance_f32 arm_rfft;
     arm_rfft_fast_init_f32(&arm_rfft, FFT_N_SAMPLES);
 
-    if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
-    {
-        fir_orders[0] = 5;
-    }
-    if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
-    {
-        fir_orders[1] = 5;
-    }
-    if (biquad_stages[0] <= 0 || biquad_stages[0] > MAX_BIQUAD_STAGES)
-    {
-        biquad_stages[0] = 2;
-    }
-    if (biquad_stages[1] <= 0 || biquad_stages[1] > MAX_BIQUAD_STAGES)
-    {
-        biquad_stages[1] = 2;
-    }
+    force_filters_sizes();
 
     arm_fir_init_f32(&arm_fir_left.fir_f32_inst, fir_orders[0] + 1, &arm_fir_left.coeff[0],
             &arm_fir_left.state[0], AUDIO_BLOCK_SIZE / 2);
@@ -233,7 +215,7 @@ void dsp_blocking(void)
     err_cnt += BSP_AUDIO_OUT_Play(0, (uint8_t*) &audio_buffer_out[0], sizeof(audio_buffer_out));
     unlock_hsem(HSEM_I2C4);
 
-    while (start_dsp_blocking == 1)
+    while (M7_DSP_BLOCKING == m7_state)
     {
         if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
         {
@@ -464,6 +446,26 @@ static void sync_dsp_filters(uint32_t dsp_mask)
         memset((void*) &arm_biquad_right.state[0], 0, (n_stage * 2) * sizeof(float));
         arm_biquad_right.biquad_f32_inst.numStages = n_stage;
         dsp_right = &dsp_biquad_arm_right;
+    }
+}
+
+static void force_filters_sizes(void)
+{
+    if (fir_orders[0] <= 0 || fir_orders[0] > MAX_FIR_ORDER)
+    {
+        fir_orders[0] = 5;
+    }
+    if (fir_orders[1] <= 0 || fir_orders[1] > MAX_FIR_ORDER)
+    {
+        fir_orders[1] = 5;
+    }
+    if (biquad_stages[0] <= 0 || biquad_stages[0] > MAX_BIQUAD_STAGES)
+    {
+        biquad_stages[0] = 2;
+    }
+    if (biquad_stages[1] <= 0 || biquad_stages[1] > MAX_BIQUAD_STAGES)
+    {
+        biquad_stages[1] = 2;
     }
 }
 

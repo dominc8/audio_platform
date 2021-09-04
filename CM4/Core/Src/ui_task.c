@@ -153,6 +153,7 @@ static void init_ui_states(void)
     init_ui_fft(&ui_states[UI_STATE_AUDIO_VISUALIZATION]);
     init_ui_fir_adj(&ui_states[UI_STATE_FIR_ADJ]);
     init_ui_biquad_adj(&ui_states[UI_STATE_BIQUAD_ADJ]);
+    init_ui_benchmark(&ui_states[UI_STATE_BENCHMARK]);
 }
 
 static void update_joy_state(void)
@@ -181,3 +182,4 @@ void BSP_JOY_Callback(JOY_TypeDef JOY, uint32_t JoyPin)
     (void) JOY;
     joy_pin_pressed = JoyPin;
 }
+

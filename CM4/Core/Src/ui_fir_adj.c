@@ -271,3 +271,4 @@ static void force_coeffs_in_range(void)
     update_fir_coeff();
     logg(LOG_INF, "Reset %ld FIR out-of-range coeffs", n_reset);
 }
+

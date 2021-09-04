@@ -15,13 +15,9 @@ extern UART_HandleTypeDef hcom_uart[COMn];
 
 int32_t logger_init(uint32_t baudrate)
 {
-    COM_InitTypeDef COM_Init = {
-                                .BaudRate = baudrate,
-                                .WordLength = COM_WORDLENGTH_8B,
-                                .StopBits = UART_STOPBITS_1,
-                                .Parity = UART_PARITY_NONE,
-                                .HwFlowCtl = UART_HWCONTROL_NONE
-                               };
+    COM_InitTypeDef COM_Init =
+    { .BaudRate = baudrate, .WordLength = COM_WORDLENGTH_8B, .StopBits = UART_STOPBITS_1,
+      .Parity = UART_PARITY_NONE, .HwFlowCtl = UART_HWCONTROL_NONE };
 
     return BSP_COM_Init(COM1, &COM_Init);
 }
@@ -33,7 +29,7 @@ void logger_set_level(LOG_LEVEL log_lvl)
 
 int32_t logg(LOG_LEVEL log_lvl, const char *format, ...)
 {
-    char buf[BUF_LEN + LOG_HEADER_LEN + 1];
+    char buf[BUF_LEN + LOG_HEADER_LEN + 2];
     int32_t ret_val = -1;
     int32_t n_char;
 
@@ -54,9 +50,10 @@ int32_t logg(LOG_LEVEL log_lvl, const char *format, ...)
         {
             n_char = BUF_LEN + LOG_HEADER_LEN;
         }
-        buf[n_char] = '\n';
+        buf[n_char++] = '\r';
+        buf[n_char++] = '\n';
 
-        if (HAL_OK != HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*) &buf[0], n_char + 1, COM_POLL_TIMEOUT))
+        if (HAL_OK != HAL_UART_Transmit(&hcom_uart[COM1], (uint8_t*) &buf[0], n_char, COM_POLL_TIMEOUT))
         {
             ret_val = 0;
         }

@@ -14,3 +14,4 @@ void logger_set_level(LOG_LEVEL log_lvl);
 int32_t logg(LOG_LEVEL log_lvl, const char *fmt, ...);
 
 #endif /* LOGGER_H */
+

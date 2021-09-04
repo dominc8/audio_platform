@@ -1,0 +1,727 @@
+INF: M7 FIR F32 CUSTOM:
+INF: n_taps=5, block_size=1, cycles=66
+INF: n_taps=10, block_size=1, cycles=111
+INF: n_taps=20, block_size=1, cycles=201
+INF: n_taps=50, block_size=1, cycles=471
+INF: n_taps=100, block_size=1, cycles=921
+INF: M7 FIR F32:
+INF: n_taps=5, block_size=8, cycles=288
+INF: n_taps=5, block_size=16, cycles=500
+INF: n_taps=5, block_size=32, cycles=915
+INF: n_taps=5, block_size=64, cycles=1747
+INF: n_taps=5, block_size=128, cycles=3411
+INF: n_taps=5, block_size=256, cycles=6739
+INF: n_taps=10, block_size=8, cycles=297
+INF: n_taps=10, block_size=16, cycles=497
+INF: n_taps=10, block_size=32, cycles=898
+INF: n_taps=10, block_size=64, cycles=1696
+INF: n_taps=10, block_size=128, cycles=3290
+INF: n_taps=10, block_size=256, cycles=6477
+INF: n_taps=20, block_size=8, cycles=490
+INF: n_taps=20, block_size=16, cycles=866
+INF: n_taps=20, block_size=32, cycles=1616
+INF: n_taps=20, block_size=64, cycles=3113
+INF: n_taps=20, block_size=128, cycles=6106
+INF: n_taps=20, block_size=256, cycles=12090
+INF: n_taps=50, block_size=8, cycles=866
+INF: n_taps=50, block_size=16, cycles=1562
+INF: n_taps=50, block_size=32, cycles=2958
+INF: n_taps=50, block_size=64, cycles=5747
+INF: n_taps=50, block_size=128, cycles=11323
+INF: n_taps=50, block_size=256, cycles=22484
+INF: n_taps=100, block_size=8, cycles=1617
+INF: n_taps=100, block_size=16, cycles=2987
+INF: n_taps=100, block_size=32, cycles=5717
+INF: n_taps=100, block_size=64, cycles=11174
+INF: n_taps=100, block_size=128, cycles=22087
+INF: n_taps=100, block_size=256, cycles=43913
+INF: M7 FIR Q31 CUSTOM:
+INF: n_taps=5, block_size=1, cycles=47
+INF: n_taps=10, block_size=1, cycles=67
+INF: n_taps=20, block_size=1, cycles=107
+INF: n_taps=50, block_size=1, cycles=227
+INF: n_taps=100, block_size=1, cycles=427
+INF: M7 FIR I32:
+INF: n_taps=5, block_size=8, cycles=301
+INF: n_taps=5, block_size=16, cycles=522
+INF: n_taps=5, block_size=32, cycles=955
+INF: n_taps=5, block_size=64, cycles=1823
+INF: n_taps=5, block_size=128, cycles=3559
+INF: n_taps=5, block_size=256, cycles=7031
+INF: n_taps=10, block_size=8, cycles=315
+INF: n_taps=10, block_size=16, cycles=534
+INF: n_taps=10, block_size=32, cycles=963
+INF: n_taps=10, block_size=64, cycles=1823
+INF: n_taps=10, block_size=128, cycles=3543
+INF: n_taps=10, block_size=256, cycles=6983
+INF: n_taps=20, block_size=8, cycles=508
+INF: n_taps=20, block_size=16, cycles=903
+INF: n_taps=20, block_size=32, cycles=1684
+INF: n_taps=20, block_size=64, cycles=3248
+INF: n_taps=20, block_size=128, cycles=6376
+INF: n_taps=20, block_size=256, cycles=12633
+INF: n_taps=50, block_size=8, cycles=899
+INF: n_taps=50, block_size=16, cycles=1632
+INF: n_taps=50, block_size=32, cycles=3089
+INF: n_taps=50, block_size=64, cycles=6005
+INF: n_taps=50, block_size=128, cycles=11837
+INF: n_taps=50, block_size=256, cycles=23502
+INF: n_taps=100, block_size=8, cycles=1668
+INF: n_taps=100, block_size=16, cycles=3083
+INF: n_taps=100, block_size=32, cycles=5904
+INF: n_taps=100, block_size=64, cycles=11548
+INF: n_taps=100, block_size=128, cycles=22837
+INF: n_taps=100, block_size=256, cycles=45415
+INF: M7 FIR F32 CUSTOM CACHE:
+INF: n_taps=5, block_size=1, cycles=152
+INF: n_taps=10, block_size=1, cycles=194
+INF: n_taps=20, block_size=1, cycles=274
+INF: n_taps=50, block_size=1, cycles=514
+INF: n_taps=100, block_size=1, cycles=914
+INF: M7 FIR Q31:
+INF: n_taps=5, block_size=8, cycles=486
+INF: n_taps=5, block_size=16, cycles=894
+INF: n_taps=5, block_size=32, cycles=1710
+INF: n_taps=5, block_size=64, cycles=3342
+INF: n_taps=5, block_size=128, cycles=6606
+INF: n_taps=5, block_size=256, cycles=13135
+INF: n_taps=10, block_size=8, cycles=812
+INF: n_taps=10, block_size=16, cycles=1536
+INF: n_taps=10, block_size=32, cycles=2984
+INF: n_taps=10, block_size=64, cycles=5880
+INF: n_taps=10, block_size=128, cycles=11672
+INF: n_taps=10, block_size=256, cycles=23257
+INF: n_taps=20, block_size=8, cycles=1416
+INF: n_taps=20, block_size=16, cycles=2724
+INF: n_taps=20, block_size=32, cycles=5340
+INF: n_taps=20, block_size=64, cycles=10572
+INF: n_taps=20, block_size=128, cycles=21037
+INF: n_taps=20, block_size=256, cycles=41967
+INF: n_taps=50, block_size=8, cycles=3290
+INF: n_taps=50, block_size=16, cycles=6412
+INF: n_taps=50, block_size=32, cycles=12657
+INF: n_taps=50, block_size=64, cycles=25146
+INF: n_taps=50, block_size=128, cycles=50124
+INF: n_taps=50, block_size=256, cycles=100080
+INF: n_taps=100, block_size=8, cycles=6376
+INF: n_taps=100, block_size=16, cycles=12485
+INF: n_taps=100, block_size=32, cycles=24702
+INF: n_taps=100, block_size=64, cycles=49136
+INF: n_taps=100, block_size=128, cycles=98004
+INF: n_taps=100, block_size=256, cycles=64668
+INF: M7 FIR Q31 CUSTOM CACHE:
+INF: n_taps=5, block_size=1, cycles=138
+INF: n_taps=10, block_size=1, cycles=158
+INF: n_taps=20, block_size=1, cycles=198
+INF: n_taps=50, block_size=1, cycles=318
+INF: n_taps=100, block_size=1, cycles=518
+INF: M7 FIR F32 CACHE:
+INF: n_taps=5, block_size=8, cycles=382
+INF: n_taps=5, block_size=16, cycles=622
+INF: n_taps=5, block_size=32, cycles=1102
+INF: n_taps=5, block_size=64, cycles=2058
+INF: n_taps=5, block_size=128, cycles=3964
+INF: n_taps=5, block_size=256, cycles=7788
+INF: n_taps=10, block_size=8, cycles=396
+INF: n_taps=10, block_size=16, cycles=630
+INF: n_taps=10, block_size=32, cycles=1096
+INF: n_taps=10, block_size=64, cycles=2028
+INF: n_taps=10, block_size=128, cycles=4074
+INF: n_taps=10, block_size=256, cycles=7620
+INF: n_taps=20, block_size=8, cycles=586
+INF: n_taps=20, block_size=16, cycles=996
+INF: n_taps=20, block_size=32, cycles=1812
+INF: n_taps=20, block_size=64, cycles=3440
+INF: n_taps=20, block_size=128, cycles=6696
+INF: n_taps=20, block_size=256, cycles=13209
+INF: n_taps=50, block_size=8, cycles=962
+INF: n_taps=50, block_size=16, cycles=1696
+INF: n_taps=50, block_size=32, cycles=3158
+INF: n_taps=50, block_size=64, cycles=6082
+INF: n_taps=50, block_size=128, cycles=11930
+INF: n_taps=50, block_size=256, cycles=23627
+INF: n_taps=100, block_size=8, cycles=1716
+INF: n_taps=100, block_size=16, cycles=3116
+INF: n_taps=100, block_size=32, cycles=5912
+INF: n_taps=100, block_size=64, cycles=11500
+INF: n_taps=100, block_size=128, cycles=22677
+INF: n_taps=100, block_size=256, cycles=45031
+INF: M7 FIR F32 CUSTOM CACHE DATA ONLY:
+INF: n_taps=5, block_size=1, cycles=152
+INF: n_taps=10, block_size=1, cycles=192
+INF: n_taps=20, block_size=1, cycles=272
+INF: n_taps=50, block_size=1, cycles=512
+INF: n_taps=100, block_size=1, cycles=912
+INF: M7 FIR I32 CACHE:
+INF: n_taps=5, block_size=8, cycles=398
+INF: n_taps=5, block_size=16, cycles=657
+INF: n_taps=5, block_size=32, cycles=1166
+INF: n_taps=5, block_size=64, cycles=2186
+INF: n_taps=5, block_size=128, cycles=4226
+INF: n_taps=5, block_size=256, cycles=8306
+INF: n_taps=10, block_size=8, cycles=416
+INF: n_taps=10, block_size=16, cycles=674
+INF: n_taps=10, block_size=32, cycles=1178
+INF: n_taps=10, block_size=64, cycles=2190
+INF: n_taps=10, block_size=128, cycles=4214
+INF: n_taps=10, block_size=256, cycles=8262
+INF: n_taps=20, block_size=8, cycles=610
+INF: n_taps=20, block_size=16, cycles=1042
+INF: n_taps=20, block_size=32, cycles=1900
+INF: n_taps=20, block_size=64, cycles=3616
+INF: n_taps=20, block_size=128, cycles=7048
+INF: n_taps=20, block_size=256, cycles=13913
+INF: n_taps=50, block_size=8, cycles=1000
+INF: n_taps=50, block_size=16, cycles=1772
+INF: n_taps=50, block_size=32, cycles=3304
+INF: n_taps=50, block_size=64, cycles=6372
+INF: n_taps=50, block_size=128, cycles=12508
+INF: n_taps=50, block_size=256, cycles=24781
+INF: n_taps=100, block_size=8, cycles=1770
+INF: n_taps=100, block_size=16, cycles=3222
+INF: n_taps=100, block_size=32, cycles=6120
+INF: n_taps=100, block_size=64, cycles=11916
+INF: n_taps=100, block_size=128, cycles=23509
+INF: n_taps=100, block_size=256, cycles=46695
+INF: M7 FIR Q31 CUSTOM CACHE DATA ONLY:
+INF: n_taps=5, block_size=1, cycles=138
+INF: n_taps=10, block_size=1, cycles=158
+INF: n_taps=20, block_size=1, cycles=198
+INF: n_taps=50, block_size=1, cycles=318
+INF: n_taps=100, block_size=1, cycles=518
+INF: M7 FIR Q31 CACHE:
+INF: n_taps=5, block_size=8, cycles=578
+INF: n_taps=5, block_size=16, cycles=1018
+INF: n_taps=5, block_size=32, cycles=1896
+INF: n_taps=5, block_size=64, cycles=3652
+INF: n_taps=5, block_size=128, cycles=7164
+INF: n_taps=5, block_size=256, cycles=14189
+INF: n_taps=10, block_size=8, cycles=908
+INF: n_taps=10, block_size=16, cycles=1664
+INF: n_taps=10, block_size=32, cycles=3174
+INF: n_taps=10, block_size=64, cycles=6194
+INF: n_taps=10, block_size=128, cycles=12235
+INF: n_taps=10, block_size=256, cycles=24315
+INF: n_taps=20, block_size=8, cycles=1512
+INF: n_taps=20, block_size=16, cycles=2852
+INF: n_taps=20, block_size=32, cycles=5530
+INF: n_taps=20, block_size=64, cycles=10886
+INF: n_taps=20, block_size=128, cycles=21599
+INF: n_taps=20, block_size=256, cycles=43025
+INF: n_taps=50, block_size=8, cycles=3386
+INF: n_taps=50, block_size=16, cycles=6540
+INF: n_taps=50, block_size=32, cycles=12847
+INF: n_taps=50, block_size=64, cycles=25460
+INF: n_taps=50, block_size=128, cycles=50686
+INF: n_taps=50, block_size=256, cycles=101138
+INF: n_taps=100, block_size=8, cycles=6472
+INF: n_taps=100, block_size=16, cycles=12613
+INF: n_taps=100, block_size=32, cycles=24892
+INF: n_taps=100, block_size=64, cycles=49450
+INF: n_taps=100, block_size=128, cycles=98566
+INF: n_taps=100, block_size=256, cycles=65726
+INF: M7 BIQUAD F32 CUSTOM:
+INF: n_stages=1, block_size=1, cycles=35
+INF: n_stages=4, block_size=1, cycles=110
+INF: n_stages=8, block_size=1, cycles=206
+INF: n_stages=12, block_size=1, cycles=302
+INF: n_stages=16, block_size=1, cycles=398
+INF: M7 BIQUAD F32:
+INF: n_stages=1, block_size=8, cycles=217
+INF: n_stages=1, block_size=16, cycles=325
+INF: n_stages=1, block_size=32, cycles=612
+INF: n_stages=1, block_size=64, cycles=1174
+INF: n_stages=1, block_size=128, cycles=2298
+INF: n_stages=1, block_size=256, cycles=4546
+INF: n_stages=4, block_size=8, cycles=776
+INF: n_stages=4, block_size=16, cycles=1208
+INF: n_stages=4, block_size=32, cycles=2356
+INF: n_stages=4, block_size=64, cycles=4604
+INF: n_stages=4, block_size=128, cycles=9100
+INF: n_stages=4, block_size=256, cycles=18093
+INF: n_stages=8, block_size=8, cycles=1516
+INF: n_stages=8, block_size=16, cycles=2380
+INF: n_stages=8, block_size=32, cycles=4676
+INF: n_stages=8, block_size=64, cycles=9172
+INF: n_stages=8, block_size=128, cycles=18165
+INF: n_stages=8, block_size=256, cycles=36150
+INF: n_stages=12, block_size=8, cycles=2256
+INF: n_stages=12, block_size=16, cycles=3552
+INF: n_stages=12, block_size=32, cycles=6996
+INF: n_stages=12, block_size=64, cycles=13741
+INF: n_stages=12, block_size=128, cycles=27230
+INF: n_stages=12, block_size=256, cycles=54208
+INF: n_stages=16, block_size=8, cycles=2996
+INF: n_stages=16, block_size=16, cycles=4724
+INF: n_stages=16, block_size=32, cycles=9316
+INF: n_stages=16, block_size=64, cycles=18309
+INF: n_stages=16, block_size=128, cycles=36294
+INF: n_stages=16, block_size=256, cycles=72265
+INF: M7 BIQUAD Q31 CUSTOM:
+INF: n_stages=1, block_size=1, cycles=37
+INF: n_stages=4, block_size=1, cycles=100
+INF: n_stages=8, block_size=1, cycles=180
+INF: n_stages=12, block_size=1, cycles=260
+INF: n_stages=16, block_size=1, cycles=340
+INF: M7 BIQUAD I32:
+INF: n_stages=1, block_size=8, cycles=242
+INF: n_stages=1, block_size=16, cycles=352
+INF: n_stages=1, block_size=32, cycles=664
+INF: n_stages=1, block_size=64, cycles=1279
+INF: n_stages=1, block_size=128, cycles=2507
+INF: n_stages=1, block_size=256, cycles=4963
+INF: n_stages=4, block_size=8, cycles=871
+INF: n_stages=4, block_size=16, cycles=1311
+INF: n_stages=4, block_size=32, cycles=2559
+INF: n_stages=4, block_size=64, cycles=5019
+INF: n_stages=4, block_size=128, cycles=9931
+INF: n_stages=4, block_size=256, cycles=19756
+INF: n_stages=8, block_size=8, cycles=1703
+INF: n_stages=8, block_size=16, cycles=2583
+INF: n_stages=8, block_size=32, cycles=5079
+INF: n_stages=8, block_size=64, cycles=9999
+INF: n_stages=8, block_size=128, cycles=19824
+INF: n_stages=8, block_size=256, cycles=39474
+INF: n_stages=12, block_size=8, cycles=2535
+INF: n_stages=12, block_size=16, cycles=3855
+INF: n_stages=12, block_size=32, cycles=7599
+INF: n_stages=12, block_size=64, cycles=14980
+INF: n_stages=12, block_size=128, cycles=29717
+INF: n_stages=12, block_size=256, cycles=59191
+INF: n_stages=16, block_size=8, cycles=3367
+INF: n_stages=16, block_size=16, cycles=5127
+INF: n_stages=16, block_size=32, cycles=10119
+INF: n_stages=16, block_size=64, cycles=19960
+INF: n_stages=16, block_size=128, cycles=39610
+INF: n_stages=16, block_size=256, cycles=78909
+INF: M7 BIQUAD F32 CUSTOM CACHE:
+INF: n_stages=1, block_size=1, cycles=128
+INF: n_stages=4, block_size=1, cycles=200
+INF: n_stages=8, block_size=1, cycles=292
+INF: n_stages=12, block_size=1, cycles=384
+INF: n_stages=16, block_size=1, cycles=476
+INF: M7 BIQUAD Q31:
+INF: n_stages=1, block_size=8, cycles=329
+INF: n_stages=1, block_size=16, cycles=577
+INF: n_stages=1, block_size=32, cycles=1073
+INF: n_stages=1, block_size=64, cycles=2065
+INF: n_stages=1, block_size=128, cycles=4049
+INF: n_stages=1, block_size=256, cycles=8017
+INF: n_stages=4, block_size=8, cycles=1216
+INF: n_stages=4, block_size=16, cycles=2208
+INF: n_stages=4, block_size=32, cycles=4192
+INF: n_stages=4, block_size=64, cycles=8160
+INF: n_stages=4, block_size=128, cycles=16097
+INF: n_stages=4, block_size=256, cycles=31970
+INF: n_stages=8, block_size=8, cycles=2392
+INF: n_stages=8, block_size=16, cycles=4376
+INF: n_stages=8, block_size=32, cycles=8344
+INF: n_stages=8, block_size=64, cycles=16281
+INF: n_stages=8, block_size=128, cycles=32154
+INF: n_stages=8, block_size=256, cycles=63901
+INF: n_stages=12, block_size=8, cycles=3568
+INF: n_stages=12, block_size=16, cycles=6544
+INF: n_stages=12, block_size=32, cycles=12497
+INF: n_stages=12, block_size=64, cycles=24401
+INF: n_stages=12, block_size=128, cycles=48211
+INF: n_stages=12, block_size=256, cycles=95831
+INF: n_stages=16, block_size=8, cycles=4744
+INF: n_stages=16, block_size=16, cycles=8712
+INF: n_stages=16, block_size=32, cycles=16649
+INF: n_stages=16, block_size=64, cycles=32522
+INF: n_stages=16, block_size=128, cycles=64269
+INF: n_stages=16, block_size=256, cycles=127762
+INF: M7 BIQUAD Q31 CUSTOM CACHE:
+INF: n_stages=1, block_size=1, cycles=128
+INF: n_stages=4, block_size=1, cycles=190
+INF: n_stages=8, block_size=1, cycles=270
+INF: n_stages=12, block_size=1, cycles=350
+INF: n_stages=16, block_size=1, cycles=430
+INF: M7 BIQUAD F32 CACHE:
+INF: n_stages=1, block_size=8, cycles=300
+INF: n_stages=1, block_size=16, cycles=448
+INF: n_stages=1, block_size=32, cycles=800
+INF: n_stages=1, block_size=64, cycles=1492
+INF: n_stages=1, block_size=128, cycles=2876
+INF: n_stages=1, block_size=256, cycles=5644
+INF: n_stages=4, block_size=8, cycles=836
+INF: n_stages=4, block_size=16, cycles=1332
+INF: n_stages=4, block_size=32, cycles=2542
+INF: n_stages=4, block_size=64, cycles=4924
+INF: n_stages=4, block_size=128, cycles=9680
+INF: n_stages=4, block_size=256, cycles=19193
+INF: n_stages=8, block_size=8, cycles=1544
+INF: n_stages=8, block_size=16, cycles=2504
+INF: n_stages=8, block_size=32, cycles=4858
+INF: n_stages=8, block_size=64, cycles=9492
+INF: n_stages=8, block_size=128, cycles=18745
+INF: n_stages=8, block_size=256, cycles=37250
+INF: n_stages=12, block_size=8, cycles=2252
+INF: n_stages=12, block_size=16, cycles=3676
+INF: n_stages=12, block_size=32, cycles=7174
+INF: n_stages=12, block_size=64, cycles=14061
+INF: n_stages=12, block_size=128, cycles=27812
+INF: n_stages=12, block_size=256, cycles=55310
+INF: n_stages=16, block_size=8, cycles=2960
+INF: n_stages=16, block_size=16, cycles=4848
+INF: n_stages=16, block_size=32, cycles=9490
+INF: n_stages=16, block_size=64, cycles=18629
+INF: n_stages=16, block_size=128, cycles=36876
+INF: n_stages=16, block_size=256, cycles=73367
+INF: M7 BIQUAD F32 CUSTOM CACHE DATA ONLY:
+INF: n_stages=1, block_size=1, cycles=128
+INF: n_stages=4, block_size=1, cycles=204
+INF: n_stages=8, block_size=1, cycles=300
+INF: n_stages=12, block_size=1, cycles=396
+INF: n_stages=16, block_size=1, cycles=492
+INF: M7 BIQUAD I32 CACHE:
+INF: n_stages=1, block_size=8, cycles=332
+INF: n_stages=1, block_size=16, cycles=474
+INF: n_stages=1, block_size=32, cycles=850
+INF: n_stages=1, block_size=64, cycles=1590
+INF: n_stages=1, block_size=128, cycles=3070
+INF: n_stages=1, block_size=256, cycles=6030
+INF: n_stages=4, block_size=8, cycles=962
+INF: n_stages=4, block_size=16, cycles=1434
+INF: n_stages=4, block_size=32, cycles=2746
+INF: n_stages=4, block_size=64, cycles=5332
+INF: n_stages=4, block_size=128, cycles=10496
+INF: n_stages=4, block_size=256, cycles=20827
+INF: n_stages=8, block_size=8, cycles=1794
+INF: n_stages=8, block_size=16, cycles=2706
+INF: n_stages=8, block_size=32, cycles=5266
+INF: n_stages=8, block_size=64, cycles=10312
+INF: n_stages=8, block_size=128, cycles=20389
+INF: n_stages=8, block_size=256, cycles=40545
+INF: n_stages=12, block_size=8, cycles=2626
+INF: n_stages=12, block_size=16, cycles=3978
+INF: n_stages=12, block_size=32, cycles=7786
+INF: n_stages=12, block_size=64, cycles=15293
+INF: n_stages=12, block_size=128, cycles=30284
+INF: n_stages=12, block_size=256, cycles=60264
+INF: n_stages=16, block_size=8, cycles=3458
+INF: n_stages=16, block_size=16, cycles=5250
+INF: n_stages=16, block_size=32, cycles=10306
+INF: n_stages=16, block_size=64, cycles=20273
+INF: n_stages=16, block_size=128, cycles=40177
+INF: n_stages=16, block_size=256, cycles=79982
+INF: M7 BIQUAD Q31 CUSTOM CACHE DATA ONLY:
+INF: n_stages=1, block_size=1, cycles=126
+INF: n_stages=4, block_size=1, cycles=190
+INF: n_stages=8, block_size=1, cycles=270
+INF: n_stages=12, block_size=1, cycles=350
+INF: n_stages=16, block_size=1, cycles=430
+INF: M7 BIQUAD Q31 CACHE:
+INF: n_stages=1, block_size=8, cycles=420
+INF: n_stages=1, block_size=16, cycles=700
+INF: n_stages=1, block_size=32, cycles=1258
+INF: n_stages=1, block_size=64, cycles=2374
+INF: n_stages=1, block_size=128, cycles=4606
+INF: n_stages=1, block_size=256, cycles=9070
+INF: n_stages=4, block_size=8, cycles=1308
+INF: n_stages=4, block_size=16, cycles=2332
+INF: n_stages=4, block_size=32, cycles=4378
+INF: n_stages=4, block_size=64, cycles=8470
+INF: n_stages=4, block_size=128, cycles=16655
+INF: n_stages=4, block_size=256, cycles=33024
+INF: n_stages=8, block_size=8, cycles=2484
+INF: n_stages=8, block_size=16, cycles=4500
+INF: n_stages=8, block_size=32, cycles=8530
+INF: n_stages=8, block_size=64, cycles=16591
+INF: n_stages=8, block_size=128, cycles=32712
+INF: n_stages=8, block_size=256, cycles=64955
+INF: n_stages=12, block_size=8, cycles=3660
+INF: n_stages=12, block_size=16, cycles=6668
+INF: n_stages=12, block_size=32, cycles=12683
+INF: n_stages=12, block_size=64, cycles=24711
+INF: n_stages=12, block_size=128, cycles=48769
+INF: n_stages=12, block_size=256, cycles=96885
+INF: n_stages=16, block_size=8, cycles=4836
+INF: n_stages=16, block_size=16, cycles=8836
+INF: n_stages=16, block_size=32, cycles=16835
+INF: n_stages=16, block_size=64, cycles=32832
+INF: n_stages=16, block_size=128, cycles=64829
+INF: n_stages=16, block_size=256, cycles=128818
+INF: M7 RFFT F32:
+INF: fft_size=64, cycles=1984
+INF: fft_size=128, cycles=3926
+INF: fft_size=256, cycles=9125
+INF: fft_size=512, cycles=19923
+INF: fft_size=1024, cycles=40059
+INF: M7 RFFT Q31:
+INF: fft_size=64, cycles=4325
+INF: fft_size=128, cycles=8554
+INF: fft_size=256, cycles=19401
+INF: fft_size=512, cycles=38614
+INF: fft_size=1024, cycles=86591
+INF: M7 CFFT F32:
+INF: fft_size=64, cycles=2400
+INF: fft_size=128, cycles=5650
+INF: fft_size=256, cycles=12920
+INF: fft_size=512, cycles=28160
+INF: fft_size=1024, cycles=63178
+INF: M7 CFFT Q31:
+INF: fft_size=64, cycles=2881
+INF: fft_size=128, cycles=8026
+INF: fft_size=256, cycles=15825
+INF: fft_size=512, cycles=40627
+INF: fft_size=1024, cycles=80765
+INF: M7 RFFT F32 CACHE:
+INF: fft_size=64, cycles=1978
+INF: fft_size=128, cycles=3932
+INF: fft_size=256, cycles=9143
+INF: fft_size=512, cycles=19870
+INF: fft_size=1024, cycles=40600
+INF: M7 RFFT Q31 CACHE:
+INF: fft_size=64, cycles=4441
+INF: fft_size=128, cycles=8677
+INF: fft_size=256, cycles=19746
+INF: fft_size=512, cycles=39872
+INF: fft_size=1024, cycles=90788
+INF: M7 CFFT F32 CACHE:
+INF: fft_size=64, cycles=2402
+INF: fft_size=128, cycles=5655
+INF: fft_size=256, cycles=12837
+INF: fft_size=512, cycles=28167
+INF: fft_size=1024, cycles=63212
+INF: M7 CFFT Q31 CACHE:
+INF: fft_size=64, cycles=2872
+INF: fft_size=128, cycles=8070
+INF: fft_size=256, cycles=15716
+INF: fft_size=512, cycles=40675
+INF: fft_size=1024, cycles=80096
+INF: Running M4 benchmarks ...
+INF: M4 FIR F32 CUSTOM:
+INF: n_taps=5, block_size=1, cycles=100
+INF: n_taps=10, block_size=1, cycles=175
+INF: n_taps=20, block_size=1, cycles=325
+INF: n_taps=50, block_size=1, cycles=775
+INF: n_taps=100, block_size=1, cycles=1525
+INF: M4 FIR Q31 CUSTOM:
+INF: n_taps=5, block_size=1, cycles=74
+INF: n_taps=10, block_size=1, cycles=114
+INF: n_taps=20, block_size=1, cycles=194
+INF: n_taps=50, block_size=1, cycles=434
+INF: n_taps=100, block_size=1, cycles=834
+INF: M4 FIR F32:
+INF: n_taps=5, block_size=8, cycles=453
+INF: n_taps=5, block_size=16, cycles=731
+INF: n_taps=5, block_size=32, cycles=1287
+INF: n_taps=5, block_size=64, cycles=2399
+INF: n_taps=5, block_size=128, cycles=4623
+INF: n_taps=5, block_size=256, cycles=9072
+INF: n_taps=10, block_size=8, cycles=584
+INF: n_taps=10, block_size=16, cycles=968
+INF: n_taps=10, block_size=32, cycles=1736
+INF: n_taps=10, block_size=64, cycles=3272
+INF: n_taps=10, block_size=128, cycles=6345
+INF: n_taps=10, block_size=256, cycles=12490
+INF: n_taps=20, block_size=8, cycles=938
+INF: n_taps=20, block_size=16, cycles=1633
+INF: n_taps=20, block_size=32, cycles=3023
+INF: n_taps=20, block_size=64, cycles=5803
+INF: n_taps=20, block_size=128, cycles=11364
+INF: n_taps=20, block_size=256, cycles=22486
+INF: n_taps=50, block_size=8, cycles=1919
+INF: n_taps=50, block_size=16, cycles=3458
+INF: n_taps=50, block_size=32, cycles=6537
+INF: n_taps=50, block_size=64, cycles=12694
+INF: n_taps=50, block_size=128, cycles=25007
+INF: n_taps=50, block_size=256, cycles=49635
+INF: n_taps=100, block_size=8, cycles=3608
+INF: n_taps=100, block_size=16, cycles=6614
+INF: n_taps=100, block_size=32, cycles=12624
+INF: n_taps=100, block_size=64, cycles=24646
+INF: n_taps=100, block_size=128, cycles=48690
+INF: n_taps=100, block_size=256, cycles=96778
+INF: M4 FIR I32:
+INF: n_taps=5, block_size=8, cycles=473
+INF: n_taps=5, block_size=16, cycles=770
+INF: n_taps=5, block_size=32, cycles=1364
+INF: n_taps=5, block_size=64, cycles=2552
+INF: n_taps=5, block_size=128, cycles=4928
+INF: n_taps=5, block_size=256, cycles=9681
+INF: n_taps=10, block_size=8, cycles=591
+INF: n_taps=10, block_size=16, cycles=981
+INF: n_taps=10, block_size=32, cycles=1761
+INF: n_taps=10, block_size=64, cycles=3321
+INF: n_taps=10, block_size=128, cycles=6442
+INF: n_taps=10, block_size=256, cycles=12683
+INF: n_taps=20, block_size=8, cycles=937
+INF: n_taps=20, block_size=16, cycles=1630
+INF: n_taps=20, block_size=32, cycles=3016
+INF: n_taps=20, block_size=64, cycles=5788
+INF: n_taps=20, block_size=128, cycles=11333
+INF: n_taps=20, block_size=256, cycles=22423
+INF: n_taps=50, block_size=8, cycles=1876
+INF: n_taps=50, block_size=16, cycles=3371
+INF: n_taps=50, block_size=32, cycles=6362
+INF: n_taps=50, block_size=64, cycles=12342
+INF: n_taps=50, block_size=128, cycles=24304
+INF: n_taps=50, block_size=256, cycles=48228
+INF: n_taps=100, block_size=8, cycles=3507
+INF: n_taps=100, block_size=16, cycles=6411
+INF: n_taps=100, block_size=32, cycles=12217
+INF: n_taps=100, block_size=64, cycles=23831
+INF: n_taps=100, block_size=128, cycles=47059
+INF: n_taps=100, block_size=256, cycles=93514
+INF: M4 FIR Q31:
+INF: n_taps=5, block_size=8, cycles=776
+INF: n_taps=5, block_size=16, cycles=1406
+INF: n_taps=5, block_size=32, cycles=2666
+INF: n_taps=5, block_size=64, cycles=5186
+INF: n_taps=5, block_size=128, cycles=10227
+INF: n_taps=5, block_size=256, cycles=20309
+INF: n_taps=10, block_size=8, cycles=1236
+INF: n_taps=10, block_size=16, cycles=2296
+INF: n_taps=10, block_size=32, cycles=4416
+INF: n_taps=10, block_size=64, cycles=8657
+INF: n_taps=10, block_size=128, cycles=17138
+INF: n_taps=10, block_size=256, cycles=34101
+INF: n_taps=20, block_size=8, cycles=2060
+INF: n_taps=20, block_size=16, cycles=3884
+INF: n_taps=20, block_size=32, cycles=7533
+INF: n_taps=20, block_size=64, cycles=14830
+INF: n_taps=20, block_size=128, cycles=29424
+INF: n_taps=20, block_size=256, cycles=58613
+INF: n_taps=50, block_size=8, cycles=4736
+INF: n_taps=50, block_size=16, cycles=9057
+INF: n_taps=50, block_size=32, cycles=17698
+INF: n_taps=50, block_size=64, cycles=34981
+INF: n_taps=50, block_size=128, cycles=69547
+INF: n_taps=50, block_size=256, cycles=138678
+INF: n_taps=100, block_size=8, cycles=9061
+INF: n_taps=100, block_size=16, cycles=17406
+INF: n_taps=100, block_size=32, cycles=34097
+INF: n_taps=100, block_size=64, cycles=67478
+INF: n_taps=100, block_size=128, cycles=134241
+INF: n_taps=100, block_size=256, cycles=267767
+INF: M4 BIQUAD F32 CUSTOM:
+INF: n_stages=1, block_size=1, cycles=58
+INF: n_stages=4, block_size=1, cycles=163
+INF: n_stages=8, block_size=1, cycles=303
+INF: n_stages=12, block_size=1, cycles=443
+INF: n_stages=16, block_size=1, cycles=583
+INF: M4 BIQUAD Q31 CUSTOM:
+INF: n_stages=1, block_size=1, cycles=67
+INF: n_stages=4, block_size=1, cycles=187
+INF: n_stages=8, block_size=1, cycles=347
+INF: n_stages=12, block_size=1, cycles=507
+INF: n_stages=16, block_size=1, cycles=667
+INF: M4 BIQUAD F32:
+INF: n_stages=1, block_size=8, cycles=209
+INF: n_stages=1, block_size=16, cycles=345
+INF: n_stages=1, block_size=32, cycles=617
+INF: n_stages=1, block_size=64, cycles=1161
+INF: n_stages=1, block_size=128, cycles=2249
+INF: n_stages=1, block_size=256, cycles=4425
+INF: n_stages=4, block_size=8, cycles=716
+INF: n_stages=4, block_size=16, cycles=1260
+INF: n_stages=4, block_size=32, cycles=2348
+INF: n_stages=4, block_size=64, cycles=4524
+INF: n_stages=4, block_size=128, cycles=8877
+INF: n_stages=4, block_size=256, cycles=17582
+INF: n_stages=8, block_size=8, cycles=1392
+INF: n_stages=8, block_size=16, cycles=2480
+INF: n_stages=8, block_size=32, cycles=4656
+INF: n_stages=8, block_size=64, cycles=9009
+INF: n_stages=8, block_size=128, cycles=17714
+INF: n_stages=8, block_size=256, cycles=35125
+INF: n_stages=12, block_size=8, cycles=2068
+INF: n_stages=12, block_size=16, cycles=3700
+INF: n_stages=12, block_size=32, cycles=6965
+INF: n_stages=12, block_size=64, cycles=13494
+INF: n_stages=12, block_size=128, cycles=26552
+INF: n_stages=12, block_size=256, cycles=52668
+INF: n_stages=16, block_size=8, cycles=2744
+INF: n_stages=16, block_size=16, cycles=4920
+INF: n_stages=16, block_size=32, cycles=9273
+INF: n_stages=16, block_size=64, cycles=17978
+INF: n_stages=16, block_size=128, cycles=35389
+INF: n_stages=16, block_size=256, cycles=70211
+INF: M4 BIQUAD I32:
+INF: n_stages=1, block_size=8, cycles=295
+INF: n_stages=1, block_size=16, cycles=430
+INF: n_stages=1, block_size=32, cycles=764
+INF: n_stages=1, block_size=64, cycles=1432
+INF: n_stages=1, block_size=128, cycles=2768
+INF: n_stages=1, block_size=256, cycles=5440
+INF: n_stages=4, block_size=8, cycles=991
+INF: n_stages=4, block_size=16, cycles=1531
+INF: n_stages=4, block_size=32, cycles=2867
+INF: n_stages=4, block_size=64, cycles=5539
+INF: n_stages=4, block_size=128, cycles=10884
+INF: n_stages=4, block_size=256, cycles=21574
+INF: n_stages=8, block_size=8, cycles=1919
+INF: n_stages=8, block_size=16, cycles=2999
+INF: n_stages=8, block_size=32, cycles=5671
+INF: n_stages=8, block_size=64, cycles=11016
+INF: n_stages=8, block_size=128, cycles=21706
+INF: n_stages=8, block_size=256, cycles=43085
+INF: n_stages=12, block_size=8, cycles=2847
+INF: n_stages=12, block_size=16, cycles=4467
+INF: n_stages=12, block_size=32, cycles=8476
+INF: n_stages=12, block_size=64, cycles=16493
+INF: n_stages=12, block_size=128, cycles=32528
+INF: n_stages=12, block_size=256, cycles=64597
+INF: n_stages=16, block_size=8, cycles=3775
+INF: n_stages=16, block_size=16, cycles=5935
+INF: n_stages=16, block_size=32, cycles=11280
+INF: n_stages=16, block_size=64, cycles=21970
+INF: n_stages=16, block_size=128, cycles=43349
+INF: n_stages=16, block_size=256, cycles=86108
+INF: M4 BIQUAD Q32:
+INF: n_stages=1, block_size=8, cycles=550
+INF: n_stages=1, block_size=16, cycles=958
+INF: n_stages=1, block_size=32, cycles=1774
+INF: n_stages=1, block_size=64, cycles=3406
+INF: n_stages=1, block_size=128, cycles=6671
+INF: n_stages=1, block_size=256, cycles=13200
+INF: n_stages=4, block_size=8, cycles=2026
+INF: n_stages=4, block_size=16, cycles=3658
+INF: n_stages=4, block_size=32, cycles=6923
+INF: n_stages=4, block_size=64, cycles=13452
+INF: n_stages=4, block_size=128, cycles=26510
+INF: n_stages=4, block_size=256, cycles=52626
+INF: n_stages=8, block_size=8, cycles=3994
+INF: n_stages=8, block_size=16, cycles=7259
+INF: n_stages=8, block_size=32, cycles=13788
+INF: n_stages=8, block_size=64, cycles=26846
+INF: n_stages=8, block_size=128, cycles=52962
+INF: n_stages=8, block_size=256, cycles=105195
+INF: n_stages=12, block_size=8, cycles=5962
+INF: n_stages=12, block_size=16, cycles=10859
+INF: n_stages=12, block_size=32, cycles=20653
+INF: n_stages=12, block_size=64, cycles=40240
+INF: n_stages=12, block_size=128, cycles=79414
+INF: n_stages=12, block_size=256, cycles=157763
+INF: n_stages=16, block_size=8, cycles=7931
+INF: n_stages=16, block_size=16, cycles=14460
+INF: n_stages=16, block_size=32, cycles=27518
+INF: n_stages=16, block_size=64, cycles=53634
+INF: n_stages=16, block_size=128, cycles=105867
+INF: n_stages=16, block_size=256, cycles=210332
+INF: M4 RFFT F32:
+INF: fft_size=64, cycles=4460
+INF: fft_size=128, cycles=7870
+INF: fft_size=256, cycles=19013
+INF: fft_size=512, cycles=40458
+INF: fft_size=1024, cycles=75356
+INF: M4 RFFT Q31:
+INF: fft_size=64, cycles=8441
+INF: fft_size=128, cycles=15775
+INF: fft_size=256, cycles=38139
+INF: fft_size=512, cycles=72179
+INF: fft_size=1024, cycles=172658
+INF: M4 CFFT F32:
+INF: fft_size=64, cycles=4338
+INF: fft_size=128, cycles=10945
+INF: fft_size=256, cycles=24290
+INF: fft_size=512, cycles=48649
+INF: fft_size=1024, cycles=115484
+INF: M4 CFFT Q31:
+INF: fft_size=64, cycles=6449
+INF: fft_size=128, cycles=19999
+INF: fft_size=256, cycles=36135
+INF: fft_size=512, cycles=100793
+INF: fft_size=1024, cycles=185194
