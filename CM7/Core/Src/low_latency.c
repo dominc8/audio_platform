@@ -11,6 +11,7 @@
 #include "fir.h"
 #include "biquad.h"
 #include "arm_math.h"
+#include "trace.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
@@ -60,7 +61,7 @@ static void gather_and_log_dsp_time(uint32_t dsp_time)
     static int32_t cnt = 0;
     acc_dsp_time += dsp_time;
     ++cnt;
-    if (1 << 17 == cnt)
+    if (1 << 15 == cnt)
     {
         event e =
         { .id = EVENT_M7_DSP, .val = acc_dsp_time >> 15 };
@@ -96,14 +97,11 @@ static int32_t (*dsp_right)(int32_t input) = &dsp_fir_right;
 static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 {
     (void) _hmdma;
-    if ((uint32_t) buf_out_idx >= AUDIO_BUFFER_SIZE)
-    {
-        buf_out_idx = 0;
-        err_cnt = 0;
-    }
-    int32_t buf_idx = buf_out_idx;
     int32_t out;
 
+    TRACE_START1;
+
+    int32_t buf_idx = buf_out_idx;
     uint32_t start = GET_CCNT();
 
     out = dsp_left(audio_in[0]);
@@ -111,20 +109,15 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
     out = dsp_right(audio_in[1]);
     audio_buffer_out[buf_idx + 1] = out;
 
+    SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
+
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
 
-    SCB_CleanDCache_by_Addr((uint32_t*) &audio_buffer_out[buf_idx], sizeof(audio_buffer_in));
+    buf_out_idx += AUDIO_BLOCK_SIZE;
+    buf_out_idx %= AUDIO_BUFFER_SIZE;
 
-    if (buf_idx != buf_out_idx)
-    {
-        race_cnt++;
-    }
-    else
-    {
-        buf_out_idx += AUDIO_BLOCK_SIZE;
-        buf_out_idx %= AUDIO_BUFFER_SIZE;
-    }
+    TRACE_STOP1;
 }
 
 /* Private function prototypes -----------------------------------------------*/
