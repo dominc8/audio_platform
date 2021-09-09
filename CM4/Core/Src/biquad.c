@@ -8,18 +8,26 @@ int32_t biquad_f32(biquad_f32_t *f, int32_t in)
     float *coeff_ptr = &f->coeff[0];
     float *state_ptr = &f->state[0];
     uint32_t n = f->n_stage;
+    float b0, b1, b2, a1, a2;
+    float s1, s2;
 
     for (; n != 0; --n)
     {
-        out = *coeff_ptr * in_interm + *state_ptr;
-        ++coeff_ptr;
-        *state_ptr = *coeff_ptr * in_interm + *(coeff_ptr + 2) * out + *(state_ptr + 1);
-        ++coeff_ptr;
-        ++state_ptr;
-        *state_ptr = *coeff_ptr * in_interm + *(coeff_ptr + 2) * out;
-        coeff_ptr += 3;
-        ++state_ptr;
+        b0 = *coeff_ptr++;
+        b1 = *coeff_ptr++;
+        b2 = *coeff_ptr++;
+        a1 = *coeff_ptr++;
+        a2 = *coeff_ptr++;
+        s1 = *state_ptr;
+        s2 = *(state_ptr + 1);
+
+        out = b0 * in_interm + s1;
+        s1 = b1 * in_interm + a1 * out + s2;
+        s2 = b2 * in_interm + a2 * out;
         in_interm = out;
+
+        *state_ptr++ = s1;
+        *state_ptr++ = s2;
     }
 
     return out;
