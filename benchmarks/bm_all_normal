@@ -4,6 +4,7 @@ INF: n_taps=10, block_size=1, cycles=104
 INF: n_taps=20, block_size=1, cycles=194
 INF: n_taps=50, block_size=1, cycles=464
 INF: n_taps=100, block_size=1, cycles=914
+INF: n_taps=128, block_size=1, cycles=1166
 INF: M7 FIR F32:
 INF: n_taps=5, block_size=8, cycles=286
 INF: n_taps=5, block_size=16, cycles=495
@@ -35,12 +36,19 @@ INF: n_taps=100, block_size=32, cycles=5709
 INF: n_taps=100, block_size=64, cycles=11161
 INF: n_taps=100, block_size=128, cycles=22066
 INF: n_taps=100, block_size=256, cycles=43876
+INF: n_taps=128, block_size=8, cycles=1920
+INF: n_taps=128, block_size=16, cycles=3541
+INF: n_taps=128, block_size=32, cycles=6778
+INF: n_taps=128, block_size=64, cycles=13251
+INF: n_taps=128, block_size=128, cycles=26196
+INF: n_taps=128, block_size=256, cycles=52086
 INF: M7 FIR Q31 CUSTOM:
 INF: n_taps=5, block_size=1, cycles=47
 INF: n_taps=10, block_size=1, cycles=67
 INF: n_taps=20, block_size=1, cycles=107
 INF: n_taps=50, block_size=1, cycles=227
 INF: n_taps=100, block_size=1, cycles=427
+INF: n_taps=128, block_size=1, cycles=539
 INF: M7 FIR Q31:
 INF: n_taps=5, block_size=8, cycles=486
 INF: n_taps=5, block_size=16, cycles=894
@@ -72,6 +80,12 @@ INF: n_taps=100, block_size=32, cycles=24702
 INF: n_taps=100, block_size=64, cycles=49136
 INF: n_taps=100, block_size=128, cycles=98004
 INF: n_taps=100, block_size=256, cycles=195740
+INF: n_taps=128, block_size=8, cycles=8112
+INF: n_taps=128, block_size=16, cycles=15901
+INF: n_taps=128, block_size=32, cycles=31478
+INF: n_taps=128, block_size=64, cycles=62633
+INF: n_taps=128, block_size=128, cycles=124942
+INF: n_taps=128, block_size=256, cycles=249561
 INF: M7 FIR I32:
 INF: n_taps=5, block_size=8, cycles=303
 INF: n_taps=5, block_size=16, cycles=524
@@ -103,12 +117,19 @@ INF: n_taps=100, block_size=32, cycles=5897
 INF: n_taps=100, block_size=64, cycles=11533
 INF: n_taps=100, block_size=128, cycles=22806
 INF: n_taps=100, block_size=256, cycles=45352
+INF: n_taps=128, block_size=8, cycles=1982
+INF: n_taps=128, block_size=16, cycles=3660
+INF: n_taps=128, block_size=32, cycles=7010
+INF: n_taps=128, block_size=64, cycles=13711
+INF: n_taps=128, block_size=128, cycles=27112
+INF: n_taps=128, block_size=256, cycles=53914
 INF: M7 FIR F32 CUSTOM CACHE:
 INF: n_taps=5, block_size=1, cycles=150
 INF: n_taps=10, block_size=1, cycles=192
 INF: n_taps=20, block_size=1, cycles=272
 INF: n_taps=50, block_size=1, cycles=512
 INF: n_taps=100, block_size=1, cycles=912
+INF: n_taps=128, block_size=1, cycles=1136
 INF: M7 FIR F32 CACHE:
 INF: n_taps=5, block_size=8, cycles=382
 INF: n_taps=5, block_size=16, cycles=626
@@ -140,12 +161,19 @@ INF: n_taps=100, block_size=32, cycles=5910
 INF: n_taps=100, block_size=64, cycles=11498
 INF: n_taps=100, block_size=128, cycles=22675
 INF: n_taps=100, block_size=256, cycles=45029
+INF: n_taps=128, block_size=8, cycles=2024
+INF: n_taps=128, block_size=16, cycles=3682
+INF: n_taps=128, block_size=32, cycles=6992
+INF: n_taps=128, block_size=64, cycles=13613
+INF: n_taps=128, block_size=128, cycles=26854
+INF: n_taps=128, block_size=256, cycles=53336
 INF: M7 FIR Q31 CUSTOM CACHE:
 INF: n_taps=5, block_size=1, cycles=138
 INF: n_taps=10, block_size=1, cycles=158
 INF: n_taps=20, block_size=1, cycles=198
 INF: n_taps=50, block_size=1, cycles=318
 INF: n_taps=100, block_size=1, cycles=518
+INF: n_taps=128, block_size=1, cycles=630
 INF: M7 FIR Q31 CACHE:
 INF: n_taps=5, block_size=8, cycles=576
 INF: n_taps=5, block_size=16, cycles=1016
@@ -177,6 +205,12 @@ INF: n_taps=100, block_size=32, cycles=24890
 INF: n_taps=100, block_size=64, cycles=49448
 INF: n_taps=100, block_size=128, cycles=98564
 INF: n_taps=100, block_size=256, cycles=196797
+INF: n_taps=128, block_size=8, cycles=8206
+INF: n_taps=128, block_size=16, cycles=16027
+INF: n_taps=128, block_size=32, cycles=31666
+INF: n_taps=128, block_size=64, cycles=62945
+INF: n_taps=128, block_size=128, cycles=125503
+INF: n_taps=128, block_size=256, cycles=250618
 INF: M7 FIR I32 CACHE:
 INF: n_taps=5, block_size=8, cycles=400
 INF: n_taps=5, block_size=16, cycles=658
@@ -208,12 +242,19 @@ INF: n_taps=100, block_size=32, cycles=6116
 INF: n_taps=100, block_size=64, cycles=11904
 INF: n_taps=100, block_size=128, cycles=23481
 INF: n_taps=100, block_size=256, cycles=46635
+INF: n_taps=128, block_size=8, cycles=2084
+INF: n_taps=128, block_size=16, cycles=3800
+INF: n_taps=128, block_size=32, cycles=7226
+INF: n_taps=128, block_size=64, cycles=14079
+INF: n_taps=128, block_size=128, cycles=27784
+INF: n_taps=128, block_size=256, cycles=55194
 INF: M7 FIR F32 CUSTOM CACHE DATA ONLY:
 INF: n_taps=5, block_size=1, cycles=152
 INF: n_taps=10, block_size=1, cycles=192
 INF: n_taps=20, block_size=1, cycles=272
 INF: n_taps=50, block_size=1, cycles=512
 INF: n_taps=100, block_size=1, cycles=912
+INF: n_taps=128, block_size=1, cycles=1136
 INF: M7 FIR F32 CACHE DATA ONLY:
 INF: n_taps=5, block_size=8, cycles=378
 INF: n_taps=5, block_size=16, cycles=620
@@ -245,12 +286,19 @@ INF: n_taps=100, block_size=32, cycles=5898
 INF: n_taps=100, block_size=64, cycles=11479
 INF: n_taps=100, block_size=128, cycles=22640
 INF: n_taps=100, block_size=256, cycles=44961
+INF: n_taps=128, block_size=8, cycles=2012
+INF: n_taps=128, block_size=16, cycles=3666
+INF: n_taps=128, block_size=32, cycles=6966
+INF: n_taps=128, block_size=64, cycles=13563
+INF: n_taps=128, block_size=128, cycles=26756
+INF: n_taps=128, block_size=256, cycles=53142
 INF: M7 FIR Q31 CUSTOM CACHE DATA ONLY:
 INF: n_taps=5, block_size=1, cycles=138
 INF: n_taps=10, block_size=1, cycles=158
 INF: n_taps=20, block_size=1, cycles=198
 INF: n_taps=50, block_size=1, cycles=318
 INF: n_taps=100, block_size=1, cycles=518
+INF: n_taps=128, block_size=1, cycles=630
 INF: M7 FIR Q31 CACHE DATA ONLY:
 INF: n_taps=5, block_size=8, cycles=576
 INF: n_taps=5, block_size=16, cycles=1016
@@ -282,6 +330,12 @@ INF: n_taps=100, block_size=32, cycles=24886
 INF: n_taps=100, block_size=64, cycles=49444
 INF: n_taps=100, block_size=128, cycles=98560
 INF: n_taps=100, block_size=256, cycles=196793
+INF: n_taps=128, block_size=8, cycles=8202
+INF: n_taps=128, block_size=16, cycles=16023
+INF: n_taps=128, block_size=32, cycles=31662
+INF: n_taps=128, block_size=64, cycles=62941
+INF: n_taps=128, block_size=128, cycles=125499
+INF: n_taps=128, block_size=256, cycles=250614
 INF: M7 FIR I32 CACHE DATA ONLY:
 INF: n_taps=5, block_size=8, cycles=402
 INF: n_taps=5, block_size=16, cycles=657
@@ -313,12 +367,18 @@ INF: n_taps=100, block_size=32, cycles=6108
 INF: n_taps=100, block_size=64, cycles=11896
 INF: n_taps=100, block_size=128, cycles=23473
 INF: n_taps=100, block_size=256, cycles=46627
+INF: n_taps=128, block_size=8, cycles=2080
+INF: n_taps=128, block_size=16, cycles=3796
+INF: n_taps=128, block_size=32, cycles=7220
+INF: n_taps=128, block_size=64, cycles=14073
+INF: n_taps=128, block_size=128, cycles=27778
+INF: n_taps=128, block_size=256, cycles=55188
 INF: M7 BIQUAD F32 CUSTOM:
-INF: n_stages=1, block_size=1, cycles=35
-INF: n_stages=4, block_size=1, cycles=110
-INF: n_stages=8, block_size=1, cycles=206
-INF: n_stages=12, block_size=1, cycles=302
-INF: n_stages=16, block_size=1, cycles=398
+INF: n_stages=1, block_size=1, cycles=33
+INF: n_stages=4, block_size=1, cycles=106
+INF: n_stages=8, block_size=1, cycles=198
+INF: n_stages=12, block_size=1, cycles=290
+INF: n_stages=16, block_size=1, cycles=382
 INF: M7 BIQUAD F32:
 INF: n_stages=1, block_size=8, cycles=216
 INF: n_stages=1, block_size=16, cycles=324
@@ -419,7 +479,7 @@ INF: n_stages=16, block_size=64, cycles=20023
 INF: n_stages=16, block_size=128, cycles=39737
 INF: n_stages=16, block_size=256, cycles=79164
 INF: M7 BIQUAD F32 CUSTOM CACHE:
-INF: n_stages=1, block_size=1, cycles=128
+INF: n_stages=1, block_size=1, cycles=126
 INF: n_stages=4, block_size=1, cycles=200
 INF: n_stages=8, block_size=1, cycles=292
 INF: n_stages=12, block_size=1, cycles=384
@@ -459,8 +519,8 @@ INF: M7 BIQUAD Q31 CUSTOM CACHE:
 INF: n_stages=1, block_size=1, cycles=128
 INF: n_stages=4, block_size=1, cycles=190
 INF: n_stages=8, block_size=1, cycles=270
-INF: n_stages=12, block_size=1, cycles=352
-INF: n_stages=16, block_size=1, cycles=432
+INF: n_stages=12, block_size=1, cycles=350
+INF: n_stages=16, block_size=1, cycles=430
 INF: M7 BIQUAD Q31 CACHE:
 INF: n_stages=1, block_size=8, cycles=422
 INF: n_stages=1, block_size=16, cycles=700
@@ -524,11 +584,11 @@ INF: n_stages=16, block_size=64, cycles=20339
 INF: n_stages=16, block_size=128, cycles=40301
 INF: n_stages=16, block_size=256, cycles=80226
 INF: M7 BIQUAD F32 CUSTOM CACHE DATA ONLY:
-INF: n_stages=1, block_size=1, cycles=130
-INF: n_stages=4, block_size=1, cycles=206
-INF: n_stages=8, block_size=1, cycles=302
-INF: n_stages=12, block_size=1, cycles=398
-INF: n_stages=16, block_size=1, cycles=494
+INF: n_stages=1, block_size=1, cycles=128
+INF: n_stages=4, block_size=1, cycles=202
+INF: n_stages=8, block_size=1, cycles=294
+INF: n_stages=12, block_size=1, cycles=386
+INF: n_stages=16, block_size=1, cycles=478
 INF: M7 BIQUAD F32 CACHE DATA ONLY:
 INF: n_stages=1, block_size=8, cycles=300
 INF: n_stages=1, block_size=16, cycles=448
@@ -683,12 +743,14 @@ INF: n_taps=10, block_size=1, cycles=175
 INF: n_taps=20, block_size=1, cycles=325
 INF: n_taps=50, block_size=1, cycles=775
 INF: n_taps=100, block_size=1, cycles=1525
+INF: n_taps=128, block_size=1, cycles=1945
 INF: M4 FIR Q31 CUSTOM:
 INF: n_taps=5, block_size=1, cycles=74
 INF: n_taps=10, block_size=1, cycles=114
 INF: n_taps=20, block_size=1, cycles=194
 INF: n_taps=50, block_size=1, cycles=434
 INF: n_taps=100, block_size=1, cycles=834
+INF: n_taps=128, block_size=1, cycles=1058
 INF: M4 FIR F32:
 INF: n_taps=5, block_size=8, cycles=453
 INF: n_taps=5, block_size=16, cycles=731
@@ -720,6 +782,12 @@ INF: n_taps=100, block_size=32, cycles=12625
 INF: n_taps=100, block_size=64, cycles=24646
 INF: n_taps=100, block_size=128, cycles=48690
 INF: n_taps=100, block_size=256, cycles=96778
+INF: n_taps=128, block_size=8, cycles=4499
+INF: n_taps=128, block_size=16, cycles=8270
+INF: n_taps=128, block_size=32, cycles=15811
+INF: n_taps=128, block_size=64, cycles=30893
+INF: n_taps=128, block_size=128, cycles=61058
+INF: n_taps=128, block_size=256, cycles=121388
 INF: M4 FIR I32:
 INF: n_taps=5, block_size=8, cycles=473
 INF: n_taps=5, block_size=16, cycles=770
@@ -751,6 +819,12 @@ INF: n_taps=100, block_size=32, cycles=12217
 INF: n_taps=100, block_size=64, cycles=23831
 INF: n_taps=100, block_size=128, cycles=47059
 INF: n_taps=100, block_size=256, cycles=93514
+INF: n_taps=128, block_size=8, cycles=4357
+INF: n_taps=128, block_size=16, cycles=7985
+INF: n_taps=128, block_size=32, cycles=15240
+INF: n_taps=128, block_size=64, cycles=29750
+INF: n_taps=128, block_size=128, cycles=58771
+INF: n_taps=128, block_size=256, cycles=116812
 INF: M4 FIR Q31:
 INF: n_taps=5, block_size=8, cycles=776
 INF: n_taps=5, block_size=16, cycles=1406
@@ -782,12 +856,18 @@ INF: n_taps=100, block_size=32, cycles=34097
 INF: n_taps=100, block_size=64, cycles=67478
 INF: n_taps=100, block_size=128, cycles=134241
 INF: n_taps=100, block_size=256, cycles=267767
+INF: n_taps=128, block_size=8, cycles=11511
+INF: n_taps=128, block_size=16, cycles=22139
+INF: n_taps=128, block_size=32, cycles=43395
+INF: n_taps=128, block_size=64, cycles=85905
+INF: n_taps=128, block_size=128, cycles=170927
+INF: n_taps=128, block_size=256, cycles=340971
 INF: M4 BIQUAD F32 CUSTOM:
-INF: n_stages=1, block_size=1, cycles=58
-INF: n_stages=4, block_size=1, cycles=163
-INF: n_stages=8, block_size=1, cycles=303
-INF: n_stages=12, block_size=1, cycles=443
-INF: n_stages=16, block_size=1, cycles=583
+INF: n_stages=1, block_size=1, cycles=55
+INF: n_stages=4, block_size=1, cycles=151
+INF: n_stages=8, block_size=1, cycles=279
+INF: n_stages=12, block_size=1, cycles=407
+INF: n_stages=16, block_size=1, cycles=535
 INF: M4 BIQUAD Q31 CUSTOM:
 INF: n_stages=1, block_size=1, cycles=67
 INF: n_stages=4, block_size=1, cycles=187
