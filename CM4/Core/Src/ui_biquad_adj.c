@@ -260,7 +260,7 @@ static void force_coeffs_in_range(void)
         for (int32_t idx = 0; idx < N_COEFF_IN_STAGE * MAX_BIQUAD_STAGES; ++idx)
         {
             float coeff = biquad_coeffs[ch][idx];
-            if ((coeff < BIQUAD_COEFF_MIN) || (coeff > BIQUAD_COEFF_MAX))
+            if ((coeff < BIQUAD_COEFF_MIN) || (coeff > BIQUAD_COEFF_MAX) || (isnan(coeff)))
             {
                 biquad_coeffs[ch][idx] = 0.F;
                 ++n_reset;

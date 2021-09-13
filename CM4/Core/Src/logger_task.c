@@ -26,6 +26,7 @@ int32_t logger_task(void *arg)
 
     if (get_event_status == 0)
     {
+        i = 0;
         const char *event_name = event_to_str(e.id);
         if (event_name == NULL)
         {
@@ -194,7 +195,7 @@ int32_t logger_task(void *arg)
         }
     }
 
-    if (++i > 10000)
+    if (++i > 1000000)
     {
         i = 0;
         logg(LOG_DBG, "Logger task");

@@ -48,11 +48,12 @@ int32_t ui_task(void *arg)
     uint32_t new_ccnt;
     uint32_t diff;
 
-    do
+    new_ccnt = GET_CCNT();
+    diff = DIFF_CCNT(last_ccnt, new_ccnt);
+    if (ccnt_to_ms(diff) < 16)
     {
-        new_ccnt = GET_CCNT();
-        diff = DIFF_CCNT(last_ccnt, new_ccnt);
-    } while (ccnt_to_ms(diff) < 33);
+        return scheduler_enqueue_task(&ui_task, arg);
+    }
     last_ccnt = new_ccnt;
 
     static int32_t i = 0;

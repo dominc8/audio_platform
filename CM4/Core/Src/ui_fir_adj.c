@@ -260,7 +260,7 @@ static void force_coeffs_in_range(void)
         for (int32_t idx = 0; idx <= MAX_FIR_ORDER; ++idx)
         {
             float coeff = fir_coeffs[ch][idx];
-            if ((coeff < FIR_COEFF_MIN) || (coeff > FIR_COEFF_MAX))
+            if ((coeff < FIR_COEFF_MIN) || (coeff > FIR_COEFF_MAX) || (isnan(coeff)))
             {
                 fir_coeffs[ch][idx] = 0.F;
                 ++n_reset;

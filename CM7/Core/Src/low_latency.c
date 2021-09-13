@@ -12,10 +12,11 @@
 #include "biquad.h"
 #include "arm_math.h"
 #include "trace.h"
+#include "math.h"
 
 /* Private define ------------------------------------------------------------*/
 #define AUDIO_BLOCK_SIZE            ((uint32_t)2)
-#define N_AUDIO_BLOCKS              ((uint32_t)64)
+#define N_AUDIO_BLOCKS              ((uint32_t)8)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 #define FFT_N_SAMPLES               ((uint32_t)256)
 #define FFT_GAMMA_SHIFT             (3)
@@ -123,20 +124,25 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
 /* Private function prototypes -----------------------------------------------*/
 static void init_mdma(void);
 static void deinit_mdma(void);
+static void setup_n_freq_in_bins(int32_t *n_freq_in_bins, int32_t n_freqs);
 static void setup_filters(void);
 static void sync_dsp_filters(uint32_t dsp_mask);
-static void update_fft_bins_channel(float *new_fft, int32_t channel);
+static void update_fft_bins_channel(float *new_fft, const int32_t *n_freq_in_bins, int32_t channel);
 static void apply_gamma_fft_bins_channel(int32_t channel);
 static inline float fft_power(float re, float im);
 
 /*----------------------------------------------------------------------------*/
 void low_latency(void)
 {
+    int32_t n_freq_in_bins[SHARED_FFT_SIZE];
+
     const uint32_t audio_freq = 48000;
     const uint32_t audio_resolution = 32;
     int32_t tmp_idx = 0;
+    int32_t already_copied = 0;
     arm_rfft_fast_instance_f32 arm_rfft;
     arm_rfft_fast_init_f32(&arm_rfft, FFT_N_SAMPLES);
+    setup_n_freq_in_bins(&n_freq_in_bins[0], FFT_N_SAMPLES / 2);
 
     while (lock_hsem(HSEM_I2C4))
         ;
@@ -162,20 +168,25 @@ void low_latency(void)
     {
         if (0 == (buf_out_idx % AUDIO_BUFFER_SIZE))
         {
+            if (already_copied == 1)
+                continue;
+            already_copied = 1;
             uint32_t start = GET_CCNT();
             float *audio_left = &audio_tmp[0][tmp_idx];
             float *audio_right = &audio_tmp[1][tmp_idx];
             int32_t *audio_out = &audio_buffer_out[0];
             int32_t i;
+            int32_t n_samples = (AUDIO_BUFFER_SIZE > (2 * FFT_N_SAMPLES) ?
+                            (2 * FFT_N_SAMPLES) : AUDIO_BUFFER_SIZE);
 
-            for (i = AUDIO_BUFFER_SIZE; i > 0; i -= 2)
+            for (i = n_samples; i > 0; i -= 2)
             {
                 /* >> 8 because of 24bit samples being positioned that way,
                  * prevents potential overflows */
                 *audio_left++ = *audio_out++ >> 8;
                 *audio_right++ = *audio_out++ >> 8;
             }
-            tmp_idx += AUDIO_BUFFER_SIZE / 2;
+            tmp_idx += n_samples / 2;
             tmp_idx %= FFT_N_SAMPLES;
 
             if (0 == tmp_idx && new_data_flag < SHARED_FFT_SLICE_RATE)
@@ -198,13 +209,13 @@ void low_latency(void)
                 arm_rfft_fast_f32(&arm_rfft, &audio_tmp[0][0], &audio_fft[0], 0);
                 audio_fft[0] *= 0.5F;
                 audio_fft[1] *= 0.5F;
-                update_fft_bins_channel(&audio_fft[0], 0);
+                update_fft_bins_channel(&audio_fft[0], &n_freq_in_bins[0], 0);
 
                 // right
                 arm_rfft_fast_f32(&arm_rfft, &audio_tmp[1][0], &audio_fft[0], 0);
                 audio_fft[0] *= 0.5F;
                 audio_fft[1] *= 0.5F;
-                update_fft_bins_channel(&audio_fft[0], 1);
+                update_fft_bins_channel(&audio_fft[0], &n_freq_in_bins[0], 1);
 
                 ++new_data_flag;
 
@@ -217,6 +228,10 @@ void low_latency(void)
             uint32_t stop = GET_CCNT();
             gather_and_log_fft_time(DIFF_CCNT(start, stop));
 
+        }
+        else
+        {
+            already_copied = 0;
         }
         uint32_t dsp_mask = dsp_update_mask;
         if (dsp_mask != 0)
@@ -237,13 +252,10 @@ void low_latency(void)
 
 }
 
-static void update_fft_bins_channel(float *new_fft, int32_t channel)
+static void update_fft_bins_channel(float *new_fft, const int32_t *n_freq_in_bins, int32_t channel)
 {
-    static const int32_t n_freq_in_bins[SHARED_FFT_SIZE] =
-    { 1, 2, 2, 4, 4, 5, 5, 8, 8, 10, 10, 12, 12, 14, 14, 15 };
-
     int32_t i = 0;
-    for (int32_t bin = 0; bin < 16; ++bin)
+    for (int32_t bin = 0; bin < SHARED_FFT_SIZE; ++bin)
     {
         float peak_in_bin = 0.F;
         for (int32_t freq_idx = 0; freq_idx < n_freq_in_bins[bin]; ++freq_idx)
@@ -279,6 +291,30 @@ static void apply_gamma_fft_bins_channel(int32_t channel)
 static inline float fft_power(float re, float im)
 {
     return __builtin_sqrtf(re * re + im * im / (1 << 24));
+}
+
+static void setup_n_freq_in_bins(int32_t *n_freq_in_bins, int32_t n_freqs)
+{
+    const int32_t n_bins = SHARED_FFT_SIZE;
+	int32_t f_start = 0;
+
+	for (int32_t i = 0; i < n_bins; i++) {
+		int32_t f_end = (powf(((float)(i + 1)) /
+			(float)n_bins, 2) * n_freqs);
+		int f_width;
+
+		if (f_end > n_freqs)
+			f_end = n_freqs;
+
+		f_width = f_end - f_start;
+		if (f_width <= 0)
+        {
+			f_width = 1;
+            f_end = f_start + 1;
+        }
+        n_freq_in_bins[i] = f_width;
+		f_start = f_end;
+	}
 }
 
 static void setup_filters(void)
