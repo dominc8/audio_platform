@@ -1,6 +1,7 @@
 #include "fir.h"
 #include "dsp_utils.h"
 
+__attribute__(( optimize("-O3") ))
 int32_t fir_f32(fir_f32_t *f, int32_t in)
 {
     float *coeff_ptr = &f->coeff[0];
@@ -52,6 +53,7 @@ int32_t fir_f32(fir_f32_t *f, int32_t in)
     return acc1;
 }
 
+__attribute__(( optimize("-O2") ))
 int32_t fir_q31(fir_q31_t *f, int32_t in)
 {
     int32_t *coeff_ptr = &f->coeff[0];
