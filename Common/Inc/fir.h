@@ -22,11 +22,11 @@ typedef struct fir_q31_t
 } fir_q31_t;
 
 #if defined(CORE_CM4)
-int32_t fir_f32(fir_f32_t *f, int32_t in); // __attribute__((section(".RAM_EXEC")));
-int32_t fir_q31(fir_q31_t *f, int32_t in); // __attribute__((section(".RAM_EXEC")));
+int32_t fir_f32(fir_f32_t *f, int32_t in) __attribute__(( optimize("-O3") )); // __attribute__((section(".RAM_EXEC")));
+int32_t fir_q31(fir_q31_t *f, int32_t in) __attribute__(( optimize("-O2") )); // __attribute__((section(".RAM_EXEC")));
 #elif defined(CORE_CM7)
-int32_t fir_f32(fir_f32_t *f, int32_t in); // __attribute__((section(".ITCM_RAM")));
-int32_t fir_q31(fir_q31_t *f, int32_t in); // __attribute__((section(".ITCM_RAM")));
+int32_t fir_f32(fir_f32_t *f, int32_t in) __attribute__(( optimize("-O3") )); // __attribute__((section(".ITCM_RAM")));
+int32_t fir_q31(fir_q31_t *f, int32_t in) __attribute__(( optimize("-O2") )); // __attribute__((section(".ITCM_RAM")));
 #else
 int32_t fir_f32(fir_f32_t *f, int32_t in);
 int32_t fir_q31(fir_q31_t *f, int32_t in);

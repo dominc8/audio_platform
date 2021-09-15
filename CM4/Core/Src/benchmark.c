@@ -9,13 +9,13 @@
 #define N_FIR_BM            5
 #define N_BIQUAD_BM         5
 #define N_FFT_BM            4
-#define TAPS_LEN            5
+#define TAPS_LEN            6
 #define STAGES_LEN          5
 #define BLOCK_SIZE_LEN      6
 #define FFT_SIZE_LEN        5
 
 static const int32_t taps_arr[TAPS_LEN] =
-{ 5, 10, 20, 50, 100 };
+{ 5, 10, 20, 50, 100, 128 };
 static const int32_t stages_arr[STAGES_LEN] =
 { 1, 4, 8, 12, 16 };
 static const int32_t block_size_arr[BLOCK_SIZE_LEN] =
@@ -296,7 +296,7 @@ static void benchmark_biquad_q31(void)
 {
     arm_biquad_casd_df1_inst_q31 biquad_inst;
 
-    logg(LOG_INF, "M4 BIQUAD Q32:");
+    logg(LOG_INF, "M4 BIQUAD Q31:");
 
     for (int32_t stage_idx = 0; stage_idx < STAGES_LEN; ++stage_idx)
     {
@@ -507,9 +507,9 @@ void benchmark(void)
     {
         biquad_benchmarks[bm]();
     }
-    for (int32_t bm = 0; bm < N_FFT_BM; ++bm)
-    {
-        fft_benchmarks[bm]();
-    }
+    // for (int32_t bm = 0; bm < N_FFT_BM; ++bm)
+    // {
+    //     fft_benchmarks[bm]();
+    // }
 }
 
