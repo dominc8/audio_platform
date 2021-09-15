@@ -15,7 +15,7 @@ int32_t fir_f32(fir_f32_t *f, int32_t in)
 
     for (; n_block != 0; n_block--)
     {
-        a1 = *coeff_ptr++;
+        a1 = *coeff_ptr++; // vldr
         a2 = *coeff_ptr++;
         a3 = *coeff_ptr++;
         a4 = *coeff_ptr++;
@@ -24,12 +24,12 @@ int32_t fir_f32(fir_f32_t *f, int32_t in)
         s3 = *(sample_ptr + 3);
         s4 = *(sample_ptr + 4);
 
-        acc1 += a1 * s1;
+        acc1 += a1 * s1; // vfma.f32
         acc2 += a2 * s2;
         acc3 += a3 * s3;
         acc4 += a4 * s4;
 
-        *sample_ptr++ = s1;
+        *sample_ptr++ = s1; // vstr
         *sample_ptr++ = s2;
         *sample_ptr++ = s3;
         *sample_ptr++ = s4;
@@ -67,14 +67,14 @@ int32_t fir_q31(fir_q31_t *f, int32_t in)
 
     for (; n_block != 0; n_block--)
     {
-        a1 = *coeff_ptr++;
+        a1 = *coeff_ptr++; // ldr
         a2 = *coeff_ptr++;
         s1 = *(sample_ptr + 1);
         s2 = *(sample_ptr + 2);
         s3 = *(sample_ptr + 3);
         s4 = *(sample_ptr + 4);
 
-        acc1 = smmlar(a1, s1, acc1);
+        acc1 = smmlar(a1, s1, acc1); // smmlar
         acc2 = smmlar(a2, s2, acc2);
 
         a1 = *coeff_ptr++;
@@ -83,7 +83,7 @@ int32_t fir_q31(fir_q31_t *f, int32_t in)
         acc1 = smmlar(a1, s3, acc1);
         acc2 = smmlar(a2, s4, acc2);
 
-        *sample_ptr++ = s1;
+        *sample_ptr++ = s1; // str
         *sample_ptr++ = s2;
         *sample_ptr++ = s3;
         *sample_ptr++ = s4;
