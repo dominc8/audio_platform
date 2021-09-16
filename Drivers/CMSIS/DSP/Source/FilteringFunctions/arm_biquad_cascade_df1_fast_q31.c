@@ -61,6 +61,10 @@
  * Use the function <code>arm_biquad_cascade_df1_init_q31()</code> to initialize the filter structure.
  */
 
+
+#if defined(ARM_MATH_CM7)
+__attribute__(( optimize("-O2") ))
+#endif
 void arm_biquad_cascade_df1_fast_q31(
   const arm_biquad_casd_df1_inst_q31 * S,
   q31_t * pSrc,

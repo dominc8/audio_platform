@@ -68,7 +68,7 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
 static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self,
         const TS_MultiTouch_State_t *touch_state, int32_t button_state, JOYPin_TypeDef joy_pin)
 {
-    UI_STATE next_state = UI_STATE_BENCHMARK;
+    UI_STATE next_state = UI_STATE_START_SCREEN;
     uint32_t x_size;
     uint32_t y_size;
     (void) touch_state;
@@ -83,8 +83,7 @@ static UI_STATE handle_ui_run_m4_benchmark(ui_state_t *self,
     benchmark();
     --n_m7_bm_left;
 
-    self->f_handle_ui = &handle_ui;
-
+    self->f_handle_ui = &handle_ui_init;
     return next_state;
 }
 

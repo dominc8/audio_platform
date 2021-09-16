@@ -499,10 +499,10 @@ static void (*fft_benchmarks[N_FFT_BM])(void) =
 void benchmark(void)
 {
     logg(LOG_INF, "Running M4 benchmarks ...");
-    for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
-    {
-        fir_benchmarks[bm]();
-    }
+    // for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
+    // {
+    //     fir_benchmarks[bm]();
+    // }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm)
     {
         biquad_benchmarks[bm]();

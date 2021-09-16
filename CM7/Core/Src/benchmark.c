@@ -1133,21 +1133,21 @@ static EVENT_ID bm_fft_events[N_FFT_BM] =
 void benchmark(void)
 {
     n_m7_bm_left = N_FIR_BM + N_BIQUAD_BM + N_FFT_BM;
-    // for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
-    // {
-    //     uint32_t result = biquad_benchmarks[bm]();
-    //     event e =
-    //     { .id = bm_biquad_events[bm], .val = result };
-    //     eq_m7_add_event(e);
-    // }
-    for (int32_t bm = 0; bm < N_FIR_BM; ++bm, --n_m7_bm_left)
+    for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
     {
-        uint32_t result = fir_benchmarks[bm]();
+        uint32_t result = biquad_benchmarks[bm]();
         event e =
-        { .id = bm_fir_events[bm], .val = result };
+        { .id = bm_biquad_events[bm], .val = result };
         eq_m7_add_event(e);
     }
     n_m7_bm_left = 0;
+    //for (int32_t bm = 0; bm < N_FIR_BM; ++bm, --n_m7_bm_left)
+    //{
+    //    uint32_t result = fir_benchmarks[bm]();
+    //    event e =
+    //    { .id = bm_fir_events[bm], .val = result };
+    //    eq_m7_add_event(e);
+    //}
     // for (int32_t bm = 0; bm < N_FFT_BM; ++bm, --n_m7_bm_left)
     // {
     //     uint32_t result = fft_benchmarks[bm]();
