@@ -25,8 +25,8 @@ static const int32_t fft_size_arr[FFT_SIZE_LEN] =
 
 static int32_t data_in[2048] __attribute__ ((aligned (32)));
 static int32_t data_out[2048] __attribute__ ((aligned (32)));
-static int32_t coeff[100] __attribute__ ((aligned (32)));
-static int32_t state[100 + 256 - 1] __attribute__ ((aligned (32)));
+static int32_t coeff[128] __attribute__ ((aligned (32)));
+static int32_t state[128 + 256 - 1] __attribute__ ((aligned (32)));
 
 static fir_f32_t fir_f32_inst;
 static fir_q31_t fir_q31_inst;
@@ -499,17 +499,17 @@ static void (*fft_benchmarks[N_FFT_BM])(void) =
 void benchmark(void)
 {
     logg(LOG_INF, "Running M4 benchmarks ...");
-    // for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
-    // {
-    //     fir_benchmarks[bm]();
-    // }
+    for (int32_t bm = 0; bm < N_FIR_BM; ++bm)
+    {
+        fir_benchmarks[bm]();
+    }
     for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm)
     {
         biquad_benchmarks[bm]();
     }
-    // for (int32_t bm = 0; bm < N_FFT_BM; ++bm)
-    // {
-    //     fft_benchmarks[bm]();
-    // }
+    for (int32_t bm = 0; bm < N_FFT_BM; ++bm)
+    {
+        fft_benchmarks[bm]();
+    }
 }
 

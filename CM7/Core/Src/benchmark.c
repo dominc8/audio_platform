@@ -28,13 +28,13 @@ static const int32_t fft_size_arr[FFT_SIZE_LEN] =
 
 static int32_t dtcm_in[2048] __attribute__ ((aligned (32)));
 static int32_t dtcm_out[2048] __attribute__ ((aligned (32)));
-static int32_t dtcm_coeff[100] __attribute__ ((aligned (32)));
-static int32_t dtcm_state[100 + 256 - 1] __attribute__ ((aligned (32)));
+static int32_t dtcm_coeff[128] __attribute__ ((aligned (32)));
+static int32_t dtcm_state[128 + 256 - 1] __attribute__ ((aligned (32)));
 
 static int32_t cached_in[2048] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
 static int32_t cached_out[2048] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static int32_t cached_coeff[100] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
-static int32_t cached_state[100 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_coeff[128] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
+static int32_t cached_state[128 + 256 - 1] __attribute__ ((aligned (32))) __attribute__ ((section(".AXI_SRAM")));
 
 static fir_q31_t dtcm_fir_q31_inst;
 static fir_q31_t cached_fir_q31_inst __attribute__ ((section(".AXI_SRAM")));
@@ -1133,21 +1133,21 @@ static EVENT_ID bm_fft_events[N_FFT_BM] =
 void benchmark(void)
 {
     n_m7_bm_left = N_FIR_BM + N_BIQUAD_BM + N_FFT_BM;
-    for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
+    //for (int32_t bm = 0; bm < N_BIQUAD_BM; ++bm, --n_m7_bm_left)
+    //{
+    //    uint32_t result = biquad_benchmarks[bm]();
+    //    event e =
+    //    { .id = bm_biquad_events[bm], .val = result };
+    //    eq_m7_add_event(e);
+    //}
+    for (int32_t bm = 0; bm < N_FIR_BM; ++bm, --n_m7_bm_left)
     {
-        uint32_t result = biquad_benchmarks[bm]();
+        uint32_t result = fir_benchmarks[bm]();
         event e =
-        { .id = bm_biquad_events[bm], .val = result };
+        { .id = bm_fir_events[bm], .val = result };
         eq_m7_add_event(e);
     }
     n_m7_bm_left = 0;
-    //for (int32_t bm = 0; bm < N_FIR_BM; ++bm, --n_m7_bm_left)
-    //{
-    //    uint32_t result = fir_benchmarks[bm]();
-    //    event e =
-    //    { .id = bm_fir_events[bm], .val = result };
-    //    eq_m7_add_event(e);
-    //}
     // for (int32_t bm = 0; bm < N_FFT_BM; ++bm, --n_m7_bm_left)
     // {
     //     uint32_t result = fft_benchmarks[bm]();
