@@ -160,7 +160,7 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
-  
+
 
   /* Remove information from the standard libraries */
   /DISCARD/ :
@@ -174,7 +174,19 @@ SECTIONS
   .RAM_D3 : { *(.RAM_D3) } >SRAM4
   .RAM3_SHARED : { *(.RAM3_SHARED) } >SRAM3
   .AXI_SRAM : { *(.AXI_SRAM) } >AXISRAM
-  .ITCM_RAM : { *(.ITCM_RAM) } >ITCMRAM
+
+  _siitcmram = LOADADDR(.ITCM_RAM);
+
+  .ITCM_RAM :
+  {
+    . = ALIGN(4);
+    _sitcmram = .;        /* create a global symbol at data start */
+    *(.ITCM_RAM)           /* .data sections */
+    *(.ITCM_RAM*)          /* .data* sections */
+
+    . = ALIGN(4);
+    _eitcmram = .;        /* define a global symbol at data end */
+  } >ITCMRAM AT> FLASH
 }
 
 

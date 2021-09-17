@@ -45,6 +45,10 @@ defined in linker script */
 .word  _ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
 
+.word  _siitcmram
+.word  _sitcmram
+.word  _eitcmram
+
 /**
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely
@@ -97,6 +101,20 @@ LoopCopyDataInit:
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
+  movs r1, #0
+  b  LoopCopyDataInitITCM
+/* Fill ITCM ram section with source code */
+CopyDataInitITCM:
+  ldr r3, =_siitcmram
+  ldr r3, [r3, r1]
+  str r3, [r0, r1]
+  adds r1, r1, #4
+LoopCopyDataInitITCM:
+  ldr r0, =_sitcmram
+  ldr r3, =_eitcmram
+  adds r2, r0, r1
+  cmp r2, r3
+  bcc CopyDataInitITCM
   ldr  r2, =_sbss
   b  LoopFillZerobss
 /* Zero fill the bss segment. */
