@@ -1,5 +1,4 @@
 #include "scheduler.h"
-#include "logger.h"
 #include <stddef.h>
 
 #define QUEUE_SIZE 8  /* Must be power of 2 */
@@ -43,7 +42,6 @@ int32_t scheduler_enqueue_task(task t, void *arg)
 {
     if (scheduler_ctx.n_used == scheduler_ctx.size)
     {
-        logg(LOG_WRN, "enqueue=-1, scheduler_ctx: %d, %d, %d, %d", scheduler_ctx.begin, scheduler_ctx.end, scheduler_ctx.n_used, scheduler_ctx.size);
         return -1;
     }
 
@@ -60,7 +58,6 @@ int32_t scheduler_dequeue_task(void)
 {
     if (scheduler_ctx.n_used == 0)
     {
-        logg(LOG_WRN, "dequeue=-1, scheduler_ctx: %d, %d, %d, %d", scheduler_ctx.begin, scheduler_ctx.end, scheduler_ctx.n_used, scheduler_ctx.size);
         return -1;
     }
 
