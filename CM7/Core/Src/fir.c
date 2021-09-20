@@ -74,7 +74,7 @@ int32_t fir_q31(fir_q31_t *f, int32_t in)
         s3 = *(sample_ptr + 3);
         s4 = *(sample_ptr + 4);
 
-        acc1 = smmlar(a1, s1, acc1); // smmlar
+        acc1 = smmlar(a1, s1, acc1); // smmlar = a1 * s1 + acc1
         acc2 = smmlar(a2, s2, acc2);
 
         a1 = *coeff_ptr++;
