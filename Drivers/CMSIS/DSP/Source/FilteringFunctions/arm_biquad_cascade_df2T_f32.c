@@ -147,8 +147,8 @@ int32_t * pDst,
 uint32_t blockSize)
 {
 
-   float32_t *pIn = pSrc;                         /*  source pointer            */
-   float32_t *pOut = pDst;                        /*  destination pointer       */
+   int32_t *pIn = pSrc;                           /*  source pointer            */
+   int32_t *pOut = pDst;                          /*  destination pointer       */
    float32_t *pState = S->pState;                 /*  State pointer             */
    float32_t *pCoeffs = S->pCoeffs;               /*  coefficient pointer       */
    float32_t acc1;                                /*  accumulator               */
