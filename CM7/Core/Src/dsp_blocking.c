@@ -54,6 +54,7 @@ static arm_biquad_f32_wrapper arm_biquad_right;
 
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
+static volatile int32_t new_data_for_fft;
 static MDMA_HandleTypeDef hmdma;
 static MDMA_LinkNodeTypeDef ll_node __attribute__ ((section(".AXI_SRAM")));
 static void refresh_mdma(void);
@@ -148,6 +149,7 @@ static void mdma_callback(MDMA_HandleTypeDef *_hmdma)
             sizeof(audio_buffer_in));
 
 #endif
+    new_data_for_fft = 1;
 
     uint32_t stop = GET_CCNT();
     gather_and_log_dsp_time(DIFF_CCNT(start, stop));
@@ -207,6 +209,7 @@ void dsp_blocking(void)
 #endif
 
     err_cnt = 0;
+    new_data_for_fft = 0;
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
     dsp_update_mask = 0;
 
@@ -245,8 +248,9 @@ void dsp_blocking(void)
             tmp_idx += n_samples / 2;
             tmp_idx %= FFT_N_SAMPLES;
 
-            if (0 == tmp_idx && new_data_flag < SHARED_FFT_SLICE_RATE)
+            if (1 == new_data_for_fft && 0 == tmp_idx && new_data_flag < SHARED_FFT_SLICE_RATE)
             {
+                new_data_for_fft = 0;
                 if (0 == new_data_flag)
                 {
                     memcpy(&last_fft_bins[0][0], (const void*) &shared_fft[0][0],
