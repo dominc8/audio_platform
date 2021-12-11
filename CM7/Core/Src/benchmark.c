@@ -1214,13 +1214,12 @@ void benchmark(void)
         { .id = bm_fir_events[bm], .val = result };
         eq_m7_add_event(e);
     }
-    n_m7_bm_left = 0;
-    // for (int32_t bm = 0; bm < N_FFT_BM; ++bm, --n_m7_bm_left)
-    // {
-    //     uint32_t result = fft_benchmarks[bm]();
-    //     event e =
-    //     { .id = bm_fft_events[bm], .val = result };
-    //     eq_m7_add_event(e);
-    // }
+    for (int32_t bm = 0; bm < N_FFT_BM; ++bm, --n_m7_bm_left)
+    {
+        uint32_t result = fft_benchmarks[bm]();
+        event e =
+        { .id = bm_fft_events[bm], .val = result };
+        eq_m7_add_event(e);
+    }
 }
 

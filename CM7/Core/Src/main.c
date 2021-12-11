@@ -17,9 +17,6 @@ static void CPU_CACHE_Enable(void);
 int main(void)
 {
     int32_t timeout;
-    /* System Init, System clock, voltage scaling and L1-Cache configuration are done by CPU1 (Cortex-M7)
-     in the meantime Domain D2 is put in STOP mode(Cortex-M4 in deep-sleep)
-     */
 
     /* Wait until CPU2 boots and enters in stop mode or timeout*/
     timeout = 0xFFFF;
@@ -30,24 +27,10 @@ int main(void)
         Error_Handler();
     }
 
-    /* Configure the MPU attributes as Write Through */
     MPU_Config();
-
-    /* Enable the CPU Cache */
     CPU_CACHE_Enable();
 
-    /* STM32H7xx HAL library initialization:
-     - Systick timer is configured by default as source of time base, but user
-     can eventually implement his proper time base source (a general purpose
-     timer for example or other time source), keeping in mind that Time base
-     duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and
-     handled in milliseconds basis.
-     - Set NVIC Group Priority to 4
-     - Low Level Initialization
-     */
     HAL_Init();
-
-    /* Configure the system clock to 400 MHz */
     SystemClock_Config();
 
     /* When system initialization is finished, Cortex-M7 could wakeup (when needed) the Cortex-M4  by means of

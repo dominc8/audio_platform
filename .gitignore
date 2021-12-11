@@ -7,3 +7,4 @@ CM7/Release
 *.xml
 *.o
 *.a
+.cache

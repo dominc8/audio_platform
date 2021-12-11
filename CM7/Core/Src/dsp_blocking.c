@@ -16,7 +16,7 @@
 #include "trace.h"
 
 /* Private define ------------------------------------------------------------*/
-#define AUDIO_BLOCK_SIZE            ((uint32_t)512)
+#define AUDIO_BLOCK_SIZE            ((uint32_t)256)
 #define N_AUDIO_BLOCKS              ((uint32_t)4)
 #define AUDIO_BUFFER_SIZE           ((uint32_t)(AUDIO_BLOCK_SIZE * N_AUDIO_BLOCKS))
 #define FFT_N_SAMPLES               ((uint32_t)512)
@@ -54,7 +54,6 @@ static arm_biquad_f32_wrapper arm_biquad_right;
 
 static volatile int32_t buf_out_idx = 0;
 static volatile int32_t err_cnt;
-static volatile int32_t race_cnt;
 static MDMA_HandleTypeDef hmdma;
 static MDMA_LinkNodeTypeDef ll_node __attribute__ ((section(".AXI_SRAM")));
 static void refresh_mdma(void);
@@ -208,7 +207,6 @@ void dsp_blocking(void)
 #endif
 
     err_cnt = 0;
-    race_cnt = 0;
     buf_out_idx = AUDIO_BUFFER_SIZE / 2;
     dsp_update_mask = 0;
 
