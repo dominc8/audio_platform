@@ -6,6 +6,7 @@
 #include "perf_meas.h"
 #include "logger.h"
 #include "ui_utils.h"
+#include <string.h>
 
 #define N_FFT_BIN_LEVELS    133
 
@@ -123,6 +124,7 @@ static UI_STATE handle_ui_init(ui_state_t *self, const TS_MultiTouch_State_t *to
     init_fft_bin();
 
     self->f_handle_ui = &handle_ui;
+    memcpy((void*)LCD_LAYER_1_ADDRESS, (void*)LCD_LAYER_0_ADDRESS, LCD_LAYER_1_ADDRESS - LCD_LAYER_0_ADDRESS);
     logg(LOG_DBG, "handle_ui_init in ui_fft");
     return UI_STATE_AUDIO_VISUALIZATION;
 }
@@ -224,16 +226,22 @@ static void display_fft(void)
     { 150, 300 };
     const int32_t ymax = N_FFT_BIN_LEVELS;
 
+    GUI_SetLayer(1);
     for (int32_t channel = 0; channel < 2; ++channel)
     {
-        GUI_FillRect(bin_width >> 1, y0[channel], bin_width * SHARED_FFT_SIZE, ymax,
-        GUI_COLOR_BLACK);
-        for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
-        {
-            int32_t val = limit_val(shared_fft[channel][i], ymax);
-            draw_bin(val, i, bin_width, y0[channel]);
-        }
+            GUI_FillRect(bin_width >> 1, y0[channel], bin_width * SHARED_FFT_SIZE, ymax,
+            GUI_COLOR_BLACK);
+            for (int32_t i = 0; i < SHARED_FFT_SIZE; ++i)
+            {
+                int32_t val = limit_val(shared_fft[channel][i], ymax);
+                draw_bin(val, i, bin_width, y0[channel]);
+            }
     }
+    GUI_SetLayer(0);
+    uint32_t old_layer_address = hlcd_ltdc.LayerCfg[0].FBStartAdress;
+    uint32_t new_layer_address = hlcd_ltdc.LayerCfg[1].FBStartAdress;
+    hlcd_ltdc.LayerCfg[1].FBStartAdress = old_layer_address;
+    BSP_LCD_SetLayerAddress(0, 0, new_layer_address);
 
 }
 

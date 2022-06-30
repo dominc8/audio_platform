@@ -344,6 +344,8 @@ int32_t BSP_LCD_InitEx(uint32_t Instance, uint32_t Orientation, uint32_t PixelFo
       }
       else
       {
+        /* Hacky way to setup layer1 address used as double buffer for layer0 */
+        hlcd_ltdc.LayerCfg[1].FBStartAdress = LCD_LAYER_1_ADDRESS;
         /* Enable the DSI host and wrapper after the LTDC initialization
         To avoid any synchronization issue, the DSI shall be started after enabling the LTDC */
         (void)HAL_DSI_Start(&hlcd_dsi);
